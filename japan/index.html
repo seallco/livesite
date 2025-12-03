@@ -1,803 +1,389 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大阪京都5天4夜精緻旅程</title>
+    <title>大阪京都5天4夜</title>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* 之前的所有CSS樣式保持不變 */
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
-        
-        :root {
-            --gradient-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            --gradient-accent: linear-gradient(135deg, #e94560 0%, #533483 100%);
-            --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%);
-            --primary: #16213e;
-            --secondary: #e94560;
-            --accent: #533483;
-            --light: #ffffff;
-            --dark: #1a1a2e;
-            --glass: rgba(255, 255, 255, 0.1);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Noto Sans TC', sans-serif;
-        }
-        
-        body {
-            background: var(--gradient-primary);
-            color: var(--dark);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-        
-        .hero-container {
-            position: relative;
-            width: 100%;
-            height: 80vh;
-            overflow: hidden;
-        }
-        
-        .hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            transition: transform 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .hero-image:hover {
-            transform: scale(1.05);
-        }
-        
-        .hero-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60%;
-            background: linear-gradient(to bottom, transparent, var(--dark));
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 2rem;
-            color: var(--light);
-        }
-        
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 900;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        .hero-subtitle {
-            font-size: 1.5rem;
-            opacity: 0.9;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-        }
-        
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-            position: sticky;
-            top: 0;
-            background: var(--dark);
-            padding: 1rem;
-            z-index: 1000;
-        }
-        
-        .nav-tab {
-            padding: 0.8rem 2rem;
-            background: var(--glass);
-            color: var(--light);
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .nav-tab:hover,
-        .nav-tab.active {
-            background: var(--secondary);
-            transform: translateY(-2px);
-        }
-        
-        .day-card {
-            background: var(--gradient-card);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .day-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .day-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--secondary);
-        }
-        
-        .day-header i {
-            font-size: 2.5rem;
-            color: var(--secondary);
-            margin-right: 1rem;
-        }
-        
-        .day-header h2 {
-            font-size: 2rem;
-            color: var(--primary);
-            font-weight: 900;
-        }
-        
-        .timeline {
-            position: relative;
-            padding-left: 2rem;
-        }
-        
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 3px;
-            background: linear-gradient(to bottom, var(--secondary), var(--accent));
-            border-radius: 3px;
-        }
-        
-        .timeline-item {
-            position: relative;
-            padding: 1.5rem 0;
-        }
-        
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -2rem;
-            top: 2rem;
-            width: 1rem;
-            height: 1rem;
-            border-radius: 50%;
-            background: var(--secondary);
-            border: 3px solid var(--light);
-            box-shadow: 0 0 0 3px var(--secondary);
-        }
-        
-        .time {
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .event {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 1.5rem;
-            border-radius: 15px;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
-        }
-        
-        .event:hover {
-            transform: translateX(10px);
-        }
-        
-        .event h3 {
-            color: var(--primary);
-            margin-bottom: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            font-size: 1.2rem;
-        }
-        
-        .event a {
-            color: var(--accent);
-            text-decoration: none;
-            transition: color 0.3s ease;
-            font-weight: 500;
-        }
-        
-        .event a:hover {
-            color: var(--secondary);
-            text-decoration: underline;
-        }
-        
-        .transport-info {
-            background: rgba(83, 52, 131, 0.1);
-            border-radius: 10px;
-            padding: 0.8rem 1rem;
-            margin-top: 0.8rem;
-            font-size: 0.9em;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-        
-        .price-tag {
-            background: var(--secondary);
-            color: var(--light);
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-left: auto;
-            font-weight: 500;
-        }
-        
-        .info-box {
-            background: rgba(233, 69, 96, 0.1);
-            border-left: 4px solid var(--secondary);
-            padding: 1rem;
-            margin: 1rem 0;
-        }
-        
-        @media (max-width: 768px) {
-            .hero-container {
-                height: 50vh;
-            }
-            
-            .hero-title {
-                font-size: 2rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-            
-            .container {
-                padding: 1rem;
-            }
-            
-            .day-card {
-                padding: 1.5rem;
-            }
-            
-            .timeline {
-                padding-left: 1.5rem;
-            }
-            
-            .timeline-item::before {
-                left: -1.5rem;
-            }
-        }
-        
-    </style>
-<style>
-    .fixed-nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: rgba(22, 33, 62, 0.85); /* 深色半透明背景 */
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        z-index: 1000;
-        padding: 12px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        padding: 0 20px;
-    }
-
-    .nav-link {
-        padding: 10px 24px;
-        color: rgba(255, 255, 255, 0.85);
-        text-decoration: none;
-        font-size: 15px;
-        font-weight: 500;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        letter-spacing: 0.5px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .nav-link:hover {
-        background: rgba(255, 255, 255, 0.15);
-        color: #ffffff;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .nav-link.active {
-        background: rgba(74, 144, 226, 0.3);
-        color: #ffffff;
-        border-color: rgba(74, 144, 226, 0.5);
-        box-shadow: 0 0 20px rgba(74, 144, 226, 0.2);
-    }
-
-    .nav-link::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.1),
-            transparent
-        );
-        transition: 0.5s;
-    }
-
-    .nav-link:hover::before {
-        left: 100%;
-    }
-
-    /* 為了防止內容被固定導航欄遮擋 */
-    body {
-        padding-top: 70px;
-    }
-
-    /* 確保平滑滾動 */
-    html {
-        scroll-behavior: smooth;
-        scroll-padding-top: 70px;
-    }
-
-    /* 響應式設計 */
-    @media (max-width: 768px) {
-        .nav-container {
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .nav-link {
-            font-size: 14px;
-            padding: 8px 16px;
-        }
-    }
-</style>
-
-<nav class="fixed-nav">
-    <div class="nav-container">
-        <a href="#day1" class="nav-link">第一天 - 大阪初體驗</a>
-        <a href="#day2" class="nav-link">第二天 - 神社道頓堀</a>
-        <a href="#day3" class="nav-link">第三天 - 寺廟參訪</a>
-        <a href="#day4" class="nav-link">第四天 - 京都之旅</a>
-        <a href="#day5" class="nav-link">第五天 - 回程</a>
-    </div>
-</nav>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const navLinks = document.querySelectorAll('.nav-link');
-        const sections = document.querySelectorAll('section');
-
-        function updateActiveLink() {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop - 100;
-                if (window.pageYOffset >= sectionTop) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${current}`) {
-                    link.classList.add('active');
-                }
-            });
-        }
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                document.querySelector(targetId).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        window.addEventListener('scroll', updateActiveLink);
-        updateActiveLink();
-    });
-</script>
-
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/index.js"></script>
 </head>
+
 <body>
-    
+    <nav class="fixed-nav">
+        <div class="nav-container">
+            <a href="#day1" class="nav-link">第一天 - 大阪</a>
+            <a href="#day2" class="nav-link">第二天 - 神社道頓堀</a>
+            <a href="#day3" class="nav-link">第三天 - 寺廟</a>
+            <a href="#day4" class="nav-link">第四天 - 京都</a>
+            <a href="#day5" class="nav-link">第五天 - 回程</a>
+        </div>
+    </nav>
+
     <div class="hero-container">
-        <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80" 
-             alt="大阪城市景觀" 
-             class="hero-image">
+        <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80"
+            alt="大阪城市景觀" class="hero-image">
         <div class="hero-overlay">
-            <h1 class="hero-title">大阪京都5天4夜精緻旅程</h1>
+            <h1 class="hero-title">大阪京都5天4夜</h1>
             <p class="hero-subtitle">2025年2月21日 - 2月25日</p>
         </div>
     </div>
-        
-                <!-- Day 1 -->
-                <div class="day-card" data-aos="fade-up" id="day1">
-                  <div class="day-header">
-                      <i class="fas fa-plane-departure"></i>
-                      <h2>Day 1 - 出發日・大阪初體驗（2/21 五）</h2>
-                  </div>
-                  
-                  <div class="timeline">
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 05:30
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-check-circle"></i>
-                                  桃園機場集合
-                              </h3>
-                              <p>第一航廈 - 7號櫃台</p>
-                              <div class="info-box">
-                                  <h4>出發前確認：</h4>
-                                  <ul>
-                                      <li><a href="https://www.vjw.digital.go.jp/" target="_blank">Visit Japan Web</a> 填寫完成</li>
-                                      <li>護照及相關證件備妥</li>
-                                      <li>日圓現金準備</li>
-                                  </ul>
-                              </div>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 07:00 - 10:25
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-plane"></i>
-                                  搭乘虎航 IT210
-                              </h3>
-                              <p>桃園機場 → 關西國際機場</p>
-                              <div class="transport-info">
-                                  <i class="fas fa-clock"></i>
-                                  飛行時間約3小時25分鐘
-                              </div>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 10:25 - 11:30
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-passport"></i>
-                                  入境手續
-                              </h3>
-                              <div class="info-box">
-                                  <h4>入境須知：</h4>
-                                  <ul>
-                                      <li>準備入境卡</li>
-                                      <li>Visit Japan Web QR Code</li>
-                                      <li>海關申報單</li>
-                                  </ul>
-                              </div>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 11:30 - 12:00
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-train"></i>
-                                  前往臨空城outlet
-                              </h3>
-                              <div class="transport-info">
-                                  <i class="fas fa-subway"></i>
-                                  地鐵20分鐘
-                              </div>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 12:00 - 12:20
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-suitcase"></i>
-                                  行李寄存
-                                  
-                              </h3>
-                              <div class="transport-info">
-                                  費用：<span class="price-tag">¥300/件</span>
-                              </div>
-                              <img src="1.png" alt="">
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 12:20 - 15:30
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-shopping-bag"></i>
-                                  臨空城outlet購物
-                              </h3>
-                              <p><a href="https://maps.app.goo.gl/EVWCVtYyN5EDnv2x8" target="_blank">臨空城 Premium Outlets 地址</a></p>
-                              <div class="info-box">
-                                  <h4>購物資訊：</h4>
-                                  <ul>
-                                      <li>午餐自由安排</li>
-                                      <li>分開行動・自由購物</li>
-                                      <li>商場營業時間：10:00-20:00</li>
-                                  </ul>
-                              </div>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 15:30 - 16:00
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-suitcase-rolling"></i>
-                                  集合取行李
-                              </h3>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 16:00 - 17:00
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-car"></i>
-                                  前往住宿
-                              </h3>
-                              <p>阪神預訂包車</p>
-                              <div class="transport-info">
-                                  <i class="fas fa-route"></i>
-                                  車程約45分鐘
-                              </div>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 17:00 - 17:20
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-hotel"></i>
-                                  住宿CHECK IN
-                                  <p><a href="https://maps.app.goo.gl/27A9U9pgGyrTxw8SA" target="_blank">民宿地址</a></p>
-                              </h3>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 17:20 - 20:30
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-store"></i>
-                                  梅田百貨公司
-                              </h3>
-                              <p><a href="https://maps.app.goo.gl/4Pr5LsUtWFfxGx5LA" target="_blank">阪急百貨梅田本店 地址</a></p>
-                              <div class="transport-info">
-                                  <i class="fas fa-walking"></i>
-                                  步行15分鐘
-                              </div>
-                              <div class="info-box">
-                                  <h4>購物資訊：</h4>
-                                  <ul>
-                                      <li>分開行動</li>
-                                      <li>營業時間：10:00-20:00</li>
-                                  </ul>
-                              </div>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 20:30 - 21:30
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-utensils"></i>
-                                  參觀藍天大樓-空中庭園展望台夜景
-                              </h3>
-                              <p><a href="https://maps.app.goo.gl/9QZ8x52dUU6X65Cx8" target="_blank">梅田空中庭園地址</a></p>
-                              <div class="transport-info">
-                                  <i class="fas fa-map-marker-alt"></i>
-                                  步行15分鐘
-                              </div>
-                          </div>
-                      </div>
-      
-                      <div class="timeline-item">
-                          <div class="time">
-                              <i class="far fa-clock"></i> 21:00
-                          </div>
-                          <div class="event">
-                              <h3>
-                                  <i class="fas fa-bed"></i>
-                                  回住宿休息
-                                  <p><a href="https://maps.app.goo.gl/27A9U9pgGyrTxw8SA" target="_blank">民宿地址</a></p>
-                              </h3>
-                              <div class="transport-info">
-                                  <i class="fas fa-walking"></i>
-                                  步行10分鐘
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-                      <!-- Day 2 -->
-        <div class="day-card" data-aos="fade-up" id="day2">
-          <div class="day-header">
-              <i class="fas fa-sun"></i>
-              <h2>Day 2 - 神社・道頓堀（2/22 六）</h2>
-          </div>
-          
-          <div class="timeline">
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 07:00 - 10:00
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-coffee"></i>
-                          木津市場(早午餐+逛接)
-                          <p><a href="https://maps.app.goo.gl/Q7wiEKkLvQhvcVWa7" target="_blank">木津市場地址</a></p>
-                      </h3>
-                      <div class="info-box">
-                          <p>地鐵前往30分鐘</p>
-                      </div>
-                  </div>
-              </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 10:00 - 11:00
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-castle"></i>
-                          難波八阪神社
-                      </h3>
-                      <span class="price-tag">門票 免費</span>
-                      <p><a href="https://maps.app.goo.gl/mzfbNTpYD7q9i9Lo7" target="_blank">八阪神社地址</a></p>
-                      <div class="transport-info">
-                          <i class="fas fa-subway"></i>
-                          地鐵約20分鐘
-                          
-                      </div>
-                      <div class="info-box">
-                          <h4>參觀重點：</h4>
-                          <ul>
-                              <li>西樓門：四条通東側的象徵性建築，為重要文化財</li>
-                              <li>本殿：國寶級建築，供奉主祭神</li>
-                              <li>舞殿：神社內最醒目的建築，也是重要文化財</li>
-                              <li>巨型燈籠：特別是夜晚點燈時非常美麗</li>
-                          <li> 參拜時間：24小時開放</li>
-                          <li> 主祭神：素戔嗚尊，祈求生意興隆、避邪去疾</li>
-                          <li>人氣御守：良緣御守特別有名</li>
-                      </div>
-                  </div>
-              </div>
+    <!-- Day 1 -->
+    <div class="day-card" data-aos="fade-up" id="day1">
+        <div class="day-header">
+            <i class="fas fa-plane-departure"></i>
+            <h2>Day 1 - 出發日・大阪（2/21 五）</h2>
+        </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 11:00 - 13:30
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-utensils"></i>
-                          道頓堀(午餐+逛街)
-                      </h3>
-                      <p><a href="https://maps.app.goo.gl/LztGEh6qazf4Z5tx8" target="_blank">道頓堀地址</a></p>
-                      <div class="transport-info">
-                          <i class="fas fa-subway"></i>
-                          步行約20分鐘
-                      </div>
-                      <div class="info-box">
-                          <h4>推薦美食：</h4>
-                          <ul>
-                              <li>牛村炸牛排</li>
-                              <li>大阪燒：美津濃或千房</li>
-                              <li>拉麵：金龍拉麵</li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 05:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-check-circle"></i>
+                        桃園機場集合
+                    </h3>
+                    <p>第一航廈 - 7號櫃台</p>
+                    <div class="info-box">
+                        <h4>出發前確認：</h4>
+                        <ul>
+                            <li><a href="https://www.vjw.digital.go.jp/" target="_blank">Visit Japan Web</a> 填寫完成</li>
+                            <li>護照及相關證件備妥</li>
+                            <li>日圓現金準備</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 13:30 - 16:30
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-shopping-bag"></i>
-                          心齋橋購物
-                      </h3>
-                      <p><a href="https://maps.app.goo.gl/TnzHVbLi9qFi7zz17" target="_blank">心齋橋筋商店街</a></p>
-                      <div class="transport-info">
-                          <i class="fas fa-walking"></i>
-                          步行10分鐘
-                      </div>
-                      <div class="info-box">
-                          <h4>購物重點：</h4>
-                          <ul>
-                              <li>大丸百貨 (高級精品、化妝品)</li>
-                              <li>BIC CAMERA（電器）</li>
-                              <li>UNIQLO旗艦店</li>
-                              <li>藥妝店 (松本清、Daikoku Drug、大國藥妝) </li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 07:00 - 10:25
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-plane"></i>
+                        搭乘虎航 IT210
+                    </h3>
+                    <p>桃園機場 → 關西國際機場</p>
+                    <div class="transport-info">
+                        <i class="fas fa-clock"></i>
+                        飛行時間約3小時25分鐘
+                    </div>
+                </div>
+            </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 16:30 - 18:00
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-spa"></i>
-                          唐吉訶德摩天輪
-                      </h3>
-                      <p><a href="https://maps.app.goo.gl/GhYkPVBHpMfDyoY96" target="_blank">摩天輪地址</a></p>
-                      <div class="transport-info">
-                          <i class="fas fa-subway"></i>
-                          搭乘一次約15分鐘
-                          <span class="price-tag">每人約600日圓</span>
-                      </div>
-                      <div class="info-box">
-                          <h4>設施資訊：</h4>
-                          <ul>
-                              <li>一節車廂四個坐位都是面向同一邊，上車坐定位後，車廂會緩緩地做180度的旋轉，朝向外側！</li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 10:25 - 11:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-passport"></i>
+                        入境手續
+                    </h3>
+                    <div class="info-box">
+                        <h4>入境須知：</h4>
+                        <ul>
+                            <li>準備入境卡</li>
+                            <li>Visit Japan Web QR Code</li>
+                            <li>海關申報單</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-              <div class="timeline-item">
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 11:30 - 12:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-train"></i>
+                        前往臨空城outlet
+                    </h3>
+                    <div class="transport-info">
+                        <i class="fas fa-subway"></i>
+                        地鐵20分鐘
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 12:00 - 12:20
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-suitcase"></i>
+                        行李寄存
+
+                    </h3>
+                    <div class="transport-info">
+                        費用：<span class="price-tag">¥300/件</span>
+                    </div>
+                    <img src="1.png" alt="">
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 12:20 - 15:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-shopping-bag"></i>
+                        臨空城outlet購物
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/EVWCVtYyN5EDnv2x8" target="_blank">臨空城 Premium Outlets 地址</a>
+                    </p>
+                    <div class="info-box">
+                        <h4>購物資訊：</h4>
+                        <ul>
+                            <li>午餐自由安排</li>
+                            <li>分開行動・自由購物</li>
+                            <li>商場營業時間：10:00-20:00</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 15:30 - 16:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-suitcase-rolling"></i>
+                        集合取行李
+                    </h3>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 16:00 - 17:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-car"></i>
+                        前往住宿
+                    </h3>
+                    <p>阪神預訂包車</p>
+                    <div class="transport-info">
+                        <i class="fas fa-route"></i>
+                        車程約45分鐘
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 17:00 - 17:20
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-hotel"></i>
+                        住宿CHECK IN
+                        <p><a href="https://maps.app.goo.gl/27A9U9pgGyrTxw8SA" target="_blank">民宿地址</a></p>
+                    </h3>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 17:20 - 20:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-store"></i>
+                        梅田百貨公司
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/4Pr5LsUtWFfxGx5LA" target="_blank">阪急百貨梅田本店 地址</a></p>
+                    <div class="transport-info">
+                        <i class="fas fa-walking"></i>
+                        步行15分鐘
+                    </div>
+                    <div class="info-box">
+                        <h4>購物資訊：</h4>
+                        <ul>
+                            <li>分開行動</li>
+                            <li>營業時間：10:00-20:00</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 20:30 - 21:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-utensils"></i>
+                        參觀藍天大樓-空中庭園展望台夜景
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/9QZ8x52dUU6X65Cx8" target="_blank">梅田空中庭園地址</a></p>
+                    <div class="transport-info">
+                        <i class="fas fa-map-marker-alt"></i>
+                        步行15分鐘
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 21:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-bed"></i>
+                        回住宿休息
+                        <p><a href="https://maps.app.goo.gl/27A9U9pgGyrTxw8SA" target="_blank">民宿地址</a></p>
+                    </h3>
+                    <div class="transport-info">
+                        <i class="fas fa-walking"></i>
+                        步行10分鐘
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Day 2 -->
+    <div class="day-card" data-aos="fade-up" id="day2">
+        <div class="day-header">
+            <i class="fas fa-sun"></i>
+            <h2>Day 2 - 神社・道頓堀（2/22 六）</h2>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 07:00 - 10:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-coffee"></i>
+                        木津市場(早午餐+逛接)
+                        <p><a href="https://maps.app.goo.gl/Q7wiEKkLvQhvcVWa7" target="_blank">木津市場地址</a></p>
+                    </h3>
+                    <div class="info-box">
+                        <p>地鐵前往30分鐘</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 10:00 - 11:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-castle"></i>
+                        難波八阪神社
+                    </h3>
+                    <span class="price-tag">門票 免費</span>
+                    <p><a href="https://maps.app.goo.gl/mzfbNTpYD7q9i9Lo7" target="_blank">八阪神社地址</a></p>
+                    <div class="transport-info">
+                        <i class="fas fa-subway"></i>
+                        地鐵約20分鐘
+
+                    </div>
+                    <div class="info-box">
+                        <h4>參觀重點：</h4>
+                        <ul>
+                            <li>西樓門：四条通東側的象徵性建築，為重要文化財</li>
+                            <li>本殿：國寶級建築，供奉主祭神</li>
+                            <li>舞殿：神社內最醒目的建築，也是重要文化財</li>
+                            <li>巨型燈籠：特別是夜晚點燈時非常美麗</li>
+                            <li> 參拜時間：24小時開放</li>
+                            <li> 主祭神：素戔嗚尊，祈求生意興隆、避邪去疾</li>
+                            <li>人氣御守：良緣御守特別有名</li>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 11:00 - 13:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-utensils"></i>
+                        道頓堀(午餐+逛街)
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/LztGEh6qazf4Z5tx8" target="_blank">道頓堀地址</a></p>
+                    <div class="transport-info">
+                        <i class="fas fa-subway"></i>
+                        步行約20分鐘
+                    </div>
+                    <div class="info-box">
+                        <h4>推薦美食：</h4>
+                        <ul>
+                            <li>牛村炸牛排</li>
+                            <li>大阪燒：美津濃或千房</li>
+                            <li>拉麵：金龍拉麵</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 13:30 - 16:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-shopping-bag"></i>
+                        心齋橋購物
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/TnzHVbLi9qFi7zz17" target="_blank">心齋橋筋商店街</a></p>
+                    <div class="transport-info">
+                        <i class="fas fa-walking"></i>
+                        步行10分鐘
+                    </div>
+                    <div class="info-box">
+                        <h4>購物重點：</h4>
+                        <ul>
+                            <li>大丸百貨 (高級精品、化妝品)</li>
+                            <li>BIC CAMERA（電器）</li>
+                            <li>UNIQLO旗艦店</li>
+                            <li>藥妝店 (松本清、Daikoku Drug、大國藥妝) </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 16:30 - 18:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-spa"></i>
+                        唐吉訶德摩天輪
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/GhYkPVBHpMfDyoY96" target="_blank">摩天輪地址</a></p>
+                    <div class="transport-info">
+                        <i class="fas fa-subway"></i>
+                        搭乘一次約15分鐘
+                        <span class="price-tag">每人約600日圓</span>
+                    </div>
+                    <div class="info-box">
+                        <h4>設施資訊：</h4>
+                        <ul>
+                            <li>一節車廂四個坐位都是面向同一邊，上車坐定位後，車廂會緩緩地做180度的旋轉，朝向外側！</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
                 <div class="time">
                     <i class="far fa-clock"></i> 18:00 - 19:30
                 </div>
@@ -819,456 +405,457 @@
                 </div>
             </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 19:30 - 20:00
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-utensils"></i>
-                          回梅田
-                      </h3>
-                      <p><a href="https://maps.app.goo.gl/27A9U9pgGyrTxw8SA" target="_blank">民宿地址</a></p>
-                      <div class="transport-info">
-                          <i class="fas fa-subway"></i>
-                          地鐵30分鐘
-                      </div>
-                  </div>
-              </div>
-
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 20:15後
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-bed"></i>
-                          自行安排活動
-                      </h3>
-                        <div class="info-box">
-                          <h4>附近活動：</h4>
-                          <ul>梅田地下街 </ul>
-                          <ul>WHITY梅田美食街 </ul>
-                          <ul>營業至23:00左右 多家居酒屋</ul>
-                          <ul>HEP FIVE摩天輪（營業至22:45） 紅色地標摩天輪</ul>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-              <!-- Day 3 -->
-              <div class="day-card" data-aos="fade-up" id="day3">
-                <div class="day-header">
-                    <i class="fas fa-torii-gate"></i>
-                    <h2>Day 3 - 大阪寺廟參訪（2/23 日）</h2>
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 19:30 - 20:00
                 </div>
-                
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 08:00 - 10:30
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-coffee"></i>
-                                大阪城天守閣
-                                <span class="price-tag">每人約900日圓</span>
-                            </h3>
-                            <p><a href="https://maps.app.goo.gl/i5KezgUs6hfxqhmo9" target="_blank">天守閣地址</a></p>
-                            <i class="fas fa-subway"></i>
-                          地鐵約20分鐘
-                            <div class="info-box">
-                                <h4>參觀重點：</h4>
-                                <ul>
-                                    <li>天守閣八層建築</li>
-                                    <li>大阪城公園櫻花道</li>
-                                    <li>豐臣秀吉歷史展示</li>
-                                    <li>建議預留2-3小時
-                                        天守閣內要脫鞋
-                                        電梯有時需排隊
-                                        公園免費，只有天守閣需購票    </li>
-                                </div>
-                            </div>      
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 10:30 - 11:30
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-train"></i>
-                                四天王寺
-                                <span class="price-tag">大人約500日圓</span>
-                            </h3>
-                            <p><a href="https://maps.app.goo.gl/WuEjsA9fedrpHGJy9" target="_blank">四天王寺地址</a></p>
-                            <div class="transport-info">
-                                <i class="fas fa-subway"></i>
-                                地鐵約20分鐘    
-                            </div>
-                            <div class="info-box">
-                                <h4>交通訊息：</h4>
-                                <ul>
-                                    <li>地下鐵四天王寺前夕陽丘站</li>
-                                </ul>
-                            </div>
-                            <div class="info-box">
-                                <h4>參觀重點：</h4>
-                                <ul>
-                                    <li>中心伽藍（主要建築群）</li>
-                                    <li>建議預留1-2小時</li>
-                                    <li>可租用中文導覽機</li>
-                                    <li>周邊有不少平價美食店</li>
-                                    <li>需注意禮儀 穿著要得體（寺院內保持安靜）</li>
-                                    <li>可以拍照，但部分區域禁止</li>
-                                    <li>遇到法會時可能會限制參觀範圍</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 11:30 - 15:00
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-torii-gate"></i>
-                               新世界/通天閣(午餐+逛街)
-                               <span class="price-tag">通天閣門票大人約900日圓</span>
-                            </h3>
-                            <p><a href="https://maps.app.goo.gl/FqkTLMNaRKFB678BA" target="_blank">通天閣地址</a></p>
-                            <div class="transport-info">
-                                <i class="fas fa-subway"></i>
-                                步行15分鐘
-                                
-                            </div>
-                            <div class="info-box">
-                                <h4>參觀重點：</h4>
-                                <ul>
-                                    <li>章魚燒：元祖章魚燒本店</li>
-                                    <li>串炸：串炸達摩（發源店）</li>
-                                    <li>5樓主展望台</li>
-                                    <li>新世界商店街</li>
-                                    <li>建議預留1小時參觀塔內</li>
-                                    <li>吉祥物「比利金」</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 15:00 - 17:30
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-landmark"></i>
-                                天王寺
-                                <span class="price-tag">大阪地下鐵天王寺站</span>
-                            </h3>
-                            <p><a href="https://maps.app.goo.gl/p684HZaWks299uhb7" target="_blank">天王寺MIO地址</a></p>
-                            <div class="transport-info">
-                                <i class="fas fa-bus"></i>
-                                步行約15分鐘
-                            </div>
-                            <div class="info-box">
-                                <h4>購物推薦：</h4>
-                                <ul>
-                                    <li>阿倍野HARUKAS: 高級精品、美妝保養、伴手禮專區</li>
-                                    <li>MIO商場:平價服飾、生活雜貨、美食街</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 18:00 - 19:30
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-utensils"></i>
-                                居酒屋(烏貴族)
-                            </h3>
-                            <p><a href="https://maps.app.goo.gl/aV3XCacUkUECPvgY6" target="_blank">居酒屋(烏貴族)地址"</a></p>
-                            <p>平均消費：¥2,000～¥2,999</p>
-                            <ul>提供日式烤雞串料理</ul>
-                            <div class="transport-info">
-                                <i class="fas fa-walking"></i>
-                                地下鐵千日前線なんば站14號出口徒步約2分鐘
-                                
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 19:30 - 20:30
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-temple"></i>
-                                阿倍野展望台
-
-                            </h3>
-                            <p><a href="https://maps.app.goo.gl/5Ywg6rpZtqcQb3Sq6" target="_blank">阿倍野展望台</a></p>
-                            <div class="transport-info">
-                                <i class="fas fa-coin"></i>
-                                票價（日圓）
-                                <span class="price-tag">成人：2,000円</span>
-                            </div>
-                            <div class="info-box">
-                                <h4>參觀重點：</h4>
-                                <ul>
-                                    <li>60樓空中迴廊</li>
-                                    <li>可觀賞大阪市區全景</li>
-                                    <li>咖啡廳和紀念品商店</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 20:30
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-tree"></i>
-                                回民宿
-                            </h3>
-                            <p><a href="https://maps.app.goo.gl/Z6uhjn9HKv2LVrge7" target="_blank">民宿地址</a></p>
-                            <div class="transport-info">
-                                <i class="fas fa-train"></i>
-                                地鐵約30分鐘
-                        </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-utensils"></i>
+                        回梅田
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/27A9U9pgGyrTxw8SA" target="_blank">民宿地址</a></p>
+                    <div class="transport-info">
+                        <i class="fas fa-subway"></i>
+                        地鐵30分鐘
                     </div>
                 </div>
             </div>
-                    <!-- Day 4 -->
-        <div class="day-card" data-aos="fade-up" id="day4">
-          <div class="day-header">
-              <i class="fas fa-child"></i>
-              <h2>Day 4 - 京都之旅（2/24 一）</h2>
-          </div>
-          
-          <div class="timeline">
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 07:00 - 08:30
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-coffee"></i>
-                          前往伏見稻荷大社                          
-                      </h3>
-                      <p><a href="https://maps.app.goo.gl/ASML7BMzk9c2UBcT9" target="_blank">伏見稻荷大社地址</a></p>
-                      <span class="price-tag">總車程時間：約75分鐘</span>
-                          <span class="price-tag">總費用：約560日圓</span>
-                      <div class="info-box">
-                          <p>從阪急梅田站 → 阪急京都河原町站</p>
-                          <P>從河原町站步行到祇園四条站 → 伏見稻荷站   </P>
-                          
-                      </div>
-                  </div>
-              </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 08:00 - 09:30
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-train"></i>
-                          伏見稻荷大社
-                      </h3>
-                     
-                      <div class="transport-info">
-                          <i class="fas fa-subway"></i>
-                          門票
-                          <span class="price-tag">免費</span>
-                      </div>
-                      <div class="info-box">
-                          <h4>參拜方式：</h4>
-                          <ul>
-                              <li>在手水舍淨手</li>
-                              <li>投入賽錢（隨心意金額）</li>
-                              <li>遵循「二禮二拍手一禮」的參拜方式</li>
-                             
-                          </ul>
-                      </div>
-                  </div>
-              </div>
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 20:15後
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-bed"></i>
+                        自行安排活動
+                    </h3>
+                    <div class="info-box">
+                        <h4>附近活動：</h4>
+                        <ul>梅田地下街 </ul>
+                        <ul>WHITY梅田美食街 </ul>
+                        <ul>營業至23:00左右 多家居酒屋</ul>
+                        <ul>HEP FIVE摩天輪（營業至22:45） 紅色地標摩天輪</ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Day 3 -->
+    <div class="day-card" data-aos="fade-up" id="day3">
+        <div class="day-header">
+            <i class="fas fa-torii-gate"></i>
+            <h2>Day 3 - 大阪寺廟參訪（2/23 日）</h2>
+        </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 08:00 - 09:30
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-ticket-alt"></i>
-                          伏見稻荷大社
-                      </h3>
-                      <div class="info-box">
-                          <h4>注意事項：</h4>
-                          <ul>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 08:00 - 10:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-coffee"></i>
+                        大阪城天守閣
+                        <span class="price-tag">每人約900日圓</span>
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/i5KezgUs6hfxqhmo9" target="_blank">天守閣地址</a></p>
+                    <i class="fas fa-subway"></i>
+                    地鐵約20分鐘
+                    <div class="info-box">
+                        <h4>參觀重點：</h4>
+                        <ul>
+                            <li>天守閣八層建築</li>
+                            <li>大阪城公園櫻花道</li>
+                            <li>豐臣秀吉歷史展示</li>
+                            <li>建議預留2-3小時
+                                天守閣內要脫鞋
+                                電梯有時需排隊
+                                公園免費，只有天守閣需購票 </li>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="time">
+                <i class="far fa-clock"></i> 10:30 - 11:30
+            </div>
+            <div class="event">
+                <h3>
+                    <i class="fas fa-train"></i>
+                    四天王寺
+                    <span class="price-tag">大人約500日圓</span>
+                </h3>
+                <p><a href="https://maps.app.goo.gl/WuEjsA9fedrpHGJy9" target="_blank">四天王寺地址</a></p>
+                <div class="transport-info">
+                    <i class="fas fa-subway"></i>
+                    地鐵約20分鐘
+                </div>
+                <div class="info-box">
+                    <h4>交通訊息：</h4>
+                    <ul>
+                        <li>地下鐵四天王寺前夕陽丘站</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h4>參觀重點：</h4>
+                    <ul>
+                        <li>中心伽藍（主要建築群）</li>
+                        <li>建議預留1-2小時</li>
+                        <li>可租用中文導覽機</li>
+                        <li>周邊有不少平價美食店</li>
+                        <li>需注意禮儀 穿著要得體（寺院內保持安靜）</li>
+                        <li>可以拍照，但部分區域禁止</li>
+                        <li>遇到法會時可能會限制參觀範圍</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="time">
+                <i class="far fa-clock"></i> 11:30 - 15:00
+            </div>
+            <div class="event">
+                <h3>
+                    <i class="fas fa-torii-gate"></i>
+                    新世界/通天閣(午餐+逛街)
+                    <span class="price-tag">通天閣門票大人約900日圓</span>
+                </h3>
+                <p><a href="https://maps.app.goo.gl/FqkTLMNaRKFB678BA" target="_blank">通天閣地址</a></p>
+                <div class="transport-info">
+                    <i class="fas fa-subway"></i>
+                    步行15分鐘
+
+                </div>
+                <div class="info-box">
+                    <h4>參觀重點：</h4>
+                    <ul>
+                        <li>章魚燒：元祖章魚燒本店</li>
+                        <li>串炸：串炸達摩（發源店）</li>
+                        <li>5樓主展望台</li>
+                        <li>新世界商店街</li>
+                        <li>建議預留1小時參觀塔內</li>
+                        <li>吉祥物「比利金」</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="time">
+                <i class="far fa-clock"></i> 15:00 - 17:30
+            </div>
+            <div class="event">
+                <h3>
+                    <i class="fas fa-landmark"></i>
+                    天王寺
+                    <span class="price-tag">大阪地下鐵天王寺站</span>
+                </h3>
+                <p><a href="https://maps.app.goo.gl/p684HZaWks299uhb7" target="_blank">天王寺MIO地址</a></p>
+                <div class="transport-info">
+                    <i class="fas fa-bus"></i>
+                    步行約15分鐘
+                </div>
+                <div class="info-box">
+                    <h4>購物推薦：</h4>
+                    <ul>
+                        <li>阿倍野HARUKAS: 高級精品、美妝保養、伴手禮專區</li>
+                        <li>MIO商場:平價服飾、生活雜貨、美食街</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="time">
+                <i class="far fa-clock"></i> 18:00 - 19:30
+            </div>
+            <div class="event">
+                <h3>
+                    <i class="fas fa-utensils"></i>
+                    居酒屋(烏貴族)
+                </h3>
+                <p><a href="https://maps.app.goo.gl/aV3XCacUkUECPvgY6" target="_blank">居酒屋(烏貴族)地址"</a></p>
+                <p>平均消費：¥2,000～¥2,999</p>
+                <ul>提供日式烤雞串料理</ul>
+                <div class="transport-info">
+                    <i class="fas fa-walking"></i>
+                    地下鐵千日前線なんば站14號出口徒步約2分鐘
+
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="time">
+                <i class="far fa-clock"></i> 19:30 - 20:30
+            </div>
+            <div class="event">
+                <h3>
+                    <i class="fas fa-temple"></i>
+                    阿倍野展望台
+
+                </h3>
+                <p><a href="https://maps.app.goo.gl/5Ywg6rpZtqcQb3Sq6" target="_blank">阿倍野展望台</a></p>
+                <div class="transport-info">
+                    <i class="fas fa-coin"></i>
+                    票價（日圓）
+                    <span class="price-tag">成人：2,000円</span>
+                </div>
+                <div class="info-box">
+                    <h4>參觀重點：</h4>
+                    <ul>
+                        <li>60樓空中迴廊</li>
+                        <li>可觀賞大阪市區全景</li>
+                        <li>咖啡廳和紀念品商店</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="time">
+                <i class="far fa-clock"></i> 20:30
+            </div>
+            <div class="event">
+                <h3>
+                    <i class="fas fa-tree"></i>
+                    回民宿
+                </h3>
+                <p><a href="https://maps.app.goo.gl/Z6uhjn9HKv2LVrge7" target="_blank">民宿地址</a></p>
+                <div class="transport-info">
+                    <i class="fas fa-train"></i>
+                    地鐵約30分鐘
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Day 4 -->
+    <div class="day-card" data-aos="fade-up" id="day4">
+        <div class="day-header">
+            <i class="fas fa-child"></i>
+            <h2>Day 4 - 京都之旅（2/24 一）</h2>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 07:00 - 08:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-coffee"></i>
+                        前往伏見稻荷大社
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/ASML7BMzk9c2UBcT9" target="_blank">伏見稻荷大社地址</a></p>
+                    <span class="price-tag">總車程時間：約75分鐘</span>
+                    <span class="price-tag">總費用：約560日圓</span>
+                    <div class="info-box">
+                        <p>從阪急梅田站 → 阪急京都河原町站</p>
+                        <P>從河原町站步行到祇園四条站 → 伏見稻荷站 </P>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 08:00 - 09:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-train"></i>
+                        伏見稻荷大社
+                    </h3>
+
+                    <div class="transport-info">
+                        <i class="fas fa-subway"></i>
+                        門票
+                        <span class="price-tag">免費</span>
+                    </div>
+                    <div class="info-box">
+                        <h4>參拜方式：</h4>
+                        <ul>
+                            <li>在手水舍淨手</li>
+                            <li>投入賽錢（隨心意金額）</li>
+                            <li>遵循「二禮二拍手一禮」的參拜方式</li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 08:00 - 09:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-ticket-alt"></i>
+                        伏見稻荷大社
+                    </h3>
+                    <div class="info-box">
+                        <h4>注意事項：</h4>
+                        <ul>
                             <li>不要走在鳥居下的正中央（這是神明專用的通道）</li>
                             <LI>避免在神社內大聲喧嘩</LI>
                             <li>登山步道較長，建議穿著舒適的鞋子</li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 09:30 - 10:00
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-hat-wizard"></i>
-                          前往清水寺
-                      </h3>
-                      <p><a href="https://maps.app.goo.gl/HDupNWsysfT312LX9" target="_blank">清水寺地址</a></p>
-                      <div class="info-box">
-                          <h4>交通資訊：</h4>
-                          <ul>搭乘京阪電車本線
-                              <li>從伏見稻荷站（Fushimiinari Station） →清水五條站（Kiyomizu-Gojo Station）下車                                </li>
-                                <span class="price-tag">約180-250日圓</span>
-                                <span class="price-tag">車程約10分鐘</span>
-                                <ul>步行部分</ul>
-                              <li>從清水五條站步行至清水寺，                                                           
-                               沿途會經過清水坂商店街</li>
-                                <span class="price-tag">約15-20分鐘</span>
-                                <span class="price-tag">總路程約1公里</span>
-                                <ul>計程車</ul>
-                              <li>在清水五條站搭乘計程車</li>
-                              <span class="price-tag">（約1000日圓）</span>
-                          </ul>
-                          <h4>推薦順路遊覽：</h4>
-                          <ul>
-                              <li>清水坂商店街（買伴手禮）      </li>
-                              <li>地主神社（戀愛神社）</li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 09:30 - 10:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-hat-wizard"></i>
+                        前往清水寺
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/HDupNWsysfT312LX9" target="_blank">清水寺地址</a></p>
+                    <div class="info-box">
+                        <h4>交通資訊：</h4>
+                        <ul>搭乘京阪電車本線
+                            <li>從伏見稻荷站（Fushimiinari Station） →清水五條站（Kiyomizu-Gojo Station）下車 </li>
+                            <span class="price-tag">約180-250日圓</span>
+                            <span class="price-tag">車程約10分鐘</span>
+                            <ul>步行部分</ul>
+                            <li>從清水五條站步行至清水寺，
+                                沿途會經過清水坂商店街</li>
+                            <span class="price-tag">約15-20分鐘</span>
+                            <span class="price-tag">總路程約1公里</span>
+                            <ul>計程車</ul>
+                            <li>在清水五條站搭乘計程車</li>
+                            <span class="price-tag">（約1000日圓）</span>
+                        </ul>
+                        <h4>推薦順路遊覽：</h4>
+                        <ul>
+                            <li>清水坂商店街（買伴手禮） </li>
+                            <li>地主神社（戀愛神社）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 11:30 - 12:00
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-utensils"></i>
-                          二年坂、三年坂
-                      </h3>
-                      <span class="price-tag">建議預留約30-60分鐘</span>
-                      <div class="info-box">
-                          <h4>參觀特色：</h4>
-                          <ul>
-                              <li>和服租借店</li>
-                              <li>紀念品店</li>
-                              <li>茶屋、和菓子店</li>
-                              <li>位於清水寺參拜道路上</li>
-                              <li>石板路面可能會滑，要小心行走</li>
-                              <li>部分店家可能不允許在店內拍照</li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 11:30 - 12:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-utensils"></i>
+                        二年坂、三年坂
+                    </h3>
+                    <span class="price-tag">建議預留約30-60分鐘</span>
+                    <div class="info-box">
+                        <h4>參觀特色：</h4>
+                        <ul>
+                            <li>和服租借店</li>
+                            <li>紀念品店</li>
+                            <li>茶屋、和菓子店</li>
+                            <li>位於清水寺參拜道路上</li>
+                            <li>石板路面可能會滑，要小心行走</li>
+                            <li>部分店家可能不允許在店內拍照</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 12:30 - 14:00
-                  </div>
-                  
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-rocket"></i>
-                          午餐餐廳
-                          <span class="price-tag"></span><p><a href="lunch.html" target="_blank">附近餐廳推薦(請點擊此連結)</a></p>
-                      <div class="transport-info">
-                      </h3>
-                     
-                  </div>
-              </div>
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 12:30 - 14:00
+                </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 14:00 - 15:00
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-shopping-bag"></i>
-                          花見小路
-                          <div class="transport-info">
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-rocket"></i>
+                        午餐餐廳
+                        <span class="price-tag"></span>
+                        <p><a href="lunch.html" target="_blank">附近餐廳推薦(請點擊此連結)</a></p>
+                        <div class="transport-info">
+                    </h3>
+
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 14:00 - 15:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-shopping-bag"></i>
+                        花見小路
+                        <div class="transport-info">
                             <i class="fas fa-walking"></i>
                             步行15分鐘
-                      </h3>
-                      
-                      <p><a href="https://maps.app.goo.gl/nPxtSJQEZDBVShVZ7" target="_blank">花見小路地址</a></p>
-                      <div class="info-box">
-                          <h4>重點事項：</h4>
-                          <ul>
-                              <li>位於祇園區域內從四条通延伸到建仁寺之間</li>
-                              <li>可欣賞藝妓與舞妓</li>
-                              <li>精緻的茶屋和料亭</li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
+                    </h3>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 15:00 - 16:00
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-utensils"></i>
-                          鴨川
-                      </h3>
-                      <div class="transport-info">
-                          <i class="fas fa-walking"></i>
-                          步行15分鐘
-                      </div>
-                      <p><a href="https://maps.app.goo.gl/T5vokwE6y7k2Hf4BA" target="_blank">鴨川地址</a></p>
-                      <div class="info-box">
-                          <h4>特色活動：</h4>
-                          <ul>
-                              <li>跳烏龜：河合橋至賀茂大橋之間設有特色跳石</li>
-                              <li>納涼床：夏季限定的河畔露台用餐體驗</li>
-                              <li>散步野餐：當地人最愛的休閒活動</li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
+                    <p><a href="https://maps.app.goo.gl/nPxtSJQEZDBVShVZ7" target="_blank">花見小路地址</a></p>
+                    <div class="info-box">
+                        <h4>重點事項：</h4>
+                        <ul>
+                            <li>位於祇園區域內從四条通延伸到建仁寺之間</li>
+                            <li>可欣賞藝妓與舞妓</li>
+                            <li>精緻的茶屋和料亭</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-              <div class="timeline-item">
-                  <div class="time">
-                      <i class="far fa-clock"></i> 16:00 - 18:00
-                  </div>
-                  <div class="event">
-                      <h3>
-                          <i class="fas fa-train"></i>
-                          錦市場
-                      </h3>
-                      <p><a href="https://maps.app.goo.gl/q6g559jbCMCxeRxq9" target="_blank">錦市場地址</a></p>
-                      <div class="info-box">
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 15:00 - 16:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-utensils"></i>
+                        鴨川
+                    </h3>
+                    <div class="transport-info">
+                        <i class="fas fa-walking"></i>
+                        步行15分鐘
+                    </div>
+                    <p><a href="https://maps.app.goo.gl/T5vokwE6y7k2Hf4BA" target="_blank">鴨川地址</a></p>
+                    <div class="info-box">
+                        <h4>特色活動：</h4>
+                        <ul>
+                            <li>跳烏龜：河合橋至賀茂大橋之間設有特色跳石</li>
+                            <li>納涼床：夏季限定的河畔露台用餐體驗</li>
+                            <li>散步野餐：當地人最愛的休閒活動</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 16:00 - 18:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-train"></i>
+                        錦市場
+                    </h3>
+                    <p><a href="https://maps.app.goo.gl/q6g559jbCMCxeRxq9" target="_blank">錦市場地址</a></p>
+                    <div class="info-box">
                         <h4> 基本資訊：</h4>
                         <ul>
                             <li>下午5點左右陸續打烊</li>
-                          <li>玉子燒（三木雞卵）</li>
-                          <li>茶葉</li>
-                          <li>抹茶相關甜點</li>
+                            <li>玉子燒（三木雞卵）</li>
+                            <li>茶葉</li>
+                            <li>抹茶相關甜點</li>
                         </ul>
                     </div>
-                     
-                  </div>
-              </div>
-              <div class="timeline-item">
+
+                </div>
+            </div>
+            <div class="timeline-item">
                 <div class="time">
                     <i class="far fa-clock"></i> 19:00 - 20:30
                 </div>
@@ -1286,715 +873,191 @@
                         <h4>基本資訊：</h4>
                         <ul>
                             <li>自行採買食材回民宿烹煮</li>
-                               <li>外帶-玄品河豚(梅田東通店)                        </li>
-                               <li>營業到22:00</li>
-                               
-                             </ul>
-                             <div class="timeline-item">
-                                <div class="time">
-                                    <i class="far fa-clock"></i> 20:30
-                                </div>
-                                <div class="event">
-                                    <h3>
-                                        <i class="fas fa-train"></i>
-                                        回民宿
-                                    </h3>
-                                    <p><a href="https://maps.app.goo.gl/LbFPbaWZQqZMuuLF7" target="_blank">民宿地址</a></p>
-                    </div>
-                </div>
-            </div>
-            </div>
-        </div></div></div></div>
-           
-              <!-- Day 5 -->
-              <div class="day-card" data-aos="fade-up" id="day5">
-                <div class="day-header">
-                    <i class="fas fa-shopping-cart"></i>
-                    <h2>Day 5 - 倉敷・回程（2/25 二）</h2>
-                </div>
-                
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 06:00 - 06:15
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-coffee"></i>
-                                計程車
-                            </h3>
-                            <span class="price-tag">車程10分鐘(預計每人500日圓)</span>
-                            
-                            </div>
-                        </div>
-                 
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 06:15 - 08:30
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-shopping-bag"></i>
-                                新幹線前往岡山車站/倉敷車站
-                            </h3>
-                            <div class="transport-info">
-                                <i class="fas fa-subway"></i>
-                                岡山車站 → 倉敷車站 約40分鐘
-                            </div>
-                            
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 08:30 - 09:00
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-suitcase"></i>
-                                行李寄存
-                                
-                            </h3>
-                            <div class="transport-info">
-                                費用：<span class="price-tag">¥700/件</span>
-                            </div>
-                            
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 13:30 - 15:00
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-store"></i>
-                                倉敷美觀地區-午餐+逛街
+                            <li>外帶-玄品河豚(梅田東通店) </li>
+                            <li>營業到22:00</li>
 
-                            </h3>
-                            
-                            <div class="info-box">
-                                <h4>特色與亮點：</h4>
-                                <ul>
-                                    <li>大原美術館:日本首座私立美術館</li>
-                                    <li>倉敷川遊船:票價成人500日圓</li>
-                                    <li>三井OUTLET PARK 倉敷</li>
-                                    <li>Ario倉敷（倉敷站北口）綜合商場</li>
-                                    <li>えびす商店街（惠比壽商店街）</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 11:40 - 12:15
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-suitcase"></i>
-                                取行李並搭機場巴士（¥1150/人）
-
-                            </h3>
-                        
-                            </div>
-                        </div>
-                   
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 12:50 
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-train"></i>
-                                抵達岡山機場
-                            </h3>
-                            <div class="transport-info">
-                                <i class="fas fa-subway"></i>
-                                車程約40分鐘
-                               
-                            </div>
-                            
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 12:50 - 15:25                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-passport"></i>
-                                出境＆免稅店購物
-                            </h3>
-                           
-                            </div>
-                        </div>
-               
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 15:25 - 17:30
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-plane"></i>
-                                搭乘虎航 IT215
-                            </h3>
-                            <p>岡山機場 → 桃園機場</p>
-                            <div class="transport-info">
-                                <i class="fas fa-clock"></i>
-                                飛行時間約2小時5分鐘
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="timeline-item">
-                        <div class="time">
-                            <i class="far fa-clock"></i> 17:30
-                        </div>
-                        <div class="event">
-                            <h3>
-                                <i class="fas fa-home"></i>
-                                台灣入境
-                            </h3>
-                            <div class="info-box">
-                                <p>行程圓滿結束</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> </div>
-    
-            <!-- Footer -->
-            <div class="footer">
-                <div class="notes">
-                    <h3>行程注意事項：</h3>
-                    <ul>
-                        <li>所有時間均為參考，實際情況可能因天氣、交通等因素調整</li>
-                        <li>建議下載好離線地圖，方便導航</li>
-                        <li>請隨身攜帶雨具及保暖衣物</li>
-                        <li>重要景點建議提前預約</li>
-                        <li>請妥善保管隨身財物</li>
-                    </ul>
-                </div>
-                
-                <div class="emergency-contacts">
-                    <h3>緊急聯絡資訊：</h3>
-                    <ul>
-                        <li>日本警察：110</li>
-                        <li>日本救護車：119</li>
-                        <li>台灣駐大阪辦事處：+81-6-6227-8623</li>
-                        <li>旅遊緊急協助：+886-800-011-765</li>
-                    </ul>
-                </div>
-            </div>
-            <style>
-              /* 全局樣式 */
-              * {
-                  margin: 0;
-                  padding: 0;
-                  box-sizing: border-box;
-                  font-family: 'Noto Sans TC', sans-serif;
-              }
-  
-              body {
-                  background-color: #f5f5f5;
-                  color: #333;
-                  line-height: 1.6;
-              }
-  
-              /* 日程卡片樣式 */
-              .day-card {
-                  background: white;
-                  border-radius: 15px;
-                  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                  margin: 20px auto;
-                  padding: 25px;
-                  max-width: 900px;
-                  transition: transform 0.3s ease;
-              }
-  
-              .day-card:hover {
-                  transform: translateY(-5px);
-              }
-  
-              /* 日程標題樣式 */
-              .day-header {
-                  border-bottom: 2px solid #e0e0e0;
-                  margin-bottom: 20px;
-                  padding-bottom: 10px;
-              }
-  
-              .day-header h2 {
-                  color: #1a237e;
-                  font-size: 24px;
-                  display: flex;
-                  align-items: center;
-                  gap: 10px;
-              }
-  
-              .day-header i {
-                  color: #f44336;
-              }
-  
-              /* 時間軸樣式 */
-              .timeline {
-                  position: relative;
-                  padding-left: 50px;
-              }
-  
-              .timeline::before {
-                  content: '';
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  height: 100%;
-                  width: 2px;
-                  background: #e0e0e0;
-              }
-  
-              /* 時間項目樣式 */
-              .timeline-item {
-                  position: relative;
-                  margin-bottom: 30px;
-                  padding-left: 30px;
-              }
-  
-              .timeline-item::before {
-                  content: '';
-                  position: absolute;
-                  left: -8px;
-                  top: 0;
-                  width: 16px;
-                  height: 16px;
-                  border-radius: 50%;
-                  background: #1a237e;
-                  border: 3px solid white;
-              }
-  
-              /* 時間顯示樣式 */
-              .time {
-                  font-weight: bold;
-                  color: #1a237e;
-                  margin-bottom: 5px;
-                  display: flex;
-                  align-items: center;
-                  gap: 5px;
-              }
-  
-              /* 事件內容樣式 */
-              .event {
-                  background: #f8f9fa;
-                  border-radius: 8px;
-                  padding: 15px;
-                  margin-top: 5px;
-              }
-  
-              .event h3 {
-                  color: #2196f3;
-                  margin-bottom: 10px;
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-              }
-  
-              /* 資訊框樣式 */
-              .info-box {
-                  background: white;
-                  border-left: 4px solid #2196f3;
-                  padding: 10px 15px;
-                  margin-top: 10px;
-                  border-radius: 0 8px 8px 0;
-              }
-  
-              .info-box h4 {
-                  color: #1a237e;
-                  margin-bottom: 5px;
-              }
-  
-              .info-box ul {
-                  list-style-position: inside;
-                  padding-left: 10px;
-              }
-  
-              /* 交通資訊樣式 */
-              .transport-info {
-                  background: #e3f2fd;
-                  border-radius: 5px;
-                  padding: 8px 12px;
-                  margin-top: 10px;
-                  display: flex;
-                  align-items: center;
-                  gap: 10px;
-              }
-  
-              .price-tag {
-                  background: #1a237e;
-                  color: white;
-                  padding: 3px 8px;
-                  border-radius: 12px;
-                  font-size: 0.9em;
-                  margin-left: auto;
-              }
-  
-              /* 連結樣式 */
-              a {
-                  color: #2196f3;
-                  text-decoration: none;
-                  transition: color 0.3s ease;
-              }
-  
-              a:hover {
-                  color: #1565c0;
-                  text-decoration: underline;
-              }
-  
-              /* 頁腳樣式 */
-              .footer {
-                  background: white;
-                  border-radius: 15px;
-                  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                  margin: 20px auto;
-                  padding: 25px;
-                  max-width: 900px;
-              }
-  
-              .footer h3 {
-                  color: #1a237e;
-                  margin-bottom: 15px;
-                  border-bottom: 2px solid #e0e0e0;
-                  padding-bottom: 5px;
-              }
-  
-              .footer ul {
-                  list-style-position: inside;
-                  padding-left: 20px;
-              }
-  
-              .notes, .emergency-contacts {
-                  margin-bottom: 20px;
-              }
-  
-              /* 響應式設計 */
-              @media (max-width: 768px) {
-                  .day-card {
-                      margin: 15px;
-                      padding: 15px;
-                  }
-  
-                  .timeline {
-                      padding-left: 30px;
-                  }
-  
-                  .day-header h2 {
-                      font-size: 20px;
-                  }
-  
-                  .event {
-                      padding: 10px;
-                  }
-              }
-  
-              /* 圖標樣式 */
-              .fas, .far {
-                  color: #1a237e;
-              }
-          </style>
-                  <!-- 在body結束標籤前添加以下代碼 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-        <script src="https://kit.fontawesome.com/your-code.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // 初始化AOS動畫庫
-                AOS.init({
-                    duration: 1000,
-                    once: true,
-                    offset: 100
-                });
-
-                // 平滑滾動功能
-                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                    anchor.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        document.querySelector(this.getAttribute('href')).scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    });
-                });
-
-                // 天氣資訊獲取功能
-                async function getWeather() {
-                    try {
-                        const weatherInfo = document.querySelectorAll('.weather-info');
-                        // 這裡可以添加實際的天氣API調用
-                        // 為了示例，我們使用模擬數據
-                        weatherInfo.forEach(info => {
-                            info.innerHTML = '溫度: 15°C | 晴天';
-                        });
-                    } catch (error) {
-                        console.error('Weather data fetch failed:', error);
-                    }
-                }
-
-                // 時間計算功能
-                function calculateDuration() {
-                    const timelineItems = document.querySelectorAll('.timeline-item');
-                    timelineItems.forEach(item => {
-                        const timeText = item.querySelector('.time').textContent;
-                        const times = timeText.match(/\d{2}:\d{2}/g);
-                        if (times && times.length === 2) {
-                            const start = new Date(`2000/01/01 ${times[0]}`);
-                            const end = new Date(`2000/01/01 ${times[1]}`);
-                            const duration = (end - start) / (1000 * 60); // 轉換為分鐘
-                            const durationElement = document.createElement('span');
-                            durationElement.className = 'duration';
-                            durationElement.textContent = `(約 ${duration} 分鐘)`;
-                            item.querySelector('.time').appendChild(durationElement);
-                        }
-                    });
-                }
-
-                // 預算計算功能
-                function calculateBudget() {
-                    const prices = document.querySelectorAll('.price-tag');
-                    let totalBudget = 0;
-                    prices.forEach(price => {
-                        const amount = parseInt(price.textContent.replace(/[^0-9]/g, ''));
-                        if (!isNaN(amount)) {
-                            totalBudget += amount;
-                        }
-                    });
-                    
-                    const budgetElement = document.createElement('div');
-                    budgetElement.className = 'total-budget';
-                    budgetElement.innerHTML = `
-                        <h3>預估花費：</h3>
-                        <p>總支出：¥${totalBudget}</p>
-                        
-                    `;
-                    document.querySelector('.footer').prepend(budgetElement);
-                }
-
-                // 列印優化
-                const printButton = document.createElement('button');
-                printButton.className = 'print-button';
-                printButton.innerHTML = '<i class="fas fa-print"></i> 列印行程表';
-                printButton.onclick = function() {
-                    window.print();
-                };
-                document.querySelector('.footer').appendChild(printButton);
-
-                // 執行功能
-                getWeather();
-                calculateDuration();
-                calculateBudget();
-
-                // 添加列印樣式
-                const style = document.createElement('style');
-                style.textContent = `
-                    @media print {
-                        .day-card {
-                            break-inside: avoid;
-                            box-shadow: none;
-                        }
-                        .print-button {
-                            display: none;
-                        }
-                        body {
-                            background: white;
-                        }
-                        a {
-                            text-decoration: none;
-                            color: black;
-                        }
-                        .footer {
-                            break-inside: avoid;
-                            box-shadow: none;
-                        }
-                    }
-                    .print-button {
-                        background: #1a237e;
-                        color: white;
-                        border: none;
-                        padding: 10px 20px;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        margin-top: 20px;
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                        transition: background-color 0.3s ease;
-                    }
-                    .print-button:hover {
-                        background: #0d47a1;
-                    }
-                    .total-budget {
-                        background: #e3f2fd;
-                        padding: 15px;
-                        border-radius: 8px;
-                        margin-bottom: 20px;
-                    }
-                    .duration {
-                        font-size: 0.9em;
-                        color: #666;
-                        margin-left: 10px;
-                    }
-                `;
-                document.head.appendChild(style);
-            });
-        </script>
-                <!DOCTYPE html>
-                <html lang="zh-TW">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>大阪京都5天旅遊行程表</title>
-                    
-                    <!-- 引入字體 -->
-                    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-                    
-                    <!-- 引入AOS動畫庫 -->
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-                    
-                    <!-- 引入Font Awesome圖標 -->
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-        
-                    <!-- 頁面介紹區塊樣式 -->
-                    <style>
-                        .intro-section {
-                            background: linear-gradient(135deg, #1a237e, #0d47a1);
-                            color: white;
-                            padding: 40px 20px;
-                            text-align: center;
-                            margin-bottom: 30px;
-                        }
-        
-                        .intro-section h1 {
-                            font-size: 2.5em;
-                            margin-bottom: 20px;
-                        }
-        
-                        .intro-section p {
-                            max-width: 800px;
-                            margin: 0 auto;
-                            line-height: 1.8;
-                        }
-        
-                        .quick-nav {
-                            background: white;
-                            padding: 15px;
-                            position: sticky;
-                            top: 0;
-                            z-index: 1000;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                        }
-        
-                        .quick-nav ul {
-                            list-style: none;
-                            display: flex;
-                            justify-content: center;
-                            gap: 20px;
-                            flex-wrap: wrap;
-                        }
-        
-                        .quick-nav a {
-                            color: #1a237e;
-                            text-decoration: none;
-                            padding: 5px 10px;
-                            border-radius: 5px;
-                            transition: background-color 0.3s;
-                        }
-        
-                        .quick-nav a:hover {
-                            background-color: #e3f2fd;
-                        }
-        
-                        .tips-section {
-                            background: #fff3e0;
-                            padding: 20px;
-                            margin: 20px auto;
-                            max-width: 900px;
-                            border-radius: 15px;
-                        }
-        
-                        .tips-section h3 {
-                            color: #e65100;
-                            margin-bottom: 15px;
-                        }
-        
-                        .tips-section ul {
-                            columns: 2;
-                            column-gap: 40px;
-                        }
-        
-                        @media (max-width: 768px) {
-                            .tips-section ul {
-                                columns: 1;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <!-- 介紹區塊 -->
-                    <div class="intro-section">
-                        <h1>大阪京都5天精彩行程</h1>
-                        <p>2025年2月21日 - 2月25日</p>
-                        <p>精心規劃的關西地區深度遊，包含大阪城、京都寺社、道頓堀等精彩景點</p>
-                    </div>
-        
-                    <!-- 快速導航 -->
-                    <nav class="quick-nav">
-                        <ul>
-                            <li><a href="#day1">Day 1 - 出發日・大阪初體驗</a></li>
-                            <li><a href="#day2">Day 2 - 神社・道頓堀</a></li>
-                            <li><a href="#day3">Day 3 - 大阪寺廟參訪</a></li>
-                            <li><a href="#day4">Day 4 - 京都之旅</a></li>
-                            <li><a href="#day5">Day 5 - 倉敷・回程</a></li>
                         </ul>
-                    </nav>
-        
-                    <!-- 旅遊小提醒 -->
-                    <div class="tips-section">
-                        <h3><i class="fas fa-lightbulb"></i> 旅遊小提醒</h3>
+                        <div class="timeline-item">
+                            <div class="time">
+                                <i class="far fa-clock"></i> 20:30
+                            </div>
+                            <div class="event">
+                                <h3>
+                                    <i class="fas fa-train"></i>
+                                    回民宿
+                                </h3>
+                                <p><a href="https://maps.app.goo.gl/LbFPbaWZQqZMuuLF7" target="_blank">民宿地址</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Day 5 -->
+    <div class="day-card" data-aos="fade-up" id="day5">
+        <div class="day-header">
+            <i class="fas fa-shopping-cart"></i>
+            <h2>Day 5 - 倉敷・回程（2/25 二）</h2>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 06:00 - 06:15
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-coffee"></i>
+                        計程車
+                    </h3>
+                    <span class="price-tag">車程10分鐘(預計每人500日圓)</span>
+
+                </div>
+            </div>
+
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 06:15 - 08:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-shopping-bag"></i>
+                        新幹線前往岡山車站/倉敷車站
+                    </h3>
+                    <div class="transport-info">
+                        <i class="fas fa-subway"></i>
+                        岡山車站 → 倉敷車站 約40分鐘
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 08:30 - 09:00
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-suitcase"></i>
+                        行李寄存
+
+                    </h3>
+                    <div class="transport-info">
+                        費用：<span class="price-tag">¥700/件</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 09:00 - 11:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-store"></i>
+                        倉敷美觀地區-逛街
+
+                    </h3>
+
+                    <div class="info-box">
+                        <h4>特色與亮點：</h4>
                         <ul>
-                            <li>攜帶足夠現金，日本很多地方不一定能刷卡</li>
-                            <li>記得帶行動電源，全天候拍照打卡不斷電</li>
-                            <li>準備舒適的鞋子，每天步行量都不小</li>
-                            <li>查看天氣預報，準備合適的衣物</li>
-                            <li>準備IC卡（ICOCA等），方便搭乘大眾運輸</li>
-                            <li>下載離線地圖，避免找不到路</li>
-                            <li>記住緊急聯絡電話：110（警察）、119（救護）</li>
-                            <li>購買旅遊保險，以防萬一</li>
+                            <li>大原美術館:日本首座私立美術館</li>
+                            <li>倉敷川遊船:票價成人500日圓</li>
+                            <li>三井OUTLET PARK 倉敷</li>
+                            <li>Ario倉敷（倉敷站北口）綜合商場</li>
+                            <li>えびす商店街（惠比壽商店街）</li>
                         </ul>
                     </div>
-        
-                    <!-- 這裡插入之前的日程內容 -->
-                    [之前的日程內容]
-        
-                    <!-- 頁腳資訊 -->
-                    <footer class="footer">
-                        <h3>重要資訊</h3>
-                        <div class="emergency-contacts">
-                            <h4>緊急聯絡電話</h4>
-                            <ul>
-                                <li>警察：110</li>
-                                <li>救護/消防：119</li>
-                                <li>台灣駐大阪辦事處：+81-6-6443-8481</li>
-                            </ul>
-                        </div>
-                        <div class="notes">
-                            <h4>注意事項</h4>
-                            <ul>
-                                <li>請隨身攜帶護照</li>
-                                <li>保持手機電量充足</li>
-                                <li>記得購買旅遊保險</li>
-                                <li>準備防疫物品（口罩、酒精等）</li>
-                            </ul>
-                        </div>
-                    </footer>
-        
-                    <!-- 之前添加的JavaScript代碼 -->
-                </body>
-                </html>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 11:40 - 12:10
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-suitcase"></i>
+                        取行李並搭機場巴士（¥1150/人）
+
+                    </h3>
+
+                </div>
+            </div>
+
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 12:10 - 12:50
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-train"></i>
+                        抵達岡山機場
+                    </h3>
+                    <div class="transport-info">
+                        <i class="fas fa-subway"></i>
+                        車程約40分鐘
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 12:50 - 15:25
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-passport"></i>
+                        出境＆免稅店購物
+                    </h3>
+
+                </div>
+            </div>
+
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 15:25 - 17:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-plane"></i>
+                        搭乘虎航 IT215
+                    </h3>
+                    <p>岡山機場 → 桃園機場</p>
+                    <div class="transport-info">
+                        <i class="fas fa-clock"></i>
+                        飛行時間約2小時5分鐘
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="time">
+                    <i class="far fa-clock"></i> 17:30
+                </div>
+                <div class="event">
+                    <h3>
+                        <i class="fas fa-home"></i>
+                        台灣入境
+                    </h3>
+                    <div class="info-box">
+                        <p>行程圓滿結束</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>
