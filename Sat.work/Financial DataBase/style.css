@@ -1,9 +1,7 @@
-/* --- Google 字體 --- */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Orbitron:wght@400;700&display=swap');
 
-/* --- 變數定義 --- */
 :root {
-    --primary-color: #00bfff; /* 深天藍 */
+    --primary-color: #00bfff;
     --primary-glow: rgba(0, 191, 255, 0.7);
     --background-dark: #0a0a10;
     --container-bg: rgba(15, 23, 42, 0.85);
@@ -13,7 +11,6 @@
     --wrong-color: #dc3545;
 }
 
-/* --- 全域設定 --- */
 body {
     font-family: 'Noto Sans TC', sans-serif;
     background: radial-gradient(ellipse at bottom, #1b2735 0%, var(--background-dark) 100%);
@@ -28,7 +25,6 @@ body {
     line-height: 1.7;
 }
 
-/* --- 測驗主容器 --- */
 .quiz-container {
     background: var(--container-bg);
     backdrop-filter: blur(8px);
@@ -47,10 +43,9 @@ h1 {
     color: var(--primary-color);
     margin-bottom: 30px;
     text-shadow: 0 0 12px var(--primary-glow);
-    letter-spacing: 2px; /* 增加字距 */
+    letter-spacing: 2px;
 }
 
-/* --- 題目區塊 --- */
 .question {
     margin-bottom: 25px;
     padding-bottom: 25px;
@@ -66,10 +61,9 @@ h1 {
     font-weight: 500;
     margin-bottom: 20px;
     line-height: 1.6;
-    color: #f0f0f0; /* 讓題目文字更亮一點 */
+    color: #f0f0f0;
 }
 
-/* --- 題目中的圖片 --- */
 .question-image {
     max-width: 100%;
     height: auto;
@@ -79,7 +73,6 @@ h1 {
     border: 1px solid var(--border-color);
 }
 
-/* --- 選項按鈕 --- */
 .options button {
     display: block;
     width: 100%;
@@ -105,23 +98,24 @@ h1 {
     box-shadow: 0 4px 15px rgba(0, 191, 255, 0.1);
 }
 
-/* --- 答題回饋樣式 --- */
-.correct, .wrong {
+.correct,
+.wrong {
     color: #fff;
     border-color: transparent;
 }
 
-.correct { 
+.correct {
     background-color: var(--correct-color);
     animation: glow-green 0.8s ease-out;
 }
-.wrong { 
+
+.wrong {
     background-color: var(--wrong-color);
-    animation: shake-horizontal 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    animation: shake-horizontal 0.5s cubic-bezier(.36, .07, .19, .97) both;
 }
 
-/* 使用偽元素加入對錯圖示 */
-.correct::after, .wrong::after {
+.correct::after,
+.wrong::after {
     position: absolute;
     right: 20px;
     top: 50%;
@@ -129,11 +123,15 @@ h1 {
     font-size: 1.3em;
     font-weight: bold;
 }
-.correct::after { content: '✓'; }
-.wrong::after { content: '✗'; }
 
+.correct::after {
+    content: '✓';
+}
 
-/* --- 結果與重來按鈕 --- */
+.wrong::after {
+    content: '✗';
+}
+
 #result {
     margin-top: 30px;
     font-size: 1.6em;
@@ -168,27 +166,42 @@ h1 {
     transform: translateY(-1px);
 }
 
-/* --- 動畫 --- */
 @keyframes glow-green {
     from {
         box-shadow: 0 0 5px #fff, 0 0 10px var(--correct-color), 0 0 15px var(--correct-color);
     }
+
     to {
         box-shadow: none;
     }
 }
 
 @keyframes shake-horizontal {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70% { transform: translateX(-8px); }
-    20%, 40%, 60%, 80% { transform: translateX(8px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70% {
+        transform: translateX(-8px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(8px);
+    }
 }
 
-/* --- 響應式設計 --- */
 @media (max-width: 600px) {
     body {
         padding: 10px;
-        align-items: center; /* 在小螢幕上垂直置中 */
+        align-items: center;
     }
 
     .quiz-container {

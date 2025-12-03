@@ -1,4 +1,4 @@
-// 題庫（示範前 5 題，請自行補齊 52 題）
+
 const questions = [
     {
         question: "以下何者不算資料庫？",
@@ -72,7 +72,7 @@ const questions = [
     },
     {
         question: "有關以下ERD的敘述何者為非？",
-        image: "images/11.png", // 假設您的ERD圖片路徑
+        image: "images/11.png",
         options: ["一位會員可以有多筆交易", "交易一定要有會員確認", "會員不一定要有交易", "一筆交易可以為多個會員所確認"],
         answer: "一位會員可以有多筆交易"
     },
@@ -103,13 +103,13 @@ const questions = [
     },
     {
         question: "圖3-10的四元關係型態最好表達成以下的二元關係型態：",
-        image: "images/17.png", // 假設您的ERD圖片路徑
+        image: "images/17.png",
         options: ["(老師, 學生), (學生, 教科書)，(教科書, 課程)", "(老師, 課程)，(課程, 教科書)，(教科書, 學生)", "(老師, 課程)，(課程, 教科書)，(課程，學生)", "(老師, 課程)，(課程, 教科書)，(課程，學生)，(學生，老師)"],
         answer: "(老師, 課程)，(課程, 教科書)，(課程，學生)"
     },
     {
         question: "有關以下圖3-17的ERD何者為非？",
-        image: "images/18.png", // 假設您的ERD圖片路徑
+        image: "images/18.png",
         options: ["退貨單上一定要記載客戶", "銷貨明細裡一定要記載產品資訊", "退貨明細裡一定要記載產品資訊", "退貨明細裡一定要記載原銷貨單"],
         answer: "退貨明細裡一定要記載原銷貨單"
     },
@@ -290,27 +290,6 @@ const questions = [
     }
 ];
 
-// 簡答題
-const shortAnswerQuestions = [
-    {
-        question: "請簡述資料塑模的階段",
-        answers: [
-            "概念塑模",
-            "邏輯塑模",
-            "實體塑模"
-        ]
-    },
-    {
-        question: "請列舉至少3項台灣經濟新報TEJ收集財金資料之項目",
-        answers: [
-            "原物料(黃金、白銀、玉米、原油)",
-            "台灣加權股價指數",
-            "期貨、選擇權"
-        ]
-    }
-];
-
-// 隨機打亂陣列
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -318,11 +297,11 @@ function shuffle(array) {
     }
 }
 
-let score = 0; // 初始化分數
+let score = 0;
 
 function loadQuiz() {
-    score = 0; // 重置分數
-    document.getElementById('quiz').innerHTML = ''; // 清空之前的題目
+    score = 0;
+    document.getElementById('quiz').innerHTML = '';
     document.getElementById('result').textContent = '';
     shuffle(questions);
 
@@ -334,11 +313,11 @@ function loadQuiz() {
         title.textContent = `${index + 1}. ${q.question}`;
         div.appendChild(title);
 
-        // 如果題目有圖片，就建立並插入圖片元素
+
         if (q.image) {
             const img = document.createElement('img');
             img.src = q.image;
-            img.className = 'question-image'; // 為了方便用CSS控制樣式
+            img.className = 'question-image';
             div.appendChild(img);
         }
 
@@ -351,21 +330,19 @@ function loadQuiz() {
             const btn = document.createElement('button');
             btn.textContent = opt;
             btn.onclick = () => {
-                // 檢查答案是否正確
+
                 if (opt === q.answer) {
                     score++;
                 } else {
-                    // 如果選錯，將點擊的按鈕標為紅色
+
                     btn.classList.add('wrong');
                 }
 
-                // 遍歷所有選項按鈕，禁用它們並標示出正確答案
                 Array.from(optsDiv.children).forEach(b => b.disabled = true);
                 Array.from(optsDiv.children).find(b => b.textContent === q.answer).classList.add('correct');
 
-
-                // 更新分數顯示
-                document.getElementById('result').textContent = `目前分數: ${score}/${questions.length}`;
+                const percentage = Math.round((score / questions.length) * 100);
+                document.getElementById('result').textContent = `答對：${score} 題 / 共 ${questions.length} 題 (得分：${percentage} 分)`;
             };
             optsDiv.appendChild(btn);
         });
@@ -373,7 +350,7 @@ function loadQuiz() {
         div.appendChild(optsDiv);
         quizDiv.appendChild(div);
     });
-    // 目前的測驗系統只處理選擇題。若要顯示簡答題，需要額外的HTML和JS邏輯。
+
 }
 
 
