@@ -10,7 +10,9 @@ const questions = eval(questionsStr.replace('const questions = ', ''));
 let errorCount = 0;
 questions.forEach((q, index) => {
     if (!q.options.includes(q.answer)) {
-        console.log(`Error in question ${index + 1}: Answer "${q.answer}" not found in options.`);
+        console.log
+        (`Error in question ${index + 1}:
+             Answer "${q.answer}" not found in options.`);
         console.log(`Options: ${JSON.stringify(q.options)}`);
         errorCount++;
     }

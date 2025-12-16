@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>財經資料庫：房地合一稅 2.0 </title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --panel-bg: rgba(15, 23, 42, 0.9);
+            --gold: #fbbf24;
+            --cyan: #22d3ee;
+            --red: #f87171;
+            --green: #34d399;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            overflow: hidden;
+        }
+
+        /* 背景與視差 */
+        .parallax-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            z-index: -1;
+            filter: brightness(0.25) contrast(1.1);
+            /* 壓暗背景以突顯數據 */
+            transition: transform 0.5s;
+        }
+
+        /* 導航點 */
+        .nav-dots {
+            position: fixed;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .dot.active {
+            background: var(--cyan);
+            border-color: var(--cyan);
+            transform: scale(1.5);
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        main {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        section {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 容器佈局 */
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 95%;
+            max-width: 1700px;
+            height: 90vh;
+            display: grid;
+            grid-template-columns: 35% 62%;
+            gap: 3%;
+            align-items: center;
+        }
+
+        /* 左側文字面板 */
+        .text-panel {
+            padding: 40px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: 1s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .text-panel.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        h2 {
+            font-family: 'Noto Serif TC';
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            line-height: 1.2;
+        }
+
+        .label {
+            font-family: 'JetBrains Mono';
+            color: var(--cyan);
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            display: inline-block;
+            border: 1px solid var(--cyan);
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: rgba(6, 182, 212, 0.1);
+            letter-spacing: 1px;
+        }
+
+        .text-content p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* 分析師觀點區塊 */
+        .analyst-note {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(251, 191, 36, 0.05);
+            border-left: 3px solid var(--gold);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .note-title {
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 右側視覺面板 */
+        .visual-panel {
+            height: 100%;
+            max-height: 750px;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: 1s ease 0.2s;
+        }
+
+        .visual-panel.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* SVG 圖表通用 */
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono';
+            overflow: visible;
+        }
+
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 1;
+            stroke-dasharray: 4;
+        }
+
+        .axis-text {
+            fill: #94a3b8;
+            font-size: 11px;
+        }
+
+        .chart-title {
+            fill: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: 'Noto Sans TC';
+        }
+
+        .data-label {
+            font-size: 12px;
+            font-weight: bold;
+            fill: #fff;
+            text-anchor: middle;
+        }
+
+        .data-bg {
+            fill: rgba(0, 0, 0, 0.7);
+            rx: 4;
+        }
+
+        /* 表格優化 */
+        .pro-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            font-size: 0.95rem;
+        }
+
+        .pro-table th {
+            text-align: left;
+            padding: 15px;
+            color: var(--cyan);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .pro-table td {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            color: #e2e8f0;
+            vertical-align: middle;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pro-table td:first-child {
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px 0 0 8px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .pro-table td:last-child {
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .pro-table .bad {
+            color: var(--text-sub);
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .pro-table .good {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        .icon-cell {
+            width: 30px;
+            text-align: center;
+        }
+
+        /* 計算機 */
+        .calc-wrapper {
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+        }
+
+        .calc-row {
+            margin-bottom: 20px;
+        }
+
+        .calc-row label {
+            display: block;
+            color: var(--cyan);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono';
+        }
+
+        .calc-row input,
+        .calc-row select {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 12px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+        }
+
+        .calc-divider {
+            height: 1px;
+            background: dashed #444;
+            margin: 20px 0;
+        }
+
+        /* 封面特效 */
+        .hero-title {
+            font-size: 5rem;
+            font-family: 'Noto Serif TC';
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            text-shadow: 0 0 40px rgba(0, 240, 255, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="nav-dots"></div>
+
+    <main id="scroller">
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=2070');">
+            </div>
+            <div class="visual-panel visible"
+                style="background: rgba(2, 6, 23, 0.8); padding: 80px; border: 1px solid var(--cyan); box-shadow: 0 0 120px rgba(0,240,255,0.25); transform: none; opacity: 1; height: auto;">
+                <div
+                    style="font-family: 'JetBrains Mono'; color: var(--cyan); letter-spacing: 4px; margin-bottom: 20px; text-align: center; font-size: 1rem;">
+                    TKU FINANCIAL DATABASE • FINAL REPORT</div>
+                <h1 class="hero-title" style="text-align: center;">房地合一稅 2.0<br><span
+                        style="background: linear-gradient(to right, var(--cyan), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">財經分析</span>
+                </h1>
+
+                <div
+                    style="display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr; gap: 40px; margin-top: 60px; align-items: center; text-align: center;">
+                    <div>
+                        <div style="font-size:0.8rem; color:#888; margin-bottom:5px;">PRESENTER</div>
+                        <div style="font-size:1.6rem; color:#fff;">周淵凱</div>
+                    </div>
+                    <div
+                        style="width:1px; height:50px; background:linear-gradient(to bottom, transparent, #555, transparent);">
+                    </div>
+                    <div>
+                        <div style="font-size:0.8rem; color:#888; margin-bottom:5px;">STUDENT ID</div>
+                        <div style="font-size:1.6rem; color:var(--gold); font-family:'JetBrains Mono';">213410045</div>
+                    </div>
+                    <div
+                        style="width:1px; height:50px; background:linear-gradient(to bottom, transparent, #555, transparent);">
+                    </div>
+                    <div>
+                        <div style="font-size:0.8rem; color:#888; margin-bottom:5px;">DEPT</div>
+                        <div style="font-size:1.6rem; color:#fff;">財經資料庫</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1611974765270-ca12586343bb?q=80&w=2070');">
+            </div>
+            <div class="container">
+                <div class="text-panel">
+                    <span class="label">MACRO CORRELATION</span>
+                    <h2>資金狂潮與房價連動</h2>
+                    <div class="text-content">
+                        <p><strong>數據不說謊。</strong> 透過財經資料庫比對 2019-2024 年數據，我們發現 M1B (廣義貨幣供給) 是房價的先行指標。</p>
+                        <p>2021年 M1B 年增率飆升至歷史高點 <span style="color:var(--red)">18.2%</span>。當市場資金氾濫，房地產成為最大的資金蓄水池。</p>
+                        <div class="analyst-note">
+                            <div class="note-title"><i class="fas fa-lightbulb"></i> ANALYST INSIGHT</div>
+                            相關係數高達 0.92。房價上漲的本質，其實是「貨幣購買力」的下降，而非單純的供需失衡。
+                        </div>
+                    </div>
+                </div>
+                <div class="visual-panel">
+                    <svg class="chart-svg" viewBox="0 0 600 350">
+                        <text x="300" y="25" class="chart-title" text-anchor="middle">M1B 年增率 vs 房價指數</text>
+                        <line x1="60" y1="50" x2="540" y2="50" class="grid-line" />
+                        <line x1="60" y1="140" x2="540" y2="140" class="grid-line" />
+                        <line x1="60" y1="220" x2="540" y2="220" class="grid-line" />
+                        <line x1="60" y1="300" x2="540" y2="300" stroke="#fff" stroke-width="1" />
+
+                        <text x="50" y="65" class="axis-text" text-anchor="end">20%</text>
+                        <text x="50" y="305" class="axis-text" text-anchor="end">0%</text>
+                        <text x="550" y="65" class="axis-text" text-anchor="start">170</text>
+                        <text x="550" y="305" class="axis-text" text-anchor="start">100</text>
+
+                        <rect x="230" y="70" width="40" height="230" fill="var(--red)" opacity="0.8" />
+                        <text x="250" y="60" class="data-label" fill="var(--red)">18.2% (Peak)</text>
+
+                        <path d="M100 280 L180 260 L250 180 L340 120 L420 80 L500 60" fill="none" stroke="var(--gold)"
+                            stroke-width="3" />
+                        <circle cx="500" cy="60" r="5" fill="#fff" />
+                        <text x="500" y="45" class="data-label" fill="var(--gold)">指數 168</text>
+
+                        <rect x="200" y="325" width="10" height="10" fill="var(--red)" />
+                        <text x="215" y="334" class="axis-text">M1B資金</text>
+                        <line x1="300" y1="330" x2="320" y2="330" stroke="var(--gold)" stroke-width="3" />
+                        <text x="325" y="334" class="axis-text">房價指數</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=2022');">
+            </div>
+            <div class="container">
+                <div class="text-panel">
+                    <span class="label">FINANCIAL LEVERAGE</span>
+                    <h2>紅單：無限槓桿的暴利</h2>
+                    <div class="text-content">
+                        <p><strong>為何投資客瘋狂進場？</strong> 因為舊制「紅單」創造了極高的財務槓桿。</p>
+                        <p>購買 1000 萬房產，僅需 10 萬訂金。若轉手獲利 10 萬，本金翻倍，<span style="color:var(--red)">ROE 高達 100%</span>。</p>
+                        <div class="analyst-note">
+                            <div class="note-title"><i class="fas fa-exclamation-triangle"></i> MARKET DISTORTION</div>
+                            這種「低成本、高回報、免稅」的結構，讓資金瘋狂湧入，是房價失控的根源。
+                        </div>
+                    </div>
+                </div>
+                <div class="visual-panel">
+                    <div
+                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 30px;">
+                        <div
+                            style="position: relative; width: 400px; height: 10px; background: #555; border-radius: 5px;">
+                            <div
+                                style="position: absolute; left: 30%; top: -20px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 20px solid var(--cyan);">
+                            </div>
+                            <div style="position: absolute; left: 5%; top: -60px; text-align: center;">
+                                <i class="fas fa-coins" style="font-size: 2rem; color: #fff;"></i>
+                                <div style="color: #ccc; margin-top: 5px;">本金 10 萬</div>
+                            </div>
+                            <div style="position: absolute; right: 5%; top: -80px; text-align: center;">
+                                <i class="fas fa-sack-dollar" style="font-size: 3rem; color: var(--gold);"></i>
+                                <div style="color: var(--gold); margin-top: 5px;">獲利 10 萬</div>
+                            </div>
+                        </div>
+
+                        <div
+                            style="text-align: center; border: 2px solid var(--red); padding: 20px 40px; border-radius: 15px; background: rgba(248, 113, 113, 0.1);">
+                            <div
+                                style="font-size: 4rem; color: var(--red); font-weight: bold; font-family: 'JetBrains Mono'; line-height: 1;">
+                                100%</div>
+                            <div style="font-size: 1.2rem; color: var(--red); letter-spacing: 3px; margin-top: 10px;">
+                                ROE 報酬率</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2070');">
+            </div>
+            <div class="container">
+                <div class="text-panel">
+                    <span class="label">POLICY COMPARISON</span>
+                    <h2>2.0 政策：全方位防堵</h2>
+                    <div class="text-content">
+                        <p>2.0 新制針對投機漏洞進行了結構性修補。</p>
+                        <p>重點在於將短期投機的定義從 1 年拉長至 5 年，並實施<strong>「溯及既往」</strong>，利用時間成本逼退投機資金。</p>
+                    </div>
+                </div>
+                <div class="visual-panel">
+                    <div style="width: 95%; padding: 20px;">
+                        <table class="pro-table">
+                            <thead>
+                                <tr>
+                                    <th>比較項目</th>
+                                    <th>1.0 舊制 (漏洞)</th>
+                                    <th>2.0 新制 (現行)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>預售屋</td>
+                                    <td class="bad"><i class="fas fa-times-circle"></i> 輕稅</td>
+                                    <td class="good"><i class="fas fa-check-circle"></i> 45% 重稅</td>
+                                </tr>
+                                <tr>
+                                    <td>重稅期</td>
+                                    <td class="bad">1 年內</td>
+                                    <td class="good">2 年內</td>
+                                </tr>
+                                <tr>
+                                    <td>閉鎖期</td>
+                                    <td class="bad">1-2 年</td>
+                                    <td class="good">2-5 年 (關鍵)</td>
+                                </tr>
+                                <tr>
+                                    <td>法人稅率</td>
+                                    <td class="bad">20% 分離</td>
+                                    <td class="good">最高 45%</td>
+                                </tr>
+                                <tr>
+                                    <td>土地漲價</td>
+                                    <td class="bad">全額扣除</td>
+                                    <td class="good">設有上限</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?q=80&w=2070');">
+            </div>
+            <div class="container">
+                <div class="text-panel">
+                    <span class="label">SIMULATION</span>
+                    <h2>獲利試算：成本結構分析</h2>
+                    <div class="text-content">
+                        <p>這是一個完整的稅額試算模型。您可以扣除成本與免稅額，計算真實利潤。</p>
+                        <p>若在 5 年閉鎖期內出售，<strong>近 40% 的利潤</strong>將被稅金吃掉。這大幅增加了資金周轉的時間成本。</p>
+                        <div class="analyst-note">
+                            <div class="note-title"><i class="fas fa-calculator"></i> CALCULATION LOGIC</div>
+                            應納稅額 = (成交價 - 成本 - 費用 - 土地漲價總數額) × 稅率
+                        </div>
+                    </div>
+                </div>
+                <div class="visual-panel">
+                    <div class="calc-wrapper">
+                        <h3 style="text-align: center; margin-bottom: 25px; color: #fff;">房地合一稅試算機</h3>
+                        <div class="calc-row">
+                            <label>成交獲利 (萬元)</label>
+                            <input type="number" id="profit" value="500" oninput="calculate()">
+                        </div>
+                        <div class="calc-row">
+                            <label>可扣除費用 (30萬或3%)</label>
+                            <input type="number" id="deduction" value="30" oninput="calculate()">
+                        </div>
+                        <div class="calc-row">
+                            <label>持有期間 (稅率)</label>
+                            <select id="rate" onchange="calculate()">
+                                <option value="0.45">2 年內 (45%)</option>
+                                <option value="0.35" selected>2 - 5 年 (35%)</option>
+                                <option value="0.20">5 - 10 年 (20%)</option>
+                                <option value="0.15">10 年以上 (15%)</option>
+                            </select>
+                        </div>
+                        <div class="calc-divider"></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #aaa;">應納稅額</span>
+                            <span
+                                style="font-size: 1.8rem; color: var(--red); font-family: 'JetBrains Mono'; font-weight: bold;"><span
+                                    id="tax-display">164.5</span>萬</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #aaa;">實質淨利</span>
+                            <span
+                                style="font-size: 1.8rem; color: var(--green); font-family: 'JetBrains Mono'; font-weight: bold;"><span
+                                    id="net-display">305.5</span>萬</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=2070');">
+            </div>
+            <div class="container">
+                <div class="text-panel">
+                    <span class="label">MARKET IMPACT</span>
+                    <h2>量縮價漲：背離現象</h2>
+                    <div class="text-content">
+                        <p>圖表顯示 2021 年政策上路後（紅色虛線），出現了顯著的趨勢背離。</p>
+                        <p><strong>1. 量縮：</strong> 交易量 (柱狀) 從 34.5k 下滑至 24.2k，顯示供給減少。</p>
+                        <p><strong>2. 價漲：</strong> 價格指數 (金線) 卻從 135 攀升至 168，顯示需求仍強。</p>
+                        <div class="analyst-note">
+                            <div class="note-title"><i class="fas fa-search"></i> CONCLUSION</div>
+                            供給減少 + 需求增加 = 價格僵固。這就是目前房市「有價無市」的主因。
+                        </div>
+                    </div>
+                </div>
+                <div class="visual-panel">
+                    <svg class="chart-svg" viewBox="0 0 600 350">
+                        <text x="300" y="25" class="chart-title" text-anchor="middle">交易量 vs 房價指數</text>
+                        <line x1="60" y1="50" x2="540" y2="50" class="grid-line" />
+                        <line x1="60" y1="300" x2="540" y2="300" stroke="#fff" stroke-width="1" />
+
+                        <text x="20" y="180" class="axis-text" fill="var(--cyan)" transform="rotate(-90 20,180)">交易量
+                            (棟)</text>
+                        <text x="580" y="180" class="axis-text" fill="var(--gold)" transform="rotate(90 580,180)">指數
+                            (點)</text>
+
+                        <rect x="100" y="100" width="30" height="200" fill="var(--cyan)" opacity="0.3" />
+                        <text x="115" y="90" class="data-label" fill="var(--cyan)">34.5k</text>
+
+                        <rect x="460" y="190" width="30" height="110" fill="var(--cyan)" opacity="0.3" />
+                        <text x="475" y="180" class="data-label" fill="var(--cyan)">24.2k</text>
+
+                        <path d="M115 230 L275 160 L475 60" fill="none" stroke="var(--gold)" stroke-width="3" />
+                        <circle cx="475" cy="60" r="5" fill="#fff" />
+                        <text x="500" y="60" class="data-label" fill="var(--gold)">168 (High)</text>
+
+                        <line x1="275" y1="300" x2="275" y2="50" stroke="var(--red)" stroke-dasharray="3,3" />
+                        <rect x="235" y="35" width="80" height="20" fill="rgba(0,0,0,0.8)" rx="4" />
+                        <text x="275" y="50" fill="var(--red)" font-size="12" font-weight="bold"
+                            text-anchor="middle">2.0 實施</text>
+
+                        <text x="115" y="320" class="axis-text" text-anchor="middle">2020</text>
+                        <text x="475" y="320" class="axis-text" text-anchor="middle">2024</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1526304640152-d4619684e484?q=80&w=2070');">
+            </div>
+            <div class="container">
+                <div class="text-panel">
+                    <span class="label">SYSTEMIC RISK</span>
+                    <h2>銀行體系的紅色警戒</h2>
+                    <div class="text-content">
+                        <p><strong>0.7% 的死亡距離。</strong> 這是最讓監管單位睡不著覺的數據。</p>
+                        <p>銀行不動產放款集中度已達 <span style="color:var(--red); font-weight:bold;">37.2%</span>，距離歷史崩盤點 (37.9%)
+                            僅有一線之隔。</p>
+                        <p>若不打房，房市反轉將導致銀行壞帳激增，引發系統性金融危機。</p>
+                    </div>
+                </div>
+                <div class="visual-panel">
+                    <div style="width: 85%; text-align: center;">
+                        <h3 style="margin-bottom: 50px; color: #fff;">放款集中度壓力計</h3>
+
+                        <div
+                            style="position: relative; height: 60px; background: #222; border: 1px solid #555; border-radius: 30px; overflow: hidden;">
+                            <div
+                                style="position:absolute; left:0; width:70%; height:100%; background:rgba(52, 211, 153, 0.2);">
+                            </div>
+                            <div
+                                style="position:absolute; left:70%; width:15%; height:100%; background:rgba(251, 191, 36, 0.2);">
+                            </div>
+                            <div
+                                style="position:absolute; left:85%; width:15%; height:100%; background:rgba(248, 113, 113, 0.2);">
+                            </div>
+
+                            <div
+                                style="position:absolute; left:93%; top:0; bottom:0; width:3px; background:#fff; box-shadow:0 0 10px #fff; z-index:10;">
+                            </div>
+
+                            <div
+                                style="position:absolute; left:95%; top:0; bottom:0; width:2px; background:var(--red); border-left:2px dashed #000; z-index:5;">
+                            </div>
+                        </div>
+
+                        <div style="position: relative; height: 40px; margin-top: 10px;">
+                            <div
+                                style="position: absolute; left: 70%; transform: translateX(-50%); font-size: 0.8rem; color: var(--green);">
+                                30%<br>安全線</div>
+                            <div
+                                style="position: absolute; left: 85%; transform: translateX(-50%); font-size: 0.8rem; color: var(--gold);">
+                                35%<br>警戒線</div>
+                            <div
+                                style="position: absolute; left: 95%; transform: translateX(-50%); font-size: 0.8rem; color: var(--red);">
+                                37.9%<br>崩盤點</div>
+                        </div>
+
+                        <div
+                            style="margin-top: 30px; font-size: 3rem; font-weight: bold; color: #fff; font-family: 'JetBrains Mono';">
+                            37.2% <span style="font-size: 1rem; color: #aaa;">(CURRENT)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=2070');">
+            </div>
+            <div class="container">
+                <div class="text-panel">
+                    <span class="label">TAX REVENUE</span>
+                    <h2>稅收去哪了？</h2>
+                    <div class="text-content">
+                        <p>房地合一稅收體現了「重分配正義」，專款專用。</p>
+                        <ul>
+                            <li><strong>長照基金 (90%)：</strong> 挹注長照服務發展，照顧高齡社會。</li>
+                            <li><strong>住宅基金 (10%)：</strong> 補貼租金、興辦社會住宅。</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="visual-panel">
+                    <svg class="chart-svg" viewBox="0 0 600 300">
+                        <text x="300" y="30" class="chart-title" text-anchor="middle">稅收資金流向</text>
+                        <rect x="50" y="100" width="120" height="100" rx="10" fill="rgba(255,255,255,0.1)"
+                            stroke="#fff" />
+                        <text x="110" y="145" fill="#fff" font-size="16" font-weight="bold"
+                            text-anchor="middle">總稅收</text>
+
+                        <path d="M170 150 C 280 150, 280 80, 400 80" fill="none" stroke="var(--gold)" stroke-width="30"
+                            opacity="0.6" />
+                        <path d="M170 150 C 280 150, 280 220, 400 220" fill="none" stroke="var(--cyan)"
+                            stroke-width="10" opacity="0.6" />
+
+                        <text x="410" y="85" fill="var(--gold)" font-size="24" font-weight="bold">90% 長照</text>
+                        <text x="410" y="225" fill="var(--cyan)" font-size="20" font-weight="bold">10% 住宅</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1486304873000-235643847519?q=80&w=2089');">
+            </div>
+            <div class="container">
+                <div class="text-panel">
+                    <span class="label">SIDE EFFECT</span>
+                    <h2>副作用：租金轉嫁</h2>
+                    <div class="text-content">
+                        <p>稅負往往轉嫁給弱勢方。由於房東持有成本增加，傾向調漲租金。</p>
+                        <p>CPI 房租指數連年創新高，新北兩房租金已從 2.4 萬漲至 3.2 萬。</p>
+                    </div>
+                </div>
+                <div class="visual-panel">
+                    <svg class="chart-svg" viewBox="0 0 600 350">
+                        <text x="300" y="30" class="chart-title" text-anchor="middle">租金指數與實價 (TWD)</text>
+                        <line x1="60" y1="300" x2="540" y2="300" stroke="#fff" stroke-width="1" />
+
+                        <path d="M60 250 L180 230 L300 180 L420 120 L540 80" fill="none" stroke="var(--green)"
+                            stroke-width="4" />
+
+                        <circle cx="60" cy="250" r="6" fill="#fff" />
+                        <text x="70" y="240" fill="var(--green)" font-weight="bold" font-size="16">$24,000</text>
+
+                        <circle cx="540" cy="80" r="6" fill="#fff" />
+                        <text x="460" y="70" fill="var(--red)" font-weight="bold" font-size="20">$32,000</text>
+
+                        <text x="60" y="320" class="axis-text">2019</text>
+                        <text x="540" y="320" class="axis-text" text-anchor="end">2024</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="parallax-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2144');">
+            </div>
+            <div class="visual-panel visible"
+                style="background: rgba(15, 23, 42, 0.9); padding: 80px; border: 1px solid var(--gold); text-align: center; transform: none; opacity: 1; height: auto;">
+                <i class="fas fa-scale-balanced" style="font-size: 5rem; color: var(--gold); margin-bottom: 40px;"></i>
+                <h2 style="margin-bottom: 30px; color: #fff;">結論：脫虛向實</h2>
+                <p style="font-size: 1.5rem; color: #cbd5e1; line-height: 1.8; max-width: 800px; margin: 0 auto;">
+                    房地合一稅成功消滅了<span style="color:var(--gold)">紅單暴利</span>，<br>
+                    避免了<span style="color:var(--red)">銀行系統性風險</span>。<br>
+                    雖然陣痛難免，但這是台灣經濟轉型的必經之路。
+                </p>
+                <div
+                    style="margin-top: 60px; color: #666; font-family: 'JetBrains Mono'; border-top: 1px solid #333; padding-top: 20px;">
+                    THANKS FOR LISTENING | Q & A
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // 1. 計算機邏輯 (包含免稅額)
+        function calculate() {
+            const p = parseFloat(document.getElementById('profit').value) || 0;
+            const d = parseFloat(document.getElementById('deduction').value) || 0;
+            const r = parseFloat(document.getElementById('rate').value);
+
+            // 簡易公式：(獲利 - 扣除額) * 稅率
+            let taxable = p - d;
+            if (taxable < 0) taxable = 0;
+
+            const tax = (taxable * r).toFixed(1);
+            const net = (p - tax).toFixed(1); // 實拿 = 總獲利 - 稅 (不扣費用的現金流觀點)
+
+            document.getElementById('tax-display').innerText = tax;
+            document.getElementById('net-display').innerText = net;
+        }
+
+        // 2. 滾動與導航
+        const sections = document.querySelectorAll('section');
+        const navDots = document.querySelector('.nav-dots');
+        sections.forEach((_, idx) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (idx === 0) dot.classList.add('active');
+            dot.onclick = () => sections[idx].scrollIntoView({ behavior: 'smooth' });
+            navDots.appendChild(dot);
+        });
+
+        const main = document.getElementById('scroller');
+        const dots = document.querySelectorAll('.dot');
+        main.addEventListener('scroll', () => {
+            let current = 0;
+            sections.forEach((sec, idx) => {
+                const rect = sec.getBoundingClientRect();
+                if (rect.top >= -window.innerHeight / 2 && rect.top < window.innerHeight / 2) {
+                    current = idx;
+                    const text = sec.querySelector('.text-panel');
+                    const visual = sec.querySelector('.visual-panel');
+                    if (text) text.classList.add('visible');
+                    if (visual) visual.classList.add('visible');
+                }
+            });
+            dots.forEach(d => d.classList.remove('active'));
+            dots[current].classList.add('active');
+        });
+
+        // 初始化動畫
+        setTimeout(() => document.querySelector('.text-panel')?.classList.add('visible'), 100);
+    </script>
+</body>
+
+</html>
