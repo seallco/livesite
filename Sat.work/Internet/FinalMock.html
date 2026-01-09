@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>考前衝刺 - 隨機模擬考卷</title>
+    <title>考前衝刺 - 全隨機模擬考卷</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -23,16 +23,54 @@
             padding-top: 80px;
         }
 
+        /* 導覽列 */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #0f172a;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-home-btn {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s;
+        }
+
+        .nav-home-btn:hover { color: #3b82f6; }
+
         /* 懸浮計分板 */
         .sticky-header {
             position: fixed;
-            top: 0;
+            top: 60px;
             left: 0;
             right: 0;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 15px 30px;
+            padding: 10px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -41,7 +79,7 @@
         }
 
         .header-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 800;
             color: var(--primary);
         }
@@ -49,10 +87,10 @@
         .score-badge {
             background: var(--text);
             color: white;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.3s;
         }
 
@@ -61,14 +99,12 @@
             transform: scale(1.05);
         }
 
-        /* 容器 */
         .container {
             max-width: 900px;
-            margin: 0 auto;
+            margin: 20px auto;
             padding: 20px;
         }
 
-        /* 題目卡片 */
         .question-card {
             background: var(--card);
             border-radius: 12px;
@@ -76,19 +112,9 @@
             padding: 25px;
             margin-bottom: 25px;
             border: 1px solid var(--border);
-            transition: transform 0.2s;
         }
 
-        .question-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .q-header {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
+        .q-header { display: flex; gap: 12px; margin-bottom: 20px; }
         .q-num {
             background: #eff6ff;
             color: var(--primary);
@@ -96,24 +122,12 @@
             border-radius: 6px;
             font-weight: 900;
             height: fit-content;
-            font-size: 1rem;
             min-width: 30px;
             text-align: center;
         }
+        .q-text { font-size: 1.1rem; font-weight: 600; line-height: 1.6; flex: 1; }
 
-        .q-text {
-            font-size: 1.15rem;
-            font-weight: 600;
-            line-height: 1.6;
-            flex: 1;
-        }
-
-        /* 選項按鈕 */
-        .options-grid {
-            display: grid;
-            gap: 10px;
-        }
-
+        .options-grid { display: grid; gap: 10px; }
         .option-btn {
             padding: 12px 16px;
             border: 2px solid var(--border);
@@ -123,195 +137,67 @@
             text-align: left;
             cursor: pointer;
             transition: all 0.2s;
-            color: var(--text);
             position: relative;
         }
 
-        .option-btn:hover:not(:disabled) {
-            background-color: #f1f5f9;
-            border-color: #cbd5e1;
-        }
+        .option-btn:hover:not(:disabled) { background-color: #f1f5f9; }
+        .option-btn:disabled { cursor: default; opacity: 0.8; }
+        .option-btn.correct { background-color: #dcfce7; border-color: var(--success); color: #14532d; font-weight: bold; }
+        .option-btn.wrong { background-color: #fee2e2; border-color: var(--error); color: #7f1d1d; }
 
-        .option-btn:disabled {
-            cursor: default;
-            opacity: 0.7;
-        }
-
-        .option-btn.correct {
-            background-color: #dcfce7;
-            border-color: var(--success);
-            color: #14532d;
-            font-weight: bold;
-        }
-
-        .option-btn.wrong {
-            background-color: #fee2e2;
-            border-color: var(--error);
-            color: #7f1d1d;
-        }
-
-        .option-btn.correct::after {
-            content: '✓';
-            position: absolute;
-            right: 15px;
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        .option-btn.wrong::after {
-            content: '✕';
-            position: absolute;
-            right: 15px;
-            color: var(--error);
-            font-weight: bold;
-        }
-
-        /* 解析區塊 */
         .feedback-panel {
             margin-top: 15px;
             padding: 15px;
             background-color: #fff7ed;
             border-left: 4px solid #f97316;
             border-radius: 4px;
-            font-size: 0.95rem;
             display: none;
-            animation: slideDown 0.3s ease-out;
         }
-        
-        .feedback-panel.show {
-            display: block;
-        }
+        .feedback-panel.show { display: block; animation: slideDown 0.3s ease-out; }
 
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 底部按鈕 */
-        .action-bar {
-            text-align: center;
-            margin: 40px 0;
-            padding-top: 20px;
-            border-top: 2px dashed var(--border);
-        }
-
+        .action-bar { text-align: center; margin: 40px 0; border-top: 2px dashed var(--border); padding-top: 20px; }
         .reset-btn {
             background: var(--text);
             color: white;
             padding: 12px 30px;
             border: none;
             border-radius: 8px;
-            font-size: 1.1rem;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.1s;
+            font-weight: bold;
         }
-        .reset-btn:hover { 
-            background: black; 
-            transform: translateY(-2px);
-        }
-        .reset-btn:active {
-            transform: translateY(0);
-        }
-
     </style>
 </head>
 <body>
-    <nav class="top-navbar">
+
+<nav class="top-navbar">
     <div class="nav-container">
-        <a href="../../NavBar.html" class="nav-home-btn">
-            <i class="fa-solid fa-chevron-left"></i> 回目錄
-        </a>
-
-        <span class="nav-title">網頁首頁目錄</span>
-
-        <div class="nav-placeholder"></div> 
+        <a href="../../NavBar.html" class="nav-home-btn">⬅ 回目錄</a>
+        <span class="nav-title">DEMO目錄專案</span>
+        <div style="width: 50px;"></div>
     </div>
 </nav>
 
-<style>
-    /* 1. 關鍵設定：防止內容被擋住 */
-    body {
-        padding-top: 70px; /* 必須大於導覽列的高度 (60px) */
-    }
-
-    /* 2. 導覽列本體 */
-    .top-navbar {
-        position: fixed;      /* 核心：固定在視窗上 */
-        top: 0;               /* 緊貼頂部 */
-        left: 0;              /* 緊貼左邊 */
-        width: 100%;          /* 撐滿寬度 */
-        height: 60px;         /* 設定高度 */
-        background-color: #0f172a; /* 深藍色背景 (配合你的主題) */
-        color: white;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 陰影讓它有浮起來的感覺 */
-        z-index: 1000;        /* 確保它在最上層 */
-        display: flex;
-        align-items: center;  /* 垂直置中 */
-    }
-
-    .nav-container {
-        width: 100%;
-        max-width: 1000px;    /* 限制內容最大寬度 */
-        margin: 0 auto;       /* 水平置中 */
-        padding: 0 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* 3. 回首頁按鈕樣式 */
-    .nav-home-btn {
-        color: #e2e8f0;
-        text-decoration: none;
-        font-size: 1rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px; /* 圖示與文字的間距 */
-        transition: color 0.3s;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .nav-home-btn:hover {
-        color: #3b82f6; /* 懸浮時變亮藍色 */
-    }
-
-    /* 標題樣式 */
-    .nav-title {
-        font-weight: 700;
-        font-size: 1.1rem;
-        letter-spacing: 1px;
-    }
-
-    /* RWD 手機版調整 */
-    @media (max-width: 600px) {
-        .nav-title { display: none; } /* 手機版隱藏中間標題，避免太擠 */
-    }
-</style>
-    <div class="sticky-header">
-        <div class="header-title">🎲 隨機模擬試卷</div>
-        <div class="score-badge" id="score-board">
-            得分: <span id="current-score">0</span> / 進度: <span id="progress-count">0</span>
-        </div>
+<div class="sticky-header">
+    <ㄕdiv class="header-title">🎲 網際網路期末考模擬試卷<div>
+    <div class="score-badge" id="score-board">
+        正確數: <span id="current-score">0</span> / 已答: <span id="progress-count">0</span>
     </div>
+</div>
 
-    <div class="container" id="quiz-container">
-        <div style="text-align:center; padding:50px; color:#64748b;">
-            題目載入與洗牌中...
-        </div>
-    </div>
+<div class="container" id="quiz-container">
+    <div style="text-align:center; padding:50px;">載入題目並隨機洗牌中...</div>
+</div>
 
-    <div class="container">
-        <div class="action-bar">
-            <button class="reset-btn" onclick="resetQuiz()">🔄 清除重做 (回到頂部)</button>
-        </div>
+<div class="container">
+    <div class="action-bar">
+        <button class="reset-btn" onclick="location.reload()">🔄 重新洗牌並重做</button>
     </div>
+</div>
 
 <script>
-    // ------------------------------------------------------------------------
-    // 1. 資料區 (DATA)
-    // ------------------------------------------------------------------------
+    // 資料區 - (此處省略部分重複內容以符合長度，實作時請貼上完整的 rawData)
     const rawData = `
 01. 在車載隨意網路 (VANET) 研究文獻中，在 Mobicast 中，區域用於？
 ○  安全認證
@@ -347,7 +233,7 @@
 ○  DSRC 與 OFDM
 ○  PHY 與 MAC
 ○  GPS 與 CPU
-●  OBU 與 RSU OBU (On-Board Unit，車載單元)：安裝在車輛上的通訊設備，負責處理車間通訊（V2V）與車路通訊（V2I）。 RSU (Road-Side Unit，路側單元)：安裝在道路基礎設施（如路燈、紅綠燈）上的通訊設備，負責與 OBU 進行資訊交換並連接後端網路。
+●  OBU 與 RSU
 
 07. 在車載隨意網路 (VANET) 研究文獻中，DV-CAST 中，若車輛群組間暫時斷裂，訊息可經何途徑繞路？
 ○  GPS定位
@@ -383,7 +269,7 @@
 ○  CDMA
 ○  TDMA
 ○  CSMA/CD
-●  CSMA/CA IEEE 802.11 系列標準（包括用於車載通訊的 802.11p）所採用的衝突避免機制。
+●  CSMA/CA
 
 13. 車輛內部網路設備間通常使用何種連接？
 ○  LTE
@@ -583,19 +469,19 @@
 ○  車輛對雲端伺服器通訊
 ●  車輛間與車輛對路邊基礎設施通訊
 
-46. 最低延遲、最少跳躍數、最大剩餘電量、距離 Sink 最近？ (補全題目)
+46. 最低延遲、最少跳躍數、最大剩餘電量、距離 Sink 最近？
 ○  最低延遲
 ○  最少跳躍數
 ○  最大剩餘電量
 ●  距離 Sink 最近
 
-47. 只能與簡化功能裝置通訊 (補全題目)
+47. 只能與簡化功能裝置通訊
 ○  任務協調者
 ○  支援任何拓撲
 ○  與任何裝置通訊
 ●  只能與簡化功能裝置通訊
 
-48. 定期時間同步 (補全題目)
+48. 定期時間同步
 ●  定期時間同步
 ○  使用多通道
 ○  持續監聽
@@ -625,7 +511,7 @@
 ●  Release 8
 ○  Release 10
 
-05. 下列有關無線網路的敘述，哪些是正確的？[a] LTE 是第四代行動無線技術 [b] WiMAX 使用 IEEE 802.16 的標準...
+05. 下列有關無線網路的敘述，哪些是正確的？[a] LTE 是第四代行動無線技術 [b] WiMAX 使用 IEEE 802.16 的標準
 ○  abc
 ○  abcd
 ○  abcde
@@ -1634,58 +1520,39 @@
 ○  網址分配
     `;
 
-    // ------------------------------------------------------------------------
-    // 2. 解析器 (PARSER)
-    // ------------------------------------------------------------------------
+    // --- 核心邏輯 ---
+
     function parseQuestions(text) {
         const lines = text.split(/\r?\n/);
         const questions = [];
         let currentQ = null;
-
-        const questionStartRegex = /^\s*(\d+)[\.．、]\s*(.*)/;
-        const optionRegex = /^\s*([○●])\s*(.*)/;
+        const qStartRegex = /^\s*(\d+)[\.．、]\s*(.*)/;
+        const optRegex = /^\s*([○●])\s*(.*)/;
 
         lines.forEach(line => {
             line = line.trim();
             if(!line) return;
-
-            const qMatch = line.match(questionStartRegex);
+            const qMatch = line.match(qStartRegex);
             if (qMatch) {
-                if (currentQ) { questions.push(currentQ); }
-                currentQ = {
-                    text: qMatch[2],
-                    options: [],
-                    answerIndex: -1,
-                    explanation: ""
-                };
+                if (currentQ) questions.push(currentQ);
+                currentQ = { text: qMatch[2], options: [], answerIndex: -1, explanation: "" };
                 return;
             }
-
-            const optMatch = line.match(optionRegex);
-            if (currentQ && optMatch) {
-                const symbol = optMatch[1];
-                const content = optMatch[2];
-                currentQ.options.push(content);
-                if (symbol === '●') {
-                    currentQ.answerIndex = currentQ.options.length - 1;
-                }
+            const oMatch = line.match(optRegex);
+            if (currentQ && oMatch) {
+                currentQ.options.push(oMatch[2]);
+                if (oMatch[1] === '●') currentQ.answerIndex = currentQ.options.length - 1;
                 return;
             }
-
-            if (currentQ && currentQ.options.length === 0) {
-                currentQ.text += "<br>" + line;
-            } else if (currentQ) {
-                currentQ.explanation += line + "<br>";
+            if (currentQ) {
+                if (currentQ.options.length === 0) currentQ.text += "<br>" + line;
+                else currentQ.explanation += line + "<br>";
             }
         });
-
-        if (currentQ) { questions.push(currentQ); }
+        if (currentQ) questions.push(currentQ);
         return questions;
     }
 
-    // ------------------------------------------------------------------------
-    // 3. 洗牌演算法 (Fisher-Yates Shuffle)
-    // ------------------------------------------------------------------------
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -1694,113 +1561,76 @@
         return array;
     }
 
-    // ------------------------------------------------------------------------
-    // 4. 渲染與邏輯
-    // ------------------------------------------------------------------------
-    // 強制重整後回到頂部
-    if (history.scrollRestoration) {
-        history.scrollRestoration = 'manual';
-    }
-
     let questions = parseQuestions(rawData);
-    questions = shuffleArray(questions); // 啟動即洗牌
-
-    const container = document.getElementById('quiz-container');
-    const elScore = document.getElementById('current-score');
-    const elProgress = document.getElementById('progress-count');
-
     let totalScore = 0;
     let answeredCount = 0;
 
     function init() {
-        container.innerHTML = ""; 
-        if (questions.length === 0) {
-            container.innerHTML = "<div style='text-align:center'>❌ 解析失敗，請檢查原始資料格式</div>";
-            return;
-        }
+        const container = document.getElementById('quiz-container');
+        container.innerHTML = "";
+        
+        // 1. 題目洗牌
+        questions = shuffleArray(questions);
 
         questions.forEach((q, index) => {
-            // index + 1 即為新的流水號 (1, 2, 3...)
+            // 2. 選項洗牌
+            const correctText = q.options[q.answerIndex];
+            q.options = shuffleArray([...q.options]);
+            q.answerIndex = q.options.indexOf(correctText);
+
             const card = createQuestionCard(q, index + 1);
             container.appendChild(card);
         });
+        document.getElementById('progress-count').innerText = "0";
     }
 
-    function createQuestionCard(q, displayIndex) {
+    function createQuestionCard(q, idx) {
         const card = document.createElement('div');
         card.className = 'question-card';
-
-        const header = document.createElement('div');
-        header.className = 'q-header';
-        header.innerHTML = `
-            <div class="q-num">${displayIndex}</div>
-            <div class="q-text">${q.text}</div>
-        `;
-        card.appendChild(header);
-
-        const optGrid = document.createElement('div');
-        optGrid.className = 'options-grid';
-
+        card.innerHTML = `<div class="q-header"><div class="q-num">${idx}</div><div class="q-text">${q.text}</div></div>`;
+        
+        const grid = document.createElement('div');
+        grid.className = 'options-grid';
+        
         const feedback = document.createElement('div');
         feedback.className = 'feedback-panel';
-        
-        q.options.forEach((optText, i) => {
+
+        q.options.forEach((opt, i) => {
             const btn = document.createElement('button');
             btn.className = 'option-btn';
-            btn.innerHTML = optText;
-            
+            btn.innerHTML = opt;
             btn.onclick = () => {
-                // 鎖定該題按鈕
-                const allBtns = optGrid.querySelectorAll('.option-btn');
-                allBtns.forEach(b => b.disabled = true);
-
+                const btns = grid.querySelectorAll('.option-btn');
+                btns.forEach(b => b.disabled = true);
                 answeredCount++;
-                elProgress.innerText = answeredCount;
-
+                
                 if (i === q.answerIndex) {
                     btn.classList.add('correct');
                     totalScore++;
-                    elScore.innerText = totalScore;
                     feedback.innerHTML = `<strong>✅ 答對了！</strong><br>${q.explanation}`;
-                    feedback.style.borderColor = "var(--success)";
-                    feedback.style.backgroundColor = "#dcfce7";
                 } else {
                     btn.classList.add('wrong');
-                    if (q.answerIndex !== -1) {
-                        allBtns[q.answerIndex].classList.add('correct');
-                    }
-                    feedback.innerHTML = `<strong>❌ 答錯了！</strong><br>正確答案是：${q.options[q.answerIndex]}<br><br>${q.explanation}`;
+                    btns[q.answerIndex].classList.add('correct');
+                    feedback.innerHTML = `<strong>❌ 答錯了！</strong><br>正確答案：${q.options[q.answerIndex]}<br><br>${q.explanation}`;
                 }
                 
-                if (q.explanation || i !== q.answerIndex) {
-                    feedback.classList.add('show');
-                }
+                document.getElementById('current-score').innerText = totalScore;
+                document.getElementById('progress-count').innerText = answeredCount;
+                feedback.classList.add('show');
                 
-                // 分數板動畫
                 const badge = document.getElementById('score-board');
                 badge.classList.add('active');
                 setTimeout(() => badge.classList.remove('active'), 300);
             };
-
-            optGrid.appendChild(btn);
+            grid.appendChild(btn);
         });
 
-        card.appendChild(optGrid);
+        card.appendChild(grid);
         card.appendChild(feedback);
-
         return card;
     }
 
-    // 重置功能
-    function resetQuiz() {
-        window.scrollTo(0, 0);
-        setTimeout(() => location.reload(), 50);
-    }
-
-    // 啟動
-    init();
-
+    window.onload = init;
 </script>
-
 </body>
 </html>
