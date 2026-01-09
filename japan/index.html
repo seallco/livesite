@@ -13,6 +13,86 @@
 </head>
 
 <body>
+       <nav class="top-navbar">
+    <div class="nav-container">
+        <a href="../NavBar.html" class="nav-home-btn">
+            <i class="fa-solid fa-chevron-left"></i> 回目錄
+        </a>
+
+        <span class="nav-title">網頁首頁目錄</span>
+
+        <div class="nav-placeholder"></div> 
+    </div>
+</nav>
+<style>
+    /* 1. 關鍵設定：防止內容被擋住 */
+    /* 修改這裡：高度要是兩個導覽列高度的總和 (60px + 50px = 110px) */
+    body {
+        padding-top: 110px; 
+    }
+
+    /* 2. 第一層導覽列 (回目錄) */
+    .top-navbar {
+        position: fixed;
+        top: 0;              /* 緊貼視窗頂部 */
+        left: 0;
+        width: 100%;
+        height: 60px;        /* 高度固定為 60px */
+        background-color: #0f172a;
+        color: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 1001;       /* 確保這層在最上面 (比第二層高) */
+        display: flex;
+        align-items: center;
+    }
+
+    /* ... (.nav-container, .nav-home-btn, .nav-title 維持原樣，此處省略) ... */
+
+    /* 3. 第二層導覽列 (Day1~Day5) */
+    /* 這裡是你原本缺少的樣式，或者需要覆蓋 css/index.css 的地方 */
+    .fixed-nav {
+        position: fixed;
+        top: 60px;           /* 關鍵修改：往下推 60px (第一層的高度) */
+        left: 0;
+        width: 100%;
+        height: 50px;        /* 設定第二層高度 */
+        background-color: #fff; /* 背景色建議與第一層區隔，例如白色或淺灰 */
+        color: #333;
+        z-index: 1000;       /* 層級比第一層低一點，但比內容高 */
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;       /* 讓內部連結水平排列 */
+        align-items: center;
+        justify-content: center; /* 連結置中 */
+        overflow-x: auto;    /* 手機版如果連結太多可以左右滑動 */
+        white-space: nowrap; /* 防止連結換行 */
+    }
+
+    /* 第二層導覽列的連結樣式 */
+    .fixed-nav .nav-link {
+        padding: 0 15px;
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+        line-height: 50px; /* 垂直置中 */
+        transition: color 0.3s;
+    }
+
+    .fixed-nav .nav-link:hover {
+        color: #0f172a;    /* 滑鼠懸停顏色 */
+        background-color: #f1f5f9;
+    }
+
+    /* RWD 手機版調整 */
+    @media (max-width: 600px) {
+        .nav-title { display: none; }
+        
+        /* 手機版可能需要調整連結大小 */
+        .fixed-nav .nav-link {
+            font-size: 0.9rem;
+            padding: 0 10px;
+        }
+    }
+</style>
     <nav class="fixed-nav">
         <div class="nav-container">
             <a href="#day1" class="nav-link">第一天 - 大阪</a>

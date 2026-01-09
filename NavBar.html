@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-terminal"></i>
+            <span id="site-name">Loading...</span>
+        </div>
+        
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-input" placeholder="搜尋專案...">
+        </div>
+
+        <nav id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <h1 id="page-title">Dashboard</h1>
+            <p id="page-desc">Welcome back.</p>
+        </header>
+
+        <div id="content-container"></div>
+
+        <footer id="site-footer"></footer>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

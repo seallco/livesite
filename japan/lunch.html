@@ -11,6 +11,78 @@
 </head>
 
 <body>
+       <nav class="top-navbar">
+    <div class="nav-container">
+        <a href="../NavBar.html" class="nav-home-btn">
+            <i class="fa-solid fa-chevron-left"></i> 回目錄
+        </a>
+
+        <span class="nav-title">網頁首頁目錄</span>
+
+        <div class="nav-placeholder"></div> 
+    </div>
+</nav>
+
+<style>
+    /* 1. 關鍵設定：防止內容被擋住 */
+    body {
+        padding-top: 70px; /* 必須大於導覽列的高度 (60px) */
+    }
+
+    /* 2. 導覽列本體 */
+    .top-navbar {
+        position: fixed;      /* 核心：固定在視窗上 */
+        top: 0;               /* 緊貼頂部 */
+        left: 0;              /* 緊貼左邊 */
+        width: 100%;          /* 撐滿寬度 */
+        height: 60px;         /* 設定高度 */
+        background-color: #0f172a; /* 深藍色背景 (配合你的主題) */
+        color: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 陰影讓它有浮起來的感覺 */
+        z-index: 1000;        /* 確保它在最上層 */
+        display: flex;
+        align-items: center;  /* 垂直置中 */
+    }
+
+    .nav-container {
+        width: 100%;
+        max-width: 1000px;    /* 限制內容最大寬度 */
+        margin: 0 auto;       /* 水平置中 */
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* 3. 回首頁按鈕樣式 */
+    .nav-home-btn {
+        color: #e2e8f0;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px; /* 圖示與文字的間距 */
+        transition: color 0.3s;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .nav-home-btn:hover {
+        color: #3b82f6; /* 懸浮時變亮藍色 */
+    }
+
+    /* 標題樣式 */
+    .nav-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+    }
+
+    /* RWD 手機版調整 */
+    @media (max-width: 600px) {
+        .nav-title { display: none; } /* 手機版隱藏中間標題，避免太擠 */
+    }
+</style>
   <header class="bg-gradient-to-r from-red-800 to-red-600 text-white">
     <div class="container mx-auto px-4 py-16">
       <h1 class="text-4xl font-bold mb-4">2/24午餐</h1>
