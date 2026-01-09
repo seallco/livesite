@@ -2,170 +2,107 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>考前衝刺 - 全隨機模擬考卷</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>考前衝刺 - 全隨機適配版</title>
     <style>
         :root {
             --primary: #2563eb;
             --success: #10b981;
             --error: #ef4444;
-            --bg: #f8fafc;
+            --bg: #f1f5f9;
             --card: #ffffff;
-            --text: #334155;
+            --text: #1e293b;
             --border: #e2e8f0;
+            --nav-h: 60px;
+            --score-h: 50px;
         }
 
+        /* 基礎設置與行動裝置防滑 */
         body {
-            font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding-top: 80px;
+            padding-top: calc(var(--nav-h) + var(--score-h) + 10px);
+            -webkit-tap-highlight-color: transparent;
+            line-height: 1.5;
         }
 
-        /* 導覽列 */
+        /* 雙層固定導覽列適配 */
         .top-navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: #0f172a;
-            color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1100;
-            display: flex;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-h);
+            background: #0f172a; color: white; z-index: 1200;
+            display: flex; align-items: center;
         }
 
         .nav-container {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 15px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .nav-home-btn {
-            color: #e2e8f0;
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.3s;
-        }
+        .nav-home-btn { color: #e2e8f0; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
 
-        .nav-home-btn:hover { color: #3b82f6; }
-
-        /* 懸浮計分板 */
         .sticky-header {
-            position: fixed;
-            top: 60px;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 10px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-            border-bottom: 1px solid var(--border);
+            position: fixed; top: var(--nav-h); left: 0; right: 0; height: var(--score-h);
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 1100;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 15px;
         }
 
-        .header-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
+        .header-title { font-size: 0.9rem; font-weight: 800; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .score-badge {
-            background: var(--text);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-
-        .score-badge.active {
-            background: var(--primary);
-            transform: scale(1.05);
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-        }
+        /* 容器與卡片 RWD */
+        .container { width: 95%; max-width: 800px; margin: 0 auto; }
 
         .question-card {
-            background: var(--card);
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            padding: 25px;
-            margin-bottom: 25px;
-            border: 1px solid var(--border);
+            background: var(--card); border-radius: 12px; padding: 20px;
+            margin-bottom: 20px; border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        .q-header { display: flex; gap: 12px; margin-bottom: 20px; }
+        .q-header { display: flex; gap: 10px; margin-bottom: 15px; }
         .q-num {
-            background: #eff6ff;
-            color: var(--primary);
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-weight: 900;
-            height: fit-content;
-            min-width: 30px;
-            text-align: center;
+            background: var(--primary); color: white; min-width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 6px; font-weight: bold; font-size: 0.85rem;
         }
-        .q-text { font-size: 1.1rem; font-weight: 600; line-height: 1.6; flex: 1; }
+        .q-text { font-size: 1.05rem; font-weight: 600; color: #334155; }
 
-        .options-grid { display: grid; gap: 10px; }
+        /* 按鈕觸控優化 */
+        .options-grid { display: grid; gap: 12px; }
         .option-btn {
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            background: white;
-            border-radius: 8px;
-            font-size: 1rem;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
+            padding: 14px 16px; border: 2px solid var(--border); background: white;
+            border-radius: 10px; font-size: 1rem; text-align: left; cursor: pointer;
+            transition: all 0.2s; position: relative;
         }
 
-        .option-btn:hover:not(:disabled) { background-color: #f1f5f9; }
-        .option-btn:disabled { cursor: default; opacity: 0.8; }
-        .option-btn.correct { background-color: #dcfce7; border-color: var(--success); color: #14532d; font-weight: bold; }
-        .option-btn.wrong { background-color: #fee2e2; border-color: var(--error); color: #7f1d1d; }
+        @media (hover: hover) { .option-btn:hover:not(:disabled) { border-color: var(--primary); background: #eff6ff; } }
+        
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #dcfce7 !important; border-color: var(--success) !important; color: #14532d; font-weight: bold; }
+        .option-btn.wrong { background: #fee2e2 !important; border-color: var(--error) !important; color: #7f1d1d; }
 
         .feedback-panel {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #fff7ed;
-            border-left: 4px solid #f97316;
-            border-radius: 4px;
-            display: none;
+            margin-top: 15px; padding: 15px; background: #fefce8;
+            border-left: 4px solid #f59e0b; border-radius: 8px; font-size: 0.95rem; display: none;
         }
-        .feedback-panel.show { display: block; animation: slideDown 0.3s ease-out; }
+        .feedback-panel.show { display: block; animation: fadeIn 0.3s; }
 
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        /* 回到頂部按鈕 */
+        #back-to-top {
+            position: fixed; bottom: 20px; right: 20px; width: 45px; height: 45px;
+            background: var(--primary); color: white; border: none; border-radius: 50%;
+            display: none; align-items: center; justify-content: center; font-size: 20px;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 1000;
+        }
 
-        .action-bar { text-align: center; margin: 40px 0; border-top: 2px dashed var(--border); padding-top: 20px; }
-        .reset-btn {
-            background: var(--text);
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 小螢幕調整 */
+        @media (max-width: 480px) {
+            .q-text { font-size: 1rem; }
+            .option-btn { padding: 12px; font-size: 0.95rem; }
+            .header-title { max-width: 150px; }
         }
     </style>
 </head>
@@ -173,28 +110,30 @@
 
 <nav class="top-navbar">
     <div class="nav-container">
-        <a href="../../NavBar.html" class="nav-home-btn">⬅ 回目錄</a>
-        <span class="nav-title">DEMO目錄專案</span>
-        <div style="width: 50px;"></div>
+        <a href="../../NavBar.html" class="nav-home-btn">⬅ 目錄</a>
+        <span style="font-size: 0.9rem; font-weight: bold;">模擬測驗系統</span>
+        <button class="nav-home-btn" style="background:none; border:none; cursor:pointer;" onclick="location.reload()">刷新</button>
     </div>
 </nav>
 
 <div class="sticky-header">
-    <ㄕdiv class="header-title">🎲 網際網路期末考模擬試卷<div>
+    <div class="header-title" id="test-title">🎲 期末考模擬試卷</div>
     <div class="score-badge" id="score-board">
-        正確數: <span id="current-score">0</span> / 已答: <span id="progress-count">0</span>
+        ✅ <span id="current-score">0</span> | 📝 <span id="progress-count">0</span>
     </div>
 </div>
 
 <div class="container" id="quiz-container">
-    <div style="text-align:center; padding:50px;">載入題目並隨機洗牌中...</div>
+    <div style="text-align:center; padding:50px; color: #64748b;">題目載入中...</div>
 </div>
 
-<div class="container">
-    <div class="action-bar">
-        <button class="reset-btn" onclick="location.reload()">🔄 重新洗牌並重做</button>
+<div class="container" style="padding-bottom: 60px;">
+    <div class="action-bar" style="text-align: center; margin-top: 30px;">
+        <button class="reset-btn" style="padding: 12px 24px; border-radius: 8px; border: none; background: #475569; color: white; font-weight: bold;" onclick="window.scrollTo({top:0, behavior:'smooth'})">向上捲動</button>
     </div>
 </div>
+
+<button id="back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">▲</button>
 
 <script>
     // 資料區 - (此處省略部分重複內容以符合長度，實作時請貼上完整的 rawData)
@@ -1522,7 +1461,7 @@
 
     // --- 核心邏輯 ---
 
-    function parseQuestions(text) {
+   function parseQuestions(text) {
         const lines = text.split(/\r?\n/);
         const questions = [];
         let currentQ = null;
@@ -1568,30 +1507,25 @@
     function init() {
         const container = document.getElementById('quiz-container');
         container.innerHTML = "";
-        
-        // 1. 題目洗牌
         questions = shuffleArray(questions);
 
+        // 效能優化：使用 DocumentFragment 一次性插入
+        const fragment = document.createDocumentFragment();
         questions.forEach((q, index) => {
-            // 2. 選項洗牌
             const correctText = q.options[q.answerIndex];
             q.options = shuffleArray([...q.options]);
             q.answerIndex = q.options.indexOf(correctText);
-
-            const card = createQuestionCard(q, index + 1);
-            container.appendChild(card);
+            fragment.appendChild(createQuestionCard(q, index + 1));
         });
-        document.getElementById('progress-count').innerText = "0";
+        container.appendChild(fragment);
     }
 
     function createQuestionCard(q, idx) {
         const card = document.createElement('div');
         card.className = 'question-card';
         card.innerHTML = `<div class="q-header"><div class="q-num">${idx}</div><div class="q-text">${q.text}</div></div>`;
-        
         const grid = document.createElement('div');
         grid.className = 'options-grid';
-        
         const feedback = document.createElement('div');
         feedback.className = 'feedback-panel';
 
@@ -1603,32 +1537,34 @@
                 const btns = grid.querySelectorAll('.option-btn');
                 btns.forEach(b => b.disabled = true);
                 answeredCount++;
-                
                 if (i === q.answerIndex) {
                     btn.classList.add('correct');
                     totalScore++;
-                    feedback.innerHTML = `<strong>✅ 答對了！</strong><br>${q.explanation}`;
                 } else {
                     btn.classList.add('wrong');
                     btns[q.answerIndex].classList.add('correct');
-                    feedback.innerHTML = `<strong>❌ 答錯了！</strong><br>正確答案：${q.options[q.answerIndex]}<br><br>${q.explanation}`;
                 }
-                
                 document.getElementById('current-score').innerText = totalScore;
                 document.getElementById('progress-count').innerText = answeredCount;
+                feedback.innerHTML = `<strong>${i === q.answerIndex ? '✅ 答對了' : '❌ 答錯了'}</strong><br>${q.explanation || ''}`;
                 feedback.classList.add('show');
-                
-                const badge = document.getElementById('score-board');
-                badge.classList.add('active');
-                setTimeout(() => badge.classList.remove('active'), 300);
             };
             grid.appendChild(btn);
         });
-
         card.appendChild(grid);
         card.appendChild(feedback);
         return card;
     }
+
+    // 捲動監聽
+    window.onscroll = function() {
+        const btn = document.getElementById("back-to-top");
+        if (document.body.scrollTop > 500 || document.documentElement.scrollTop > 500) {
+            btn.style.display = "flex";
+        } else {
+            btn.style.display = "none";
+        }
+    };
 
     window.onload = init;
 </script>
