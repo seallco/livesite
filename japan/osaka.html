@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大阪 5 日慢活之旅｜周淵凱專屬</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 2026 現代配色系統 */
+            --primary: #2c3e50;       /* 深藍：專業、沈穩 */
+            --primary-light: #34495e;
+            --accent: #ff6b6b;        /* 珊瑚紅：重點、熱情 */
+            --bg-color: #f4f7f6;      /* 淺灰：護眼背景 */
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --border-radius: 16px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            
+            /* 交通標籤色系 */
+            --transport-bg: #eef2f3;
+            --subway: #e17055;  /* 御堂筋紅 */
+            --train: #0984e3;   /* JR 藍 */
+            --bus: #00b894;     /* 綠色 */
+            --walk: #636e72;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        /* --- Header & Navigation --- */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 40px 20px 60px; /* 下方留白給 Nav */
+            text-align: center;
+            border-radius: 0 0 30px 30px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+        }
+
+        h1 { margin-bottom: 10px; font-weight: 700; letter-spacing: 1px; }
+        .subtitle { font-size: 0.9rem; opacity: 0.9; font-weight: 300; }
+
+        /* 返回目錄按鈕 */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.35); transform: translateY(-2px); }
+
+        /* 黏性導航列 (Sticky Nav) */
+        .nav-wrapper {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            margin: -30px auto 20px;
+            max-width: 900px;
+            padding: 0 15px;
+        }
+
+        .nav-scroller {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        .nav-scroller::-webkit-scrollbar { display: none; } /* Chrome */
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-radius: 25px;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        .nav-item:hover { color: var(--primary); background: #f1f2f6; }
+        .nav-item:active, .nav-item:focus { background: var(--primary); color: white; }
+
+        /* --- Content Layout --- */
+        .container { max-width: 800px; margin: 0 auto; padding: 0 15px; }
+
+        .day-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.02);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .day-header {
+            padding: 20px 25px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .day-title { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+        .day-date { 
+            font-family: 'Roboto Mono', monospace; 
+            font-size: 0.85rem; 
+            background: var(--bg-color); 
+            padding: 4px 10px; 
+            border-radius: 8px; 
+            color: var(--text-muted);
+        }
+
+        .timeline { padding: 20px 25px; }
+        
+        .event {
+            position: relative;
+            padding-left: 30px;
+            padding-bottom: 30px;
+            border-left: 2px solid #dfe6e9;
+        }
+        .event:last-child { border-left: 2px solid transparent; padding-bottom: 0; }
+        
+        .event::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--bg-color);
+        }
+
+        .time-badge {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+        .location { font-size: 1.1rem; font-weight: 600; margin-bottom: 5px; display: block; }
+        .desc { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 10px; }
+
+        /* --- Transport Component --- */
+        .transport-box {
+            background: var(--transport-bg);
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .transport-header { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            font-size: 0.75rem; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .route-row { display: flex; align-items: center; gap: 8px; }
+        .tag { 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            color: white; 
+            font-weight: 700; 
+            font-size: 0.7rem; 
+            min-width: 50px; 
+            text-align: center;
+        }
+
+        /* --- Warning Component --- */
+        .alert-box {
+            background: #fff5f5;
+            border-left: 4px solid var(--accent);
+            color: #c0392b;
+            padding: 12px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: start;
+        }
+        .alert-icon { font-size: 1.2rem; }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Responsive Tweaks --- */
+        @media (max-width: 600px) {
+            header { padding-bottom: 50px; text-align: left; padding-left: 25px; }
+            .back-btn { top: 15px; right: 15px; left: auto; background: rgba(255,255,255,0.25); }
+            h1 { font-size: 1.5rem; }
+            .day-header { flex-direction: column; align-items: flex-start; gap: 5px; }
+            .event { padding-left: 20px; }
+            .nav-scroller { border-radius: 0; margin: -20px -15px 20px; width: calc(100% + 30px); border-radius: 0 0 20px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="../NavBar.html" class="back-btn">
+            <span>←</span> 返回總目錄
+        </a>
+        <h1>大阪 5 日慢活之旅</h1>
+        <div class="subtitle">交通精算・風險標註・合夥人監修版</div>
+    </header>
+
+    <div class="nav-wrapper">
+        <nav class="nav-scroller">
+            <a href="#day1" class="nav-item">D1 抵達</a>
+            <a href="#day2" class="nav-item">D2 嵐山</a>
+            <a href="#day3" class="nav-item">D3 奈良</a>
+            <a href="#day4" class="nav-item">D4 神戶</a>
+            <a href="#day5" class="nav-item">D5 返台</a>
+        </nav>
+    </div>
+
+    <div class="container">
+
+        <article id="day1" class="day-card">
+            <div class="day-header">
+                <span class="day-title">Day 1｜關空 & 道頓堀</span>
+                <span class="day-date">1/23 (FRI)</span>
+            </div>
+            <div class="timeline">
+                <div class="event">
+                    <span class="time-badge">17:50</span>
+                    <span class="location">抵達關西機場 (KIX)</span>
+                    <div class="desc">入境預計 60 分鐘。</div>
+                    <div class="transport-box">
+                        <div class="transport-header"><span>Transport</span><span>45 min</span></div>
+                        <div class="route-row">
+                            <span class="tag" style="background:var(--train)">南海急行</span>
+                            <span>難波站</span>
+                        </div>
+                        <div class="route-row">
+                            <span class="tag" style="background:var(--subway)">御堂筋線</span>
+                            <span>心齋橋站</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <span class="time-badge">21:00</span>
+                    <span class="location">Owl Café (貓頭鷹咖啡)</span>
+                    <div class="alert-box">
+                        <span class="alert-icon">⚠️</span>
+                        <div><strong>警告：</strong>此時段多數店家已打烊，請務必事前確認，以免撲空。</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <span class="time-badge">22:00</span>
+                    <span class="location">晚餐：大阪燒「ゆかり」</span>
+                    <div class="desc">道頓堀散步與宵夜。</div>
+                </div>
+            </div>
+        </article>
+
+        <article id="day2" class="day-card">
+            <div class="day-header">
+                <span class="day-title">Day 2｜嵐山 & 勝尾寺</span>
+                <span class="day-date">1/24 (SAT)</span>
+            </div>
+            <div class="timeline">
+                <div class="event">
+                    <span class="time-badge">10:45</span>
+                    <span class="location">前往嵐山</span>
+                    <div class="transport-box">
+                        <div class="transport-header"><span>Transport</span><span>70 min</span></div>
+                        <div class="route-row"><span class="tag" style="background:var(--subway)">御堂筋</span><span>梅田</span></div>
+                        <div class="route-row"><span class="tag" style="background:#780f18">阪急</span><span>嵐山站</span></div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <span class="time-badge">11:50 - 14:00</span>
+                    <span class="location">嵐山散步</span>
+                    <div class="desc">竹林、天龍寺、渡月橋。</div>
+                </div>
+
+                <div class="event">
+                    <span class="time-badge">14:00</span>
+                    <span class="location">移動至勝尾寺</span>
+                    <div class="alert-box">
+                        <span class="alert-icon">🛑</span>
+                        <div><strong>行程高風險：</strong>移動需時 1.5 小時以上，且公車極少。14:00 出發極為緊繃，建議直接計程車或提早。</div>
+                    </div>
+                    <div class="transport-box">
+                        <div class="transport-header"><span>Complex Route</span><span>90+ min</span></div>
+                        <div class="route-row"><span class="tag" style="background:#780f18">阪急</span><span>南茨木</span></div>
+                        <div class="route-row"><span class="tag" style="background:var(--bus)">Bus 29</span><span>勝尾寺</span></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article id="day3" class="day-card">
+            <div class="day-header">
+                <span class="day-title">Day 3｜奈良 (祭典錯置?)</span>
+                <span class="day-date">1/25 (SUN)</span>
+            </div>
+            <div class="timeline">
+                <div class="event">
+                    <span class="time-badge">10:45</span>
+                    <span class="location">前往奈良</span>
+                    <div class="transport-box">
+                        <div class="transport-header"><span>Transport</span><span>45 min</span></div>
+                        <div class="route-row"><span class="tag" style="background:var(--train)">JR</span><span>大和路線 → 奈良</span></div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <span class="time-badge">16:45</span>
+                    <span class="location">若草山燒山祭典</span>
+                    <div class="alert-box">
+                        <span class="alert-icon">🔥</span>
+                        <div><strong>日期錯誤警告：</strong>燒山祭通常於「週六」(1/24) 舉行。今日是週日，請務必與 Day 2 互換行程！</div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article id="day4" class="day-card">
+            <div class="day-header">
+                <span class="day-title">Day 4｜神戶牛 & 住吉大社</span>
+                <span class="day-date">1/26 (MON)</span>
+            </div>
+            <div class="timeline">
+                <div class="event">
+                    <span class="time-badge">12:00</span>
+                    <span class="location">Kobe Beef SAKURA</span>
+                    <div class="desc">神戶牛鐵板燒午餐。</div>
+                </div>
+
+                <div class="event">
+                    <span class="time-badge">14:00</span>
+                    <span class="location">前往住吉大社</span>
+                    <div class="alert-box">
+                        <span class="alert-icon">⚠️</span>
+                        <div><strong>折返跑警告：</strong>從神戶回大阪住吉大社需 60 分鐘。務必提早出發。</div>
+                    </div>
+                    <div class="transport-box">
+                        <div class="transport-header"><span>Transport</span><span>60 min</span></div>
+                        <div class="route-row"><span class="tag" style="background:#f7aa00;color:black">阪神</span><span>難波</span></div>
+                        <div class="route-row"><span class="tag" style="background:var(--train)">南海</span><span>住吉大社</span></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article id="day5" class="day-card">
+            <div class="day-header">
+                <span class="day-title">Day 5｜返台</span>
+                <span class="day-date">1/27 (TUE)</span>
+            </div>
+            <div class="timeline">
+                <div class="event">
+                    <span class="time-badge">09:30</span>
+                    <span class="location">前往關西機場</span>
+                    <div class="alert-box">
+                        <span class="alert-icon">✈️</span>
+                        <div><strong>登機警示：</strong>12:45 起飛。9:30 出發非常危險，如有任何電車延誤將無法挽回。強烈建議 09:00 前出發。</div>
+                    </div>
+                    <div class="transport-box">
+                        <div class="transport-header"><span>Last Mile</span><span>50 min</span></div>
+                        <div class="route-row"><span class="tag" style="background:var(--train)">南海特急</span><span>機場站</span></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+    </div>
+
+</body>
+</html>
