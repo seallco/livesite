@@ -32,45 +32,76 @@ html {
     scroll-padding-top: 80px;
 }
 
+/* --- 導覽列外部固定容器 --- */
 .fixed-nav {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background: rgba(22, 33, 62, 0.7);
+    background: rgba(22, 33, 62, 0.95);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     z-index: 1000;
-    padding: 15px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-/* 修改導覽列容器，確保不換行且可滾動 */
+
+/* 修正：將內容靠左對齊，確保 Icon 固定在左上 */
 .nav-container {
     max-width: 1400px;
     margin: 0 auto;
     display: flex;
-    justify-content: flex-start; /* 改為靠左，確保捲動起始位置正確 */
-    gap: 12px;
-    padding: 5px 20px;
-    max-height: 100px;
-    /* 關鍵屬性：開啟橫向捲動 */
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch; /* 讓 iOS 滑動更順暢 */
-}
-
-/* 隱藏捲軸（選用，保持美觀） */
-.nav-container::-webkit-scrollbar {
-    display: none;
-}
-
-.nav-link {
-    /* 確保文字不會折行 */
-    flex: 0 0 auto; 
-    display: inline-block;
-    
+    flex-direction: column; 
+    align-items: flex-start; /* 修改：由 center 改為 flex-start 實現靠左 */
     padding: 10px 20px;
+    position: relative;
+    overflow: visible;
+}
+
+/* 漢堡按鈕：固定在左側 */
+.menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 24px;
+    color: white;
+    padding: 10px 5px; /* 調整間距 */
+    z-index: 1100; 
+    position: relative;
+    pointer-events: auto;
+}
+
+/* 選單主體：手機版絕對定位滑出 */
+.nav-menu {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 0; 
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.4s ease-in-out;
+    
+    position: absolute;
+    top: 100%; 
+    left: 0;
+    background: rgba(22, 33, 62, 0.98); 
+    z-index: 1050;
+}
+
+/* 激活狀態 */
+.nav-menu.active {
+    max-height: 600px; 
+    opacity: 1;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 連結樣式 */
+.nav-link {
+    width: 100%;
+    text-align: center; /* 連結文字保持置中較美觀 */
+    padding: 12px 20px;
     color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     font-size: 15px;
@@ -79,6 +110,7 @@ html {
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    display: block;
 }
 
 .nav-link:hover {
@@ -95,6 +127,54 @@ html {
     box-shadow: 0 0 25px rgba(74, 144, 226, 0.3);
 }
 
+/* 進度條容器 */
+.nav-progress-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#navBarIndicator {
+    width: 0%;
+    height: 100%;
+    background: #e94560;
+    box-shadow: 0 0 8px rgba(233, 69, 96, 0.8);
+    transition: width 0.1s ease-out;
+}
+
+/* --- 桌面版 (1024px 以上) 回復水平排列 --- */
+@media (min-width: 1024px) {
+    .menu-toggle {
+        display: none !important;
+    }
+    
+    .nav-container {
+        flex-direction: row; 
+        justify-content: center; /* 電腦版改回置中排列 */
+        align-items: center;
+    }
+
+    .nav-menu {
+        position: static;
+        max-height: none;
+        opacity: 1;
+        flex-direction: row;
+        background: transparent;
+        overflow: visible;
+        width: auto;
+    }
+
+    .nav-link {
+        width: auto;
+        display: inline-block;
+        margin: 0 5px;
+    }
+}
+
+/* --- 其餘內容樣式保持不變 --- */
 .hero-container {
     position: relative;
     width: 100%;
@@ -109,10 +189,6 @@ html {
     object-fit: cover;
     object-position: center;
     transition: transform 0.5s ease;
-}
-
-.hero-container:hover .hero-image {
-    transform: scale(1.03);
 }
 
 .hero-overlay {
@@ -160,11 +236,6 @@ html {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.day-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
 
 .day-header {
@@ -249,15 +320,6 @@ html {
     z-index: 1;
 }
 
-.timeline-item:nth-child(odd)::before {
-    right: -0.6rem;
-    left: auto;
-}
-
-.timeline-item:nth-child(even)::before {
-    left: -0.6rem;
-}
-
 .event {
     background: rgba(255, 255, 255, 0.9);
     padding: 2rem;
@@ -269,11 +331,6 @@ html {
     text-align: left;
 }
 
-.event:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-
 .time {
     font-weight: 700;
     color: var(--secondary);
@@ -282,14 +339,6 @@ html {
     align-items: center;
     gap: 0.5rem;
     font-size: 1.1rem;
-}
-
-.timeline-item:nth-child(odd) .time {
-    justify-content: flex-end;
-}
-
-.timeline-item:nth-child(even) .time {
-    justify-content: flex-start;
 }
 
 .event h3 {
@@ -382,21 +431,6 @@ img {
         scroll-padding-top: 70px;
     }
 
-    .nav-container {
-        flex-wrap: wrap;
-        gap: 10px;
-        padding: 0 10px;
-        flex-direction: column;
-        max-height: 50px;
-        
-    }
-
-    .nav-link {
-        font-size: 14px;
-        padding: 8px 16px;
-        width: auto;
-    }
-
     .hero-container {
         height: 60vh;
     }
@@ -425,17 +459,6 @@ img {
 
     .hero-subtitle {
         font-size: 1rem;
-    }
-
-    .nav-container {
-        gap: 5px;
-    }
-
-    .nav-link {
-        width: 50%;
-        text-align: center;
-        padding: 8px;
-        font-size: 13px;
     }
 
     .timeline {

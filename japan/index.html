@@ -13,17 +13,26 @@
 </head>
 
 <body>
-
-    <nav class="fixed-nav">
-        <div class="nav-container">
-            <a href="../NavBar.html" class="nav-link">返回目錄</a>
-            <a href="#day1" class="nav-link">第一天 - 大阪</a>
-            <a href="#day2" class="nav-link">第二天 - 神社道頓堀</a>
-            <a href="#day3" class="nav-link">第三天 - 寺廟</a>
-            <a href="#day4" class="nav-link">第四天 - 京都</a>
-            <a href="#day5" class="nav-link">第五天 - 回程</a>
+<nav class="fixed-nav">
+    <div class="nav-container">
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
         </div>
-    </nav>
+
+        <div class="nav-menu" id="navWrapper">
+            <a href="../NavBar.html" class="nav-link"><i class="fas fa-home"></i> 返回目錄</a>
+            <a href="#day1" class="nav-link">Day 1 - 大阪</a>
+            <a href="#day2" class="nav-link">Day 2 - 神社道頓堀</a>
+            <a href="#day3" class="nav-link">Day 3 - 寺廟</a>
+            <a href="#day4" class="nav-link">Day 4 - 京都</a>
+            <a href="#day5" class="nav-link">Day 5 - 回程</a>
+        </div>
+
+        <div class="nav-progress-wrapper">
+            <div id="navBarIndicator"></div>
+        </div>
+    </div>
+</nav>
 
     <div class="hero-container">
         <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80"
