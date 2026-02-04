@@ -13,8 +13,10 @@ const siteConfig = {
             type: "card", 
             items: [
                 { title: "政昕電腦比較", desc: "政昕電腦比較", link: "./ChengHsin/computer.html", tag: "" },
+                 { title: "政昕尾牙小遊戲", desc: "政昕尾牙小遊戲", link: "./ChengHsin/annual.html", tag: "" },
                 { title: "菸害防制問卷", desc: "師大菸害防制問卷", link: "./Tobacco-Control/Tobacco-Control.html", tag: "" },
                 { title: "大阪京都自由行", desc: "2/21-2/25大阪自由行", link: "./japan/index.html", tag: "" },
+                { title: "大阪自由行", desc: "1/23-1/27研究室自由行", link: "./japan/osaka.html", tag: "" }
             ]
         },
         {

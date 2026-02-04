@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026/01/23-2026/01/27大阪行程表</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e74c3c;
+            --transit: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg: #e0e5ec; /* 電腦版背景色：深灰，讓手機區塊突顯 */
+            --app-bg: #f4f6f7; /* 手機內容背景 */
+            --card-bg: #ffffff;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: #333;
+            /* 防止iOS點擊高亮 */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* === 核心容器：模擬手機視窗 === */
+        .mobile-container {
+            max-width: 500px; /* 強制最大寬度，電腦上看就像手機 */
+            margin: 0 auto;   /* 居中 */
+            background-color: var(--app-bg);
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); /* 讓它在電腦上有浮起來的感覺 */
+            position: relative;
+            padding-bottom: 80px; /* 底部留白 */
+        }
+
+        /* 導航列 */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+        }
+        
+        /* 右側可滑動選單 */
+        .nav-links {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            margin-left: 15px;
+            scrollbar-width: none;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); /* 兩側淡出效果 */
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+        }
+        .nav-links::-webkit-scrollbar { display: none; }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            margin-left: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .nav-links a.active {
+            background: white;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* 行程卡片區 */
+        .day-section {
+            margin-bottom: 25px;
+            background: var(--card-bg);
+            /* 手機版不需要圓角，滿版顯示更像原生App，或者保留微圓角 */
+            margin: 15px 10px; 
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            scroll-margin-top: 70px;
+        }
+
+        .day-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .day-title { font-size: 1.1rem; font-weight: 700; margin: 0; }
+        .day-date { font-size: 0.85rem; opacity: 0.8; font-family: 'Roboto Mono', monospace; }
+
+        .timeline-wrapper {
+            padding: 20px 15px;
+            position: relative;
+        }
+
+        /* 貫穿的時間軸線 (固定在左側) */
+        .timeline-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            bottom: 20px;
+            left: 21px; /* 線的位置 */
+            width: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        /* 時間標籤 */
+        .time-label {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 32px; /* 避開左側的線 */
+            margin-bottom: 8px;
+            position: relative;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        /* 裝飾點點 */
+        .time-label::before {
+            content: '';
+            position: absolute;
+            left: -16px; /* 點點在線上 */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 2px solid white; /* 讓點點跟線分開一點 */
+            z-index: 1;
+        }
+
+        /* 內容卡片 */
+        .activity-card {
+            margin-left: 32px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-left: 4px solid var(--success);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 25px;
+        }
+
+        .act-title {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .act-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            background: #95a5a6;
+            white-space: nowrap;
+            margin-left: 5px;
+        }
+        .badge-food { background: #e67e22; }
+        .badge-spot { background: #27ae60; }
+        .badge-imp { background: var(--accent); }
+
+        .act-desc {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* 交通區塊 */
+        .transit-block {
+            margin-left: 32px;
+            margin-bottom: 25px;
+            background: #f4f9fd;
+            border: 1px dashed var(--transit);
+            border-radius: 8px;
+            padding: 12px;
+            position: relative;
+        }
+
+        /* 交通 Icon */
+        .transit-block::before {
+            content: '\f207'; /* Bus Icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: -24px; /* 對齊線 */
+            top: 15px;
+            width: 20px;
+            height: 20px;
+            background: var(--transit);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 0.6rem;
+            z-index: 2;
+            box-shadow: 0 0 0 3px white;
+        }
+
+        .transit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: 5px;
+        }
+
+        .transit-title { font-weight: bold; color: var(--transit); font-size: 0.95rem; }
+        
+        .transit-time {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--accent);
+            background: rgba(231, 76, 60, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .transit-detail {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .transit-detail i {
+            width: 18px;
+            margin-top: 3px;
+            color: var(--transit);
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        /* 警告區塊樣式 */
+        .transit-block.danger {
+            background: #fff5f5;
+            border-color: var(--accent);
+        }
+        .transit-block.danger::before { background: var(--accent); }
+        .transit-block.danger .transit-title { color: var(--accent); }
+        .transit-block.danger i { color: var(--accent); }
+
+        .warning-text {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: block;
+            background: rgba(255,255,255,0.5);
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        /* 回頂部按鈕 (選用) */
+        .to-top {
+    display: inline-block;
+    padding: 15px 40px;
+    margin: 40px 0;
+    color: #ffffff;
+    background-color:#081257c3;; /* 沿用你的主色 */
+    font-size: 1.25rem;
+    font-weight: bold;
+    display: flex;          /* 啟用彈性佈局 */
+    justify-content: center; /* 水平置中 */
+    align-items: center;                    
+    margin-top: 50px;
+    text-decoration: none;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    border-radius: 50px;       /* 膠囊造型，看起來更現代 */
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+
+
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+
+    <nav class="navbar">
+        <a href="../NavBar.html" class="back-btn">
+            <i class="fas fa-chevron-left"></i>
+            <span style="font-size: 0.9rem; margin-left: 5px; font-weight: bold;">目錄</span>
+        </a>
+        
+        <div class="nav-links">
+            <a href="#day1" onclick="setActive(this)">D1 抵達</a>
+            <a href="#day2" onclick="setActive(this)">D2 嵐山</a>
+            <a href="#day3" onclick="setActive(this)">D3 奈良</a>
+            <a href="#day4" onclick="setActive(this)">D4 神戶</a>
+            <a href="#day5" onclick="setActive(this)">D5 返台</a>
+        </div>
+    </nav>
+
+    <div id="day1" class="day-section">
+        <div class="day-header">
+            <div class="day-title">Day 1 抵達大阪</div>
+            <div class="day-date">2026/01/23 (Fri)</div>
+        </div>
+        <div class="timeline-wrapper">
+            
+            <div class="time-label">17:50</div>
+            <div class="activity-card">
+                <div class="act-title">
+                    抵達關西機場 (KIX)
+                    <span class="act-badge badge-imp">起點</span>
+                </div>
+                <div class="act-desc">入境約 60 分鐘。目標 19:00 前上車。</div>
+            </div>
+
+            <div class="transit-block">
+                <div class="transit-header">
+                    <span class="transit-title">機場 → 住宿</span>
+                    <span class="transit-time">19:00 發</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-train"></i>
+                    <span>南海電鐵：空港急行 → 天下茶屋</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>轉乘：堺筋線 → 花園町</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-flag"></i>
+                    <span>預計 20:10 抵達</span>
+                </div>
+            </div>
+
+            <div class="time-label">20:30</div>
+            <div class="transit-block">
+                <div class="transit-header">
+                    <span class="transit-title">往心齋橋</span>
+                    <span class="transit-time">20:30 發</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-subway"></i>
+                    <span>四橋線/御堂筋線 → 心齋橋站</span>
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <div class="act-title">心齋橋 & Owl Café <span class="act-badge badge-spot">體驗</span></div>
+                <div class="act-desc">請注意咖啡廳打烊時間。欣賞跑跑人看板。</div>
+            </div>
+
+            <div class="time-label">22:00</div>
+            <div class="activity-card">
+                <div class="act-title">大阪燒 ゆかり <span class="act-badge badge-food">晚餐</span></div>
+                <div class="act-desc">推薦特選 Mix 燒。</div>
+            </div>
+
+            <div class="time-label">24:00</div>
+            <div class="activity-card">
+                <div class="act-title">返回住宿 <span class="act-badge">休息</span></div>
+                <div class="act-desc">注意終電時間 (約 00:15)。</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="day2" class="day-section">
+        <div class="day-header">
+            <div class="day-title">Day 2 嵐山 & 勝尾寺</div>
+            <div class="day-date">2026/01/24 (Sat)</div>
+        </div>
+        <div class="timeline-wrapper">
+            
+            <div class="time-label">10:00</div>
+            <div class="activity-card">
+                <div class="act-title">起床 & 出發 <span class="act-badge">準備</span></div>
+                <div class="act-desc">便利商店買早餐，車上吃。</div>
+            </div>
+
+            <div class="transit-block">
+                <div class="transit-header">
+                    <span class="transit-title">大阪 → 嵐山</span>
+                    <span class="transit-time">10:45 發</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-route"></i>
+                    <span>花園町 → 梅田 → (轉阪急) → 嵐山</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-clock"></i>
+                    <span>約 65 分｜11:50 抵達</span>
+                </div>
+            </div>
+
+            <div class="time-label">11:50</div>
+            <div class="activity-card">
+                <div class="act-title">嵐山散步 <span class="act-badge badge-spot">景點</span></div>
+                <div class="act-desc">竹林小徑、天龍寺、渡月橋。</div>
+            </div>
+
+            <div class="time-label">14:00</div>
+            <div class="transit-block danger">
+                <div class="transit-header">
+                    <span class="transit-title">🔥 往勝尾寺 (極限)</span>
+                    <span class="transit-time">14:00 離</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-walking"></i>
+                    <span><strong>撤退：</strong>14:10 前搭上阪急嵐山線</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-train"></i>
+                    <span><strong>轉乘：</strong>梅田轉御堂筋線 → 千里中央</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-bus"></i>
+                    <span><strong>巴士：</strong>15:30 千里中央發 (29系統)</span>
+                </div>
+                <div class="warning-text">錯過 15:30 巴士就無法抵達！</div>
+            </div>
+
+            <div class="time-label">15:50</div>
+            <div class="activity-card">
+                <div class="act-title">勝尾寺 <span class="act-badge badge-spot">拍照</span></div>
+                <div class="act-desc">滿山達摩。停留至 17:50。</div>
+            </div>
+
+            <div class="transit-block">
+                <div class="transit-header">
+                    <span class="transit-title">返程 → 住宿</span>
+                    <span class="transit-time">18:00 發</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-bus"></i>
+                    <span>巴士回千里中央 → 地鐵回市區</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="day3" class="day-section">
+        <div class="day-header">
+            <div class="day-title">Day 3 奈良古都</div>
+            <div class="day-date">2026/01/25 (Sun)</div>
+        </div>
+        <div class="timeline-wrapper">
+            
+            <div class="transit-block">
+                <div class="transit-header">
+                    <span class="transit-title">大阪 → 奈良</span>
+                    <span class="transit-time">10:45 發</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-subway"></i>
+                    <span>花園町 → 天王寺 (轉JR) → 奈良</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-info-circle"></i>
+                    <span>或至難波搭近鐵奈良線 (離公園近)。</span>
+                </div>
+            </div>
+
+            <div class="time-label">12:00</div>
+            <div class="activity-card">
+                <div class="act-title">奈良公園區 <span class="act-badge badge-spot">文化</span></div>
+                <div class="act-desc">東大寺、春日大社、奈良町。</div>
+            </div>
+
+            <div class="time-label">16:45</div>
+            <div class="activity-card">
+                <div class="act-title">奈良祭典 <span class="act-badge badge-spot">活動</span></div>
+                <div class="act-desc">確認若草山燒山時間。</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="day4" class="day-section">
+        <div class="day-header">
+            <div class="day-title">Day 4 神戶 & 住吉</div>
+            <div class="day-date">2026/01/26 (Mon)</div>
+        </div>
+        <div class="timeline-wrapper">
+            
+            <div class="transit-block">
+                <div class="transit-header">
+                    <span class="transit-title">大阪 → 神戶三宮</span>
+                    <span class="transit-time">10:00 發</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-train"></i>
+                    <span>梅田/難波 搭 阪神/JR → 三宮</span>
+                </div>
+            </div>
+
+            <div class="time-label">11:30</div>
+            <div class="activity-card">
+                <div class="act-title">生田神社 <span class="act-badge badge-spot">歷史</span></div>
+                <div class="act-desc">神戶地名起源，戀愛結緣。</div>
+            </div>
+
+            <div class="time-label">12:00</div>
+            <div class="activity-card">
+                <div class="act-title">Kobe Beef SAKURA <span class="act-badge badge-food">午餐</span></div>
+                <div class="act-desc">頂級鐵板燒。13:30 結束。</div>
+            </div>
+
+            <div class="time-label">13:30</div>
+            <div class="activity-card">
+                <div class="act-title">三宮中心街 <span class="act-badge badge-spot">逛街</span></div>
+                <div class="act-desc">警告：僅 40 分鐘。</div>
+            </div>
+
+            <div class="time-label">14:10</div>
+            <div class="transit-block danger">
+                <div class="transit-header">
+                    <span class="transit-title">🔥 往住吉大社 (強制)</span>
+                    <span class="transit-time">14:10 離</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>跨縣市移動，車程 50 分鐘。</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-train"></i>
+                    <span>阪神三宮 → 尼崎(轉) → 難波(轉南海) → 住吉</span>
+                </div>
+                <div class="warning-text">若 15:00 才走，你將只有 30 分鐘逛大社。</div>
+            </div>
+
+            <div class="time-label">15:10</div>
+            <div class="activity-card">
+                <div class="act-title">住吉大社 <span class="act-badge badge-spot">景點</span></div>
+                <div class="act-desc">紅色反橋，住吉總本社。</div>
+            </div>
+
+            <div class="time-label">18:30</div>
+            <div class="activity-card">
+                <div class="act-title">あぶりや 燒肉 <span class="act-badge badge-food">晚餐</span></div>
+                <div class="act-desc">建議預約天王寺或難波店。</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="day5" class="day-section">
+        <div class="day-header">
+            <div class="day-title">Day 5 返台</div>
+            <div class="day-date">2026/01/27 (Tue)</div>
+        </div>
+        <div class="timeline-wrapper">
+            
+            <div class="time-label">08:30</div>
+            <div class="activity-card">
+                <div class="act-title">木津市場 <span class="act-badge badge-food">早餐</span></div>
+                <div class="act-desc">海鮮丼、玉出超市掃貨。</div>
+            </div>
+
+            <div class="time-label">09:30</div>
+            <div class="activity-card" style="border-left-color: var(--warning);">
+                <div class="act-title">拿行李 & 出發 <span class="act-badge badge-imp">關鍵</span></div>
+                <div class="act-desc">絕對死線。09:30 必須出門。</div>
+            </div>
+
+            <div class="transit-block danger">
+                <div class="transit-header">
+                    <span class="transit-title">前往關西機場</span>
+                    <span class="transit-time">09:40 發</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-train"></i>
+                    <span>南海 Rapi:t / 空港急行</span>
+                </div>
+                <div class="transit-detail">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>10:45 必須抵達櫃檯。</span>
+                </div>
+            </div>
+
+            <div class="time-label">12:45</div>
+            <div class="activity-card">
+                <div class="act-title">飛機起飛 <span class="act-badge">返家</span></div>
+                <div class="act-desc">Safe Flight!</div>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="to-top">其他行程(可點擊參考)</a>
+
+</div>
+
+<script>
+    function setActive(element) {
+        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+        element.classList.add('active');
+    }
+</script>
+
+</body>
+</html>

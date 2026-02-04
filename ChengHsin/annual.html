@@ -15,7 +15,18 @@
             --blue: #3742fa;
         }
         body { font-family: -apple-system, "Microsoft JhengHei", sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0 10px 10px 10px; user-select: none; -webkit-tap-highlight-color: transparent; padding-bottom: 50px; }
-        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         /* 1. 全局計時器 (Sticky Header) */
         #global-header {
             position: sticky; top: 0; z-index: 999;
@@ -68,7 +79,12 @@
     </style>
 </head>
 <body>
-
+ <nav class="navbar">
+        <a href="../NavBar.html" class="back-btn">
+            <i class="fas fa-chevron-left"></i>
+            <span style="font-size: 0.9rem; margin-left: 5px; font-weight: bold;">目錄</span>
+        </a>
+    </nav>
     <div id="global-header">
         <div class="g-info">
             <span class="g-label">TOTAL (30 MIN)</span>

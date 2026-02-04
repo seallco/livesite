@@ -148,28 +148,28 @@ const restaurants = [
 function createRestaurantCard(restaurant) {
     return `
     <div class="restaurant-card bg-white rounded-lg shadow-lg overflow-hidden relative">
-      <div class="p-6">
+    <div class="p-6">
         <span class="category-tag">${restaurant.categoryName}</span>
         <h3 class="text-xl font-bold mb-2">${restaurant.name}</h3>
         <p class="text-gray-600 mb-2">
-          <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-          ${restaurant.location}
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        ${restaurant.location}
         </p>
         <p class="price-range text-lg font-bold mb-4">NT$ ${restaurant.price}</p>
         <div class="space-y-2">
-          <h4 class="font-semibold text-gray-700">特色餐點：</h4>
-          <ul class="list-disc list-inside text-gray-600">
+        <h4 class="font-semibold text-gray-700">特色餐點：</h4>
+        <ul class="list-disc list-inside text-gray-600">
             ${restaurant.specialties.map(item => `<li>${item}</li>`).join('')}
-          </ul>
+        </ul>
         </div>
-      </div>
     </div>
-  `;
+    </div>
+`;
 }
 
 function renderRestaurants(filteredRestaurants) {
