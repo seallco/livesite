@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>30分鐘防冷場戰情室</title>
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #e0e0e0;
+            --gold: #ffd700;
+            --red: #ff4757;
+            --green: #2ed573;
+            --blue: #3742fa;
+        }
+        body { font-family: -apple-system, "Microsoft JhengHei", sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0 10px 10px 10px; user-select: none; -webkit-tap-highlight-color: transparent; padding-bottom: 50px; }
+        
+        /* 1. 全局計時器 (Sticky Header) */
+        #global-header {
+            position: sticky; top: 0; z-index: 999;
+            background: #000; border-bottom: 2px solid var(--gold);
+            padding: 10px 5px; margin: 0 -10px 15px -10px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+        }
+        .g-info { display: flex; flex-direction: column; }
+        .g-label { font-size: 0.7rem; color: #888; letter-spacing: 1px; }
+        #g-timer { font-family: 'Courier New', monospace; font-size: 1.8rem; font-weight: bold; color: var(--gold); line-height: 1; }
+        #g-btn { background: var(--green); color: #000; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; }
+
+        /* 2. 積分區 */
+        .score-box { background: var(--card); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #333; }
+        .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .p-card { background: #2c2c2c; padding: 5px; border-radius: 6px; text-align: center; border: 1px solid #444; }
+        .p-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #aaa; padding: 0 5px; }
+        .p-val { font-size: 1.3rem; font-weight: bold; color: var(--gold); margin: 2px 0; }
+        .btn-score { width: 100%; border: none; padding: 4px; font-size: 1rem; color: white; border-radius: 4px; cursor: pointer; }
+        
+        /* 3. 題目區 */
+        .q-card { background: var(--card); margin-bottom: 12px; padding: 12px; border-radius: 10px; border-left: 4px solid #555; transition: 0.3s; }
+        .q-card.active { border-left-color: var(--gold); background: #252525; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
+        
+        .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .q-title { font-weight: bold; font-size: 1rem; color: #fff; }
+        .q-timer { font-family: 'Courier New', monospace; font-size: 1.4rem; font-weight: bold; color: #666; }
+        .active .q-timer { color: var(--red); }
+
+        .btn-ctrl { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; margin-bottom: 8px; background: #444; color: #aaa; }
+        .active .btn-ctrl { background: var(--blue); color: white; }
+
+        /* 提示按鈕與內容 */
+        .hint-btn { width: 100%; padding: 10px; background: transparent; border: 1px dashed #666; color: #888; border-radius: 6px; text-align: left; font-size: 0.9rem; position: relative; }
+        .hint-content { display: none; margin-top: 8px; background: #2a2a2a; padding: 8px; border-radius: 6px; }
+        .h-row { font-size: 0.85rem; padding: 6px 0; border-bottom: 1px solid #333; line-height: 1.4; color: #ccc; }
+        .h-row b { color: var(--gold); margin-right: 5px; font-size: 0.75rem; background: rgba(255,215,0,0.15); padding: 2px 5px; border-radius: 3px; }
+
+        /* 動畫特效 */
+        @keyframes pulse-yellow { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); border-color: var(--gold); color: var(--gold); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); border-color: var(--red); color: var(--red); } 70% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); } }
+        
+        .alert-yellow { animation: pulse-yellow 1.5s infinite; }
+        .alert-red { animation: pulse-red 1s infinite; }
+        
+        /* 狀態條 */
+        .status-bar { height: 4px; background: #333; width: 100%; border-radius: 2px; margin-top: 5px; overflow: hidden; }
+        .progress { height: 100%; background: var(--green); width: 100%; transition: width 1s linear; }
+    </style>
+</head>
+<body>
+
+    <div id="global-header">
+        <div class="g-info">
+            <span class="g-label">TOTAL (30 MIN)</span>
+            <div id="g-timer">30:00</div>
+        </div>
+        <button id="g-btn" onclick="toggleGlobal()">START</button>
+    </div>
+
+    <div class="score-box">
+        <div class="score-grid" id="scoreGrid"></div>
+    </div>
+
+    <div id="q-container"></div>
+
+<script>
+    // 題目設定：總時長 24 分鐘，預留 6 分鐘緩衝
+    // s: 秒數 (根據難度配速)
+    const quests = [
+        { t: "1. 肥皂 (Soap)", s: 200, h: ["環境: 儀式空間中的消磨","方向: 固體向泡沫的狀態轉移","暗喻: 自我消磨以換取他人清爽","物理: 潮濕時具侵略性的逃避","極限: 水循環中短暫的消耗品"] }, // 4 min
+        { t: "2. 發票 (Receipt)", s: 200, h: ["物理: 交易後的資訊載體","方向: 隨機且延時的價值兌換","暗喻: 承載夢想的薄紙與垃圾","秩序: 記載金錢流向與時間的數字","哲學: 兩個月一次的機率測試"] }, // 4 min
+        { t: "3. 垃圾桶 (Trash)", s: 180, h: ["空間: 關於捨棄的固定座標","方向: 收納被判定為無功能的事物","暗喻: 安靜收納遺忘的守墓人","感官: 忽視過久會發出強烈警告","哲學: 反映使用者生活殘餘的鏡子"] }, // 3 min
+        { t: "4. 影子 (Shadow)", s: 360, h: ["物理: 能量波下的必然產物","方向: 擁有輪廓卻無物質重量","暗喻: 光中起舞，暗中遺棄","行為: 模仿你卻無法被你觸碰","極限: 光亮的墳墓，存在的另一面"] }, // 6 min (魔王題)
+        { t: "5. 指甲剪 (Clipper)", s: 180, h: ["行為: 身體組織的定期收割","方向: 宣告防禦機制終結的音頻","暗喻: 處理身體溢出部分的刑具","物理: 槓桿轉化為精確的切割力","哲學: 釐清身體與外界的邊界"] }, // 4 min
+        { t: "6. 鈾 (Uranium)", s: 300, h: ["環境: 現代文明運作的底層密碼","方向: 週期表中的不穩定權力位置","暗喻: 上帝遺留下的危險火焰","物理: 衰變中照亮或摧毀文明","文化: 超級英雄起源與末日終結"] } // 3 min
+    ];
+
+    // 初始化積分
+    const sGrid = document.getElementById('scoreGrid');
+    for(let i=1; i<=9; i++){
+        sGrid.innerHTML += `
+        <div class="p-card">
+            <div class="p-info">P${i} <span onclick="modScore(${i},-1)">-</span></div>
+            <div class="p-val" id="s${i}">0</div>
+            <button class="btn-score" style="background:#444" onclick="modScore(${i},1)">+</button>
+        </div>`;
+    }
+    function modScore(i,v){ 
+        let e=document.getElementById('s'+i); 
+        let n=parseInt(e.innerText)+v; 
+        if(n>=0) e.innerText=n; 
+        // 加分時變色提示
+        if(v>0) { e.style.color=varCss('--green'); setTimeout(()=>e.style.color=varCss('--gold'), 300); }
+    }
+    function varCss(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+    // 初始化題目
+    const qCont = document.getElementById('q-container');
+    quests.forEach((q, i) => {
+        qCont.innerHTML += `
+        <div class="q-card" id="card${i}">
+            <div class="q-header">
+                <span class="q-title">${q.t}</span>
+                <span class="q-timer" id="tm${i}">${fmt(q.s)}</span>
+            </div>
+            <div class="status-bar"><div class="progress" id="prog${i}"></div></div>
+            <button class="btn-ctrl" id="btn${i}" onclick="toggleQuest(${i})">START MISSION</button>
+            <button class="hint-btn" id="hb${i}" onclick="toggleHint(${i})">🔍 點此展開提示庫 (L1-L5)</button>
+            <div class="hint-content" id="hc${i}">
+                ${q.h.map((t,idx)=>`<div class="h-row"><b>L${idx+1}</b> ${t}</div>`).join('')}
+            </div>
+        </div>`;
+    });
+
+    function fmt(s){ return Math.floor(s/60)+":"+(s%60).toString().padStart(2,'0'); }
+    function toggleHint(i){ const e=document.getElementById('hc'+i); e.style.display=e.style.display==='block'?'none':'block'; }
+
+    // 全局計時
+    let gTime = 1800, gInt = null;
+    function toggleGlobal(){
+        const b = document.getElementById('g-btn');
+        if(gInt){ clearInterval(gInt); gInt=null; b.innerText="RESUME"; b.style.background="#f39c12"; }
+        else {
+            b.innerText="PAUSE"; b.style.background="#c0392b";
+            gInt = setInterval(()=>{
+                if(gTime>0){
+                    gTime--; document.getElementById('g-timer').innerText=fmt(gTime);
+                    if(gTime<300) document.getElementById('g-timer').style.color="#ff4757";
+                } else { clearInterval(gInt); alert("30分鐘到！"); }
+            },1000);
+        }
+    }
+
+    // 單題邏輯
+    let qInts = {};
+    function toggleQuest(i){
+        const card = document.getElementById('card'+i);
+        const btn = document.getElementById('btn'+i);
+        const hb = document.getElementById('hb'+i);
+        const prog = document.getElementById('prog'+i);
+        
+        // 互斥邏輯：開新題時，暫停其他題
+        Object.keys(qInts).forEach(k => { if(k!=i && qInts[k]) toggleQuest(k); });
+
+        if(qInts[i]){ // 暫停
+            clearInterval(qInts[i]); delete qInts[i];
+            btn.innerText="RESUME"; card.classList.remove('active');
+            hb.className="hint-btn"; // 移除閃爍
+        } else { // 開始
+            btn.innerText="RUNNING..."; card.classList.add('active');
+            let total = quests[i].s;
+            let [m,s] = document.getElementById('tm'+i).innerText.split(':').map(Number);
+            let rem = m*60+s;
+
+            qInts[i] = setInterval(()=>{
+                if(rem>0){
+                    rem--;
+                    document.getElementById('tm'+i).innerText=fmt(rem);
+                    
+                    // 進度條
+                    prog.style.width = (rem/total*100) + "%";
+                    if(rem/total < 0.3) prog.style.background = "#ff4757";
+
+                    // 自動提示提醒邏輯
+                    // 剩餘 75% (破冰) -> 黃色閃爍
+                    if(rem == Math.floor(total*0.75)) { hb.classList.add('alert-green'); vib(200); }
+                    // 剩餘 50% (加溫) -> 黃色閃爍
+                    if(rem == Math.floor(total*0.50)) { hb.classList.remove('alert-yellow'); void hb.offsetWidth; hb.classList.add('alert-yellow'); vib(200); }
+                    // 剩餘 25% (急迫) -> 紅色閃爍
+                    if(rem == Math.floor(total*0.25)) { hb.classList.remove('alert-yellow'); hb.classList.add('alert-red'); vib([200,100,200]); }
+
+                } else {
+                    clearInterval(qInts[i]);
+                    btn.innerText="FINISHED"; btn.style.opacity=0.5;
+                    card.classList.remove('active'); hb.className="hint-btn";
+                    vib(1000);
+                }
+            },1000);
+        }
+    }
+    
+    function vib(ptrn){ if(navigator.vibrate) navigator.vibrate(ptrn); }
+</script>
+</body>
+</html>
