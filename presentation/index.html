@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧精準灌溉系統 | 氣象預報聯動之節水攔截機制</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-white font-['Noto_Sans_TC'] overflow-x-hidden">
+
+    <!-- A. 動態吸頂導覽列 -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/90 md:bg-white/10 backdrop-blur-md border-b border-white/20 p-4 transform -translate-y-full">
+        <div class="max-w-7xl mx-auto flex justify-between items-center relative">
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">精準灌溉系統</h1>
+            
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex gap-6 items-center">
+                <a href="#motivation" class="hover:text-cyan-300 transition-colors">研究動機</a>
+                <a href="#interviews" class="hover:text-cyan-300 transition-colors">痛點與文獻</a>
+                <a href="#sandbox" class="hover:text-cyan-300 transition-colors">系統運作</a>
+                <a href="#results" class="hover:text-cyan-300 transition-colors">成效分析</a>
+                <div class="bg-slate-800/80 px-4 py-2 rounded-full text-sm border border-cyan-500/50 flex items-center gap-2">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+                    </span>
+                    系統狀態: <span id="nav-status" class="text-cyan-300 font-bold">監測中</span>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-white p-2 focus:outline-none hover:text-cyan-300 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-slate-900/95 backdrop-blur-xl border-b border-white/10 flex-col items-center py-6 gap-6 shadow-2xl md:hidden">
+            <a href="#motivation" class="mobile-link text-lg hover:text-cyan-300 transition-colors">研究動機</a>
+            <a href="#interviews" class="mobile-link text-lg hover:text-cyan-300 transition-colors">痛點與文獻</a>
+            <a href="#sandbox" class="mobile-link text-lg hover:text-cyan-300 transition-colors">系統運作</a>
+            <a href="#results" class="mobile-link text-lg hover:text-cyan-300 transition-colors">成效分析</a>
+            <div class="bg-slate-800 px-4 py-2 rounded-full text-sm border border-cyan-500/50 flex items-center gap-2 mt-2">
+                <span class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+                </span>
+                狀態: <span id="nav-status-mobile" class="text-cyan-300 font-bold">監測中</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 區塊 1：Hero Section -->
+    <section id="hero" class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+        <!-- 背景特效 -->
+        <div class="absolute inset-0 z-0 opacity-30 rain-bg"></div>
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto w-full">
+            <p class="text-cyan-400 text-sm md:text-2xl mb-4 font-bold tracking-widest uppercase">氣象預報聯動之節水攔截機制</p>
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-black mb-8 leading-tight">智慧<span class="text-blue-500">精準</span>灌溉系統</h1>
+            <div class="mb-12 hero-number-container">
+                <p class="text-xl md:text-3xl text-gray-300 mb-2">實測有效節水率高達</p>
+                <div class="text-6xl sm:text-7xl md:text-9xl font-black bg-clip-text text-transparent bg-gradient-to-br from-cyan-400 to-blue-600 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)] glow-text">
+                    <span id="hero-number">0</span>%
+                </div>
+            </div>
+            <p class="text-gray-400 text-base md:text-xl max-w-2xl mx-auto mb-8 px-2">結合物聯網、天氣預報 API 與雙因子決策演算法，拒絕盲目澆水，打造新世代農業水資源保衛戰。</p>
+            <a href="#motivation" class="inline-block px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full text-lg md:text-xl font-bold hover:scale-105 transition-transform shadow-[0_0_15px_rgba(6,182,212,0.5)]">開始體驗 ↓</a>
+        </div>
+    </section>
+
+    <!-- 區塊 2：為何要做此主題？ -->
+    <section id="motivation" class="py-16 md:py-24 relative">
+        <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+            <div class="gsap-fade-left">
+                <h2 class="text-3xl md:text-5xl font-bold mb-6 text-white">看似豐沛，<br><span class="text-red-400">實則乾渴的台灣</span></h2>
+                <div class="w-20 h-2 bg-red-500 mb-8 rounded-full"></div>
+                <ul class="space-y-6 text-lg md:text-xl text-gray-300">
+                    <li class="flex gap-4">
+                        <span class="text-2xl md:text-3xl shrink-0">🌧️</span>
+                        <div><strong>降雨量高但留不住：</strong>台灣年降雨量是世界平均 2.5 倍，但地形陡峭，水資源快速流入海洋。</div>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-2xl md:text-3xl shrink-0">⚠️</span>
+                        <div><strong>氣候變遷加劇：</strong>旱澇不均，缺水限水成為常態。</div>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-2xl md:text-3xl shrink-0">🚿</span>
+                        <div><strong>盲目的灌溉浪費：</strong>傳統農業或校園定時澆灌，不管明天下不下雨，照樣灑水，造成極大浪費！</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="gsap-fade-right relative h-[300px] md:h-[400px] rounded-2xl overflow-hidden border border-white/10 bg-slate-800 flex flex-col justify-center items-center px-2">
+                <!-- 簡單的動畫示意 -->
+                 <div class="w-full flex justify-around items-end h-32 md:h-48 px-4 md:px-8 mb-4">
+                    <div class="w-1/3 bg-blue-500/20 rounded-t-lg h-3/4 relative flex justify-center items-end border-t border-blue-400">
+                        <span class="absolute top-1 md:top-2 text-xs md:text-sm text-blue-200">傳統定時</span>
+                        <div class="w-full bg-blue-500 h-full animate-pulse opacity-80"></div>
+                        <div class="absolute -top-10 md:-top-12 text-2xl md:text-3xl">🌧️☀️</div>
+                    </div>
+                    <div class="text-2xl md:text-4xl font-black text-gray-500 px-2">VS</div>
+                    <div class="w-1/3 bg-cyan-500/20 rounded-t-lg h-3/4 relative flex justify-center items-end border-t border-cyan-400">
+                        <span class="absolute top-1 md:top-2 text-xs md:text-sm text-cyan-200">精準預判</span>
+                        <div class="w-full bg-cyan-500 h-1/4"></div>
+                        <div class="absolute -top-10 md:-top-12 text-2xl md:text-3xl">☀️🚫💧</div>
+                    </div>
+                 </div>
+                 <p class="text-sm md:text-base text-gray-400 font-bold text-center mt-4">我們需要更聰明的防呆機制</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 區塊 3：看見真實痛點 (3D 翻轉卡片) -->
+    <section id="interviews" class="py-16 md:py-24 bg-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12 md:mb-16 gsap-fade-up">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">看見痛點與科學實證</h2>
+                <p class="text-lg md:text-xl text-gray-400">從農民真實心聲到國際學術論文的強力背書</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <!-- 卡片 1: 訪談 -->
+                <div class="flip-card h-80 w-full gsap-fade-up" style="--delay: 0s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-6 md:p-8 border border-white/10 flex flex-col justify-center items-center text-center">
+                            <div class="text-5xl md:text-6xl mb-4">👨‍🌾</div>
+                            <h3 class="text-xl md:text-2xl font-bold text-amber-400 mb-2">李爺爺 (76歲)</h3>
+                            <p class="text-sm md:text-base text-gray-300">嘉義民雄・40年務農經驗</p>
+                            <div class="mt-4 px-4 py-2 bg-amber-500/20 text-amber-300 rounded-full text-xs md:text-sm font-bold animate-pulse">點擊 / 懸浮翻轉查看痛點 👉</div>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-amber-600 to-amber-900 rounded-2xl p-6 md:p-8 border border-amber-400/50 flex flex-col justify-center">
+                            <h3 class="text-xl md:text-2xl font-bold text-white mb-2 md:mb-4">真實痛點發現</h3>
+                            <p class="text-amber-100 text-sm md:text-lg leading-relaxed">「以前都靠經驗澆水，但有時候定時設備沒關，明明昨天下大雨，今天機器還是繼續灑水，水就這樣白白流掉。如果機器能自己判斷要不要澆水就好了，而且要簡單耐用！」</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 卡片 2: 文獻 -->
+                <div class="flip-card h-80 w-full gsap-fade-up" style="--delay: 0.2s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-6 md:p-8 border border-white/10 flex flex-col justify-center items-center text-center">
+                            <div class="text-5xl md:text-6xl mb-4">📄</div>
+                            <h3 class="text-lg md:text-xl font-bold text-cyan-400 mb-2">國際期刊支持 [1]</h3>
+                            <p class="text-xs md:text-sm text-gray-300">IARJSET (2026)</p>
+                            <p class="text-sm md:text-base text-white font-bold mt-4">預報最高優先級</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-cyan-600 to-cyan-900 rounded-2xl p-6 md:p-8 border border-cyan-400/50 flex flex-col justify-center">
+                            <h3 class="text-lg md:text-xl font-bold text-white mb-2 md:mb-4">攔截機制驗證</h3>
+                            <p class="text-cyan-100 text-sm md:text-lg leading-relaxed">Nikhil S P 等人研究證實：「將降雨預報機制設定為最高優先級（Highest Priority），能有效攔截、阻止不必要的澆水，顯著降低水資源浪費。」</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 卡片 3: 文獻 -->
+                <div class="flip-card h-80 w-full md:col-span-2 lg:col-span-1 mx-auto lg:mx-0 gsap-fade-up" style="--delay: 0.4s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-6 md:p-8 border border-white/10 flex flex-col justify-center items-center text-center">
+                            <div class="text-5xl md:text-6xl mb-4">📊</div>
+                            <h3 class="text-lg md:text-xl font-bold text-blue-400 mb-2">國際期刊支持 [3]</h3>
+                            <p class="text-xs md:text-sm text-gray-300">IJSR (2024)</p>
+                            <p class="text-sm md:text-base text-white font-bold mt-4">節水率的科學背書</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-blue-600 to-blue-900 rounded-2xl p-6 md:p-8 border border-blue-400/50 flex flex-col justify-center">
+                            <h3 class="text-lg md:text-xl font-bold text-white mb-2 md:mb-4">數據支撐</h3>
+                            <p class="text-blue-100 text-sm md:text-lg leading-relaxed">R. Gupta 等人研究表明，微控制器結合預測模型來優化灌溉時間表，整體節水效率高達 30% ~ 45%。完美佐證了本系統的實測效益。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 區塊 4：系統怎麼運作？ (微型模擬沙盤) -->
+    <section id="sandbox" class="py-16 md:py-24 relative overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12 md:mb-16 gsap-fade-up">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">雙因子決策演算法：互動沙盤</h2>
+                <p class="text-lg md:text-xl text-gray-400">親自操作控制桿，體驗「預判攔截」的防呆機制</p>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-600 rounded-3xl p-6 md:p-12 shadow-2xl grid lg:grid-cols-2 gap-8 lg:gap-12 items-center relative z-10 gsap-scale-up">
+                <!-- 控制面板 -->
+                <div class="space-y-6 md:space-y-8">
+                    <h3 class="text-xl md:text-2xl font-bold text-white mb-4 border-b border-white/20 pb-4">🔧 ESP32 系統控制面板</h3>
+                    
+                    <!-- 濕度控制 -->
+                    <div class="space-y-2 md:space-y-4">
+                        <div class="flex justify-between text-base md:text-lg font-bold">
+                            <span class="text-amber-400">土壤濕度 (Sensor)</span>
+                            <span id="moisture-val" class="text-white">40%</span>
+                        </div>
+                        <input type="range" id="moisture-slider" min="0" max="100" value="40" class="w-full h-3 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                        <p class="text-xs md:text-sm text-gray-400">閾值：低於 30% 需澆水 (除非極端跌破 10%)</p>
+                    </div>
+
+                    <!-- 降雨機率控制 -->
+                    <div class="space-y-2 md:space-y-4 mt-6 md:mt-8">
+                        <div class="flex justify-between text-base md:text-lg font-bold">
+                            <span class="text-blue-400">未來24H降雨機率 (API)</span>
+                            <span id="rain-val" class="text-white">20%</span>
+                        </div>
+                        <input type="range" id="rain-slider" min="0" max="100" value="20" class="w-full h-3 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        <p class="text-xs md:text-sm text-gray-400">閾值：大於等於 70% 觸發攔截</p>
+                    </div>
+                </div>
+
+                <!-- 視覺化結果 -->
+                <div class="bg-slate-900 rounded-2xl p-6 md:p-8 border border-white/10 h-64 md:h-80 flex flex-col justify-center items-center text-center relative overflow-hidden transition-colors duration-500" id="sandbox-display">
+                    <div class="z-10 relative">
+                        <div id="status-icon" class="text-5xl md:text-7xl mb-2 md:mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] transition-transform duration-300">🌱</div>
+                        <h4 id="status-text" class="text-2xl md:text-3xl font-black mb-1 md:mb-2 tracking-wide">待命中</h4>
+                        <p id="status-desc" class="text-gray-300 text-sm md:text-lg">土壤濕潤，不需澆灌</p>
+                    </div>
+                    <!-- 動畫背景層 -->
+                    <div id="water-animation" class="absolute bottom-0 left-0 w-full bg-blue-500/30 h-0 transition-all duration-500"></div>
+                    <div id="rain-animation" class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjIwIj48cmVjdCB3aWR0aD0iMiIgaGVpZ2h0PSIxMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PC9zdmc+')] opacity-0 transition-opacity duration-300 pointer-events-none" style="background-size: 20px 60px; animation: rainDrop 0.5s linear infinite;"></div>
+                </div>
+            </div>
+            
+            <!-- 決策邏輯說明 -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm md:text-base font-bold gsap-fade-up">
+                <div class="bg-blue-900/30 border border-blue-500/30 p-3 md:p-4 rounded-xl">濕度 < 30% 且 機率 < 70%<br><span class="text-blue-400 text-lg md:text-xl mt-1 md:mt-2 block">啟動水泵精準澆灌 🌊</span></div>
+                <div class="bg-red-900/30 border border-red-500/30 p-3 md:p-4 rounded-xl">濕度 < 30% 且 機率 ≧ 70%<br><span class="text-red-400 text-lg md:text-xl mt-1 md:mt-2 block">休眠攔截機制 🚫💧</span></div>
+                <div class="bg-amber-900/30 border border-amber-500/30 p-3 md:p-4 rounded-xl">極端跌破：濕度 < 10%<br><span class="text-amber-400 text-lg md:text-xl mt-1 md:mt-2 block">無視預報，強制救急 🚑</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 區塊 5：成效大對決 -->
+    <section id="results" class="py-16 md:py-24 bg-slate-900">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12 md:mb-16 gsap-fade-up">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">14天實測對決</h2>
+                <p class="text-lg md:text-xl text-gray-400">大幅減少無效澆水，節水率達 43.9%</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
+                <div class="gsap-fade-left w-full">
+                    <canvas id="resultsChart" class="w-full max-w-lg mx-auto"></canvas>
+                </div>
+                <div class="space-y-6 md:space-y-8 gsap-fade-right">
+                    <div class="bg-slate-800 p-5 md:p-6 rounded-2xl border-l-4 border-gray-500">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-300 mb-2">對照組 (傳統僅看濕度)</h3>
+                        <p class="text-base md:text-lg">總澆水次數：<span class="text-white font-bold text-xl md:text-2xl">28 次</span></p>
+                        <p class="text-base md:text-lg">總耗水量：<span class="text-white font-bold text-xl md:text-2xl">56.0 公升</span></p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-900 to-cyan-900 p-5 md:p-6 rounded-2xl border-l-4 border-cyan-400 relative overflow-hidden">
+                        <!-- 發光特效 -->
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-cyan-400 rounded-full blur-3xl opacity-30"></div>
+                        <h3 class="text-xl md:text-2xl font-bold text-cyan-300 mb-2 relative z-10">實驗組 (預報聯動型 - 本系統)</h3>
+                        <p class="text-base md:text-lg relative z-10">總澆水次數：<span class="text-white font-bold text-xl md:text-2xl">16 次</span> <span class="text-sm md:text-base text-green-400 ml-1 md:ml-2">↓ 減少 42.8%</span></p>
+                        <p class="text-base md:text-lg relative z-10">總耗水量：<span class="text-white font-bold text-xl md:text-2xl">31.4 公升</span> <span class="text-sm md:text-base text-green-400 ml-1 md:ml-2">↓ 節水 43.9%</span></p>
+                    </div>
+
+                    <p class="text-gray-300 leading-relaxed text-sm md:text-lg bg-white/5 p-4 rounded-lg">
+                        <strong>分析現象：</strong>在實驗第 4 天與第 11 天，預報顯示降雨機率大於 80%。傳統對照組於上午盲目補水，下午遭遇暴雨造成嚴重浪費與爛根危機；<strong class="text-cyan-400">本系統成功進入休眠攔截，單日節水率達 100%。</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 區塊 6：下一步呢？ (結論與提案) -->
+    <section id="conclusion" class="py-16 md:py-24 bg-gradient-to-b from-slate-900 to-black text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="max-w-4xl mx-auto px-4 relative z-10 gsap-fade-up">
+            <h2 class="text-3xl md:text-5xl font-bold mb-6 md:mb-8">結論與未來展望</h2>
+            <p class="text-lg md:text-xl text-gray-300 leading-relaxed mb-10 md:mb-12">
+                本專案成功實作一套兼具「即時環境感測」與「未來天氣預測」之低成本物聯網智慧灌溉系統。結合開放數據與硬體控制，為傳統農業帶來實質的技術影響力。
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center">
+                <div class="bg-slate-800/80 w-full sm:w-auto px-6 py-5 md:px-8 md:py-6 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition-colors">
+                    <div class="text-3xl md:text-4xl mb-2 md:mb-4">👀</div>
+                    <h3 class="text-lg md:text-xl font-bold text-white mb-1 md:mb-2">導入 CV 影像辨識</h3>
+                    <p class="text-gray-400 text-xs md:text-sm">追蹤植物葉片健康度</p>
+                </div>
+                <div class="bg-slate-800/80 w-full sm:w-auto px-6 py-5 md:px-8 md:py-6 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition-colors">
+                    <div class="text-3xl md:text-4xl mb-2 md:mb-4">📍</div>
+                    <h3 class="text-lg md:text-xl font-bold text-white mb-1 md:mb-2">多點灌溉策略優化</h3>
+                    <p class="text-gray-400 text-xs md:text-sm">針對大面積農田佈局</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black py-6 md:py-8 text-center text-sm md:text-base text-gray-600 border-t border-white/10">
+        <p>© 2026 智慧精準灌溉系統 專題團隊. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
