@@ -225,11 +225,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         'rgba(100, 116, 139, 0.6)', // Slate
                         'rgba(6, 182, 212, 0.8)'    // Cyan
                     ],
+                    hoverBackgroundColor: [
+                        'rgba(100, 116, 139, 0.9)', 
+                        'rgba(34, 211, 238, 1)'     
+                    ],
                     borderColor: [
                         'rgba(100, 116, 139, 1)',
                         'rgba(6, 182, 212, 1)'
                     ],
                     borderWidth: 2,
+                    hoverBorderWidth: 4,
                     borderRadius: 8,
                     barPercentage: 0.6
                 }]
@@ -239,6 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 animation: {
                     duration: 2000,
                     easing: 'easeOutQuart'
+                },
+                onHover: (event, chartElement) => {
+                    event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
                 },
                 scales: {
                     y: {
@@ -276,4 +284,104 @@ document.addEventListener('DOMContentLoaded', () => {
             this.classList.toggle('flipped');
         });
     });
+
+    // --- 5. AI 系統中控台 (對話指令) ---
+    const cmdToggleBtn = document.getElementById('cmd-toggle-btn');
+    const cmdCloseBtn = document.getElementById('cmd-close-btn');
+    const cmdPanel = document.getElementById('cmd-panel');
+    const cmdInput = document.getElementById('cmd-input');
+    const cmdMessages = document.getElementById('cmd-messages');
+
+    function toggleCmdPanel() {
+        if (cmdPanel.classList.contains('hidden')) {
+            cmdPanel.classList.remove('hidden');
+            setTimeout(() => {
+                cmdPanel.classList.add('cmd-panel-active');
+                cmdInput.focus();
+            }, 10);
+        } else {
+            cmdPanel.classList.remove('cmd-panel-active');
+            setTimeout(() => {
+                cmdPanel.classList.add('hidden');
+            }, 300);
+        }
+    }
+
+    cmdToggleBtn.addEventListener('click', toggleCmdPanel);
+    cmdCloseBtn.addEventListener('click', toggleCmdPanel);
+
+    function addCmdMessage(text, sender = 'system') {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'cmd-msg-enter';
+        
+        if (sender === 'user') {
+            msgDiv.innerHTML = `<span class="text-gray-400">你:</span> <span class="text-white">${text}</span>`;
+        } else {
+            msgDiv.innerHTML = `<span class="text-cyan-400">系統:</span> <span class="text-blue-200">${text}</span>`;
+        }
+        
+        cmdMessages.appendChild(msgDiv);
+        cmdMessages.scrollTop = cmdMessages.scrollHeight;
+    }
+
+    cmdInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && cmdInput.value.trim() !== '') {
+            const command = cmdInput.value.trim();
+            addCmdMessage(command, 'user');
+            cmdInput.value = '';
+            processCommand(command);
+        }
+    });
+
+    function processCommand(cmd) {
+        const normalizedCmd = cmd.toLowerCase();
+        
+        // 模擬系統處理延遲，讓對話感更真實
+        setTimeout(() => {
+            if (normalizedCmd.includes('澆水') || normalizedCmd.includes('缺水') || normalizedCmd.includes('乾')) {
+                // 強制救急
+                moistureSlider.value = 5;
+                rainSlider.value = 20;
+                moistureSlider.dispatchEvent(new Event('input')); // 觸發 updateSandbox
+                
+                document.getElementById('sandbox').scrollIntoView({ behavior: 'smooth' });
+                addCmdMessage('💦 收到指令！檢測到極端乾燥，已覆寫沙盤數值，啟動強制救急澆灌機制。');
+                
+            } else if (normalizedCmd.includes('下雨') || normalizedCmd.includes('預報') || normalizedCmd.includes('攔截')) {
+                // 預判攔截
+                moistureSlider.value = 20;
+                rainSlider.value = 90;
+                moistureSlider.dispatchEvent(new Event('input'));
+                
+                document.getElementById('sandbox').scrollIntoView({ behavior: 'smooth' });
+                addCmdMessage('🚫💧 收到指令！已將降雨機率調至 90%，觸發「休眠攔截機制」，為您停止灑水。');
+                
+            } else if (normalizedCmd.includes('待命') || normalizedCmd.includes('正常') || normalizedCmd.includes('濕潤')) {
+                // 待命
+                moistureSlider.value = 70;
+                rainSlider.value = 20;
+                moistureSlider.dispatchEvent(new Event('input'));
+                
+                document.getElementById('sandbox').scrollIntoView({ behavior: 'smooth' });
+                addCmdMessage('🌱 收到指令！沙盤已重置為濕潤狀態，系統進入待命監測。');
+                
+            } else if (normalizedCmd.includes('成效') || normalizedCmd.includes('數據') || normalizedCmd.includes('結果')) {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+                addCmdMessage('📊 已為您導航至成效分析區塊，展示 14 天實測對決數據。');
+                
+            } else if (normalizedCmd.includes('動機') || normalizedCmd.includes('問題')) {
+                document.getElementById('motivation').scrollIntoView({ behavior: 'smooth' });
+                addCmdMessage('🔍 已為您導航至研究動機區塊。');
+                
+            } else if (normalizedCmd.includes('重置') || normalizedCmd.includes('reset')) {
+                moistureSlider.value = 40;
+                rainSlider.value = 20;
+                moistureSlider.dispatchEvent(new Event('input'));
+                addCmdMessage('🔄 系統控制面板已重置為初始狀態。');
+                
+            } else {
+                addCmdMessage('⚠️ 未知的指令。試試輸入：「澆水」、「下雨」、「待命」、「看成效」、「重置」。');
+            }
+        }, 500); 
+    }
 });
