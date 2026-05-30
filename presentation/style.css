@@ -7,6 +7,12 @@ body {
     background-color: #0f172a; /* Tailwind slate-900 */
 }
 
+/* 鎖定滾動 */
+body.intro-active {
+    overflow: hidden;
+    height: 100vh;
+}
+
 /* 背景特效：雨水/水波紋意象 */
 .rain-bg {
     background: linear-gradient(to bottom, #0f172a, #1e3a8a);
@@ -115,4 +121,56 @@ body {
     display: flex !important;
     transform: scale(1) !important;
     opacity: 1 !important;
+}
+
+/* 海洋波浪水平流動動畫 */
+@keyframes oceanFlow {
+    0% { background-position: 0 0; }
+    100% { background-position: 80px 0; }
+}
+
+.animate-ocean-flow {
+    animation: oceanFlow 1.5s linear infinite;
+}
+
+/* 水波紋水平流動動畫 */
+@keyframes waveFlow {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.animate-wave {
+    animation: waveFlow 2s linear infinite;
+    background-size: 200px 100%;
+}
+
+/* 湍急河流動畫 */
+@keyframes riverFlow {
+    0% { background-position: 0 0; }
+    100% { background-position: 80px 0; }
+}
+
+.animate-river {
+    animation: riverFlow 0.4s linear infinite;
+}
+
+/* 暴雨斜降動畫 */
+@keyframes heavyRainDrop {
+    0% { background-position: 0 0; }
+    100% { background-position: -30px 90px; }
+}
+
+.animate-heavy-rain {
+    animation: heavyRainDrop 0.2s linear infinite;
+}
+
+/* 動態注水水流動畫 */
+@keyframes pourWater {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 50px; }
+}
+
+.animate-pour {
+    background-size: 10px 50px;
+    animation: pourWater 0.3s linear infinite;
 }

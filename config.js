@@ -27,7 +27,7 @@ const siteConfig = {
                 {  title: "網際網路期末模考", desc: "期末模考練習", link: "./Sat.work/Internet/FinalMock.html", tag: ""  },
                 {  title: "網際網路期中模考", desc: "期中模考練習", link: "./Sat.work/Internet/quiz.html", tag: ""  },{ title: "財金資料庫期中模考", desc: "期中考模擬試題", link: "./Sat.work/Financial DataBase/quiz.html", tag: "Important" },
             {  title: "財金資料庫期末報告", desc: "房地合一稅2.0", link: "./Sat.work/Financial DataBase/report.html", tag: ""  },
-            {  title: "無線感測網路測驗", desc: "Node.js + SQLite 測驗系統", link: "https://seallco.github.io/livesite/presentation/index.html", tag: "New" }
+            {  title: "無線感測網路測驗", desc: "Node.js + SQLite 測驗系統", link: ".presentation/index.html", tag: "New" }
         ]
         },
         {
