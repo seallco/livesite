@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (introDesc) {
                     introDesc.classList.remove('text-orange-900');
                     introDesc.classList.add('text-green-800');
-                    introDesc.innerText = "｀土壤達到最適濕度，智慧省水達 43.9%！";
+                    introDesc.innerText = "土壤達到最適濕度，智慧省水達 43.9%！";
                 }
             }, 4000);
 
