@@ -31,13 +31,20 @@ const siteConfig = {
         ]
         },
         {
+        title:"二下課程",
+        icon: "fa-solid fa-graduation-cap",
+        type: "card",
+        items: [
+                {  title: "經濟未來", desc: "期末專案", link: "./presentation/index.html", tag: ""  },
+        ]
+        },{
             title: "External Links (外部資源)",
             icon: "fa-solid fa-link",
             type: "list", // 列表模式，比較緊湊
             items: [
-                { title: "MDN Web Docs", link: "https://developer.mozilla.org", desc: "Web 開發聖經" },
+                { title: "MDN Web Docs", link: "https://developer.mozilla.org", desc: "Web 開發" },
                 { title: "Font Awesome", link: "https://fontawesome.com", desc: "圖示庫" },
-                { title: "Google Classroom", link: "https://classroom.google.com", desc: "課程作業繳交" },
+                { title: "iClass", link: "https://iclass.tku.edu.tw/iportal#/", desc: "課程作業" },
             ]
         }
     ]
