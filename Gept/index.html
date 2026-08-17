@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinguaPulse 靈感英語 | GEPT中高級 ✕ 多益金證 ✕ 地道母語隨想隨練</title>
+  <meta name="description" content="零碎時間無壓力提升英語實力，內建 GEPT 中高級 8,365 全量詞彙庫、多益金色證書高頻考點、母語者地道俚語、語音跟讀與情境快打。">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%22><text y=%2226%22 font-size=%2228%22>⚡</text></svg>">
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- Top Header & Gamification Stats -->
+    <header class="header-nav">
+      <div class="brand-logo" id="btn-home-logo" title="返回主頁面">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <div class="brand-title">LinguaPulse</div>
+        </div>
+        <span class="brand-tag">TOEIC Gold & GEPT Pro</span>
+      </div>
+
+      <!-- Gamification Stats -->
+      <div class="user-stats-bar">
+        <!-- Streak -->
+        <div class="stat-pill streak" id="stat-streak" title="連續登入練習天數">
+          <span>🔥</span>
+          <span id="val-streak">1 天連續</span>
+        </div>
+
+        <!-- Level Rank -->
+        <div class="stat-pill level-badge" id="stat-level" title="目前英語等級階梯">
+          <span id="val-level-badge">🏅</span>
+          <span id="val-level-title">Level 1: 英語探索者</span>
+        </div>
+
+        <!-- XP Progress -->
+        <div class="xp-container" title="累積經驗值 (XP)">
+          <div class="xp-label-row">
+            <span id="val-xp-text">0 XP</span>
+            <span id="val-next-level">下一階 100 XP</span>
+          </div>
+          <div class="xp-progress-bar-bg">
+            <div class="xp-progress-bar-fill" id="val-xp-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="nav-actions">
+        <button class="icon-btn" id="btn-open-mastery" title="知識圖鑑 (熟練度追蹤)">
+          <span>🗺️</span>
+        </button>
+
+        <button class="icon-btn" id="btn-open-mistakes" title="錯題本 (複習錯題)">
+          <span>🛡️</span>
+          <span class="badge-count" id="badge-mistakes" style="display: none;">0</span>
+        </button>
+
+        <button class="icon-btn" id="btn-open-bookmarks" title="我的單字收藏庫">
+          <span>⭐</span>
+          <span class="badge-count" id="badge-bookmarks" style="display: none;">0</span>
+        </button>
+
+        <button class="icon-btn" id="btn-toggle-sound" title="切換音效開關">
+          <span id="icon-sound">🔊</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN HUB: Home Dashboard -->
+    <main id="hub-view">
+      <!-- Hero: Quick Spark (1-Click Random Micro Drill) -->
+      <section class="hero-spark-card">
+        <div class="hero-header">
+          <div class="hero-title-area">
+            <h1>隨想隨練 ⚡ 靈感快遞</h1>
+            <p>零碎 30 秒～2 分鐘，從 8,365 GEPT 詞庫與多益金證考點隨機發送，無痛累積母語語感！</p>
+          </div>
+
+          <!-- Difficulty Selector -->
+          <div class="difficulty-filter-group" id="filter-difficulty-group">
+            <button class="filter-pill-btn active" data-diff="中高級" title="鎖定 GEPT 中高級與多益 860+ 金證單字">💎 中高級 (金證)</button>
+            <button class="filter-pill-btn" data-diff="中級" title="鎖定 GEPT 中級與實用商務單字">💼 中級 (流利)</button>
+            <button class="filter-pill-btn" data-diff="all" title="全量詞彙與混合隨機">🌐 全部難度</button>
+          </div>
+        </div>
+
+        <div class="hero-action-row">
+          <button class="spark-big-btn" id="btn-hero-quick-spark">
+            <span>🎲 隨機一抽 Quick Spark (30s)</span>
+          </button>
+          <div class="spark-subtext">
+            <span>🎯 今日已完成: <strong id="val-daily-count" style="color: #a5b4fc;">0</strong> / 3 次微挑戰</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Practice Modes Grid (7+ Modes) -->
+      <div class="section-title-row">
+        <h2 class="section-title">✨ 多樣化抗疲勞練習庫</h2>
+        <span class="section-subtitle">多元主題輪替，告別枯燥死背</span>
+      </div>
+
+      <div class="modes-grid">
+        <!-- Mode 1: 60s Word Blitz -->
+        <div class="mode-card" data-mode="blitz">
+          <div>
+            <div class="mode-icon-box">⚡</div>
+            <span class="mode-tag tag-speed">60s 倒數反應</span>
+            <h3 class="mode-title">60秒詞彙狂飆</h3>
+            <p class="mode-desc">高節奏 GEPT & 多益金證單字快打！挑戰大腦單字直覺反應與連擊加成。</p>
+          </div>
+          <div class="mode-meta-footer">
+            <span>⏱️ 1 分鐘挑戰</span>
+            <span class="mode-btn-pill">開始狂飆 ➔</span>
+          </div>
+        </div>
+
+        <!-- Mode 2: Native Expressions -->
+        <div class="mode-card" data-mode="native">
+          <div>
+            <div class="mode-icon-box">☕</div>
+            <span class="mode-tag tag-native">地道美語 vs 課本</span>
+            <h3 class="mode-title">地道表達與俚語</h3>
+            <p class="mode-desc">擺脫死板課本句！學習老外日常與職場真正高頻使用的口語俚語與慣用語。</p>
+          </div>
+          <div class="mode-meta-footer">
+            <span>🗣️ 母語語感</span>
+            <span class="mode-btn-pill">探索表達 ➔</span>
+          </div>
+        </div>
+
+        <!-- Mode 3: Grammar Detective -->
+        <div class="mode-card" data-mode="grammar">
+          <div>
+            <div class="mode-icon-box">🕵️</div>
+            <span class="mode-tag tag-toeic">多益金證考點</span>
+            <h3 class="mode-title">語感找碴偵探</h3>
+            <p class="mode-desc">直擊多益 Part 5 & 6 陷阱題、易混淆字、搭配介系詞與常犯中式英文。</p>
+          </div>
+          <div class="mode-meta-footer">
+            <span>🎯 突破 860+</span>
+            <span class="mode-btn-pill">立即破案 ➔</span>
+          </div>
+        </div>
+
+        <!-- Mode 4: Echo & Speak -->
+        <div class="mode-card" data-mode="echo">
+          <div>
+            <div class="mode-icon-box">🎙️</div>
+            <span class="mode-tag tag-voice">語音跟讀與發音</span>
+            <h3 class="mode-title">口說回音發音教練</h3>
+            <p class="mode-desc">母語音檔朗讀 (可調節 0.8x 語速) ✕ 麥克風語音辨識，即時精準評分發音。</p>
+          </div>
+          <div class="mode-meta-footer">
+            <span>🎤 練就肌肉記憶</span>
+            <span class="mode-btn-pill">開口練習 ➔</span>
+          </div>
+        </div>
+
+        <!-- Mode 5: Micro-Reading -->
+        <div class="mode-card" data-mode="reading">
+          <div>
+            <div class="mode-icon-box">📰</div>
+            <span class="mode-tag tag-reading">2分鐘微閱讀</span>
+            <h3 class="mode-title">短篇思維微閱讀</h3>
+            <p class="mode-desc">科技、心理學與職場商務短文，支援即時點擊查字與理解力挑戰。</p>
+          </div>
+          <div class="mode-meta-footer">
+            <span>📖 零碎充實大腦</span>
+            <span class="mode-btn-pill">享受閱讀 ➔</span>
+          </div>
+        </div>
+
+        <!-- Mode 6: 3-Turn Dialogue -->
+        <div class="mode-card" data-mode="dialogue">
+          <div>
+            <div class="mode-icon-box">🥊</div>
+            <span class="mode-tag tag-dialogue">情境模擬快打</span>
+            <h3 class="mode-title">情境快打對決</h3>
+            <p class="mode-desc">3 回合真實情境對抗（咖啡店點餐、外商會議委婉異議、酒會社交破冰）。</p>
+          </div>
+          <div class="mode-meta-footer">
+            <span>💼 職場與生活實戰</span>
+            <span class="mode-btn-pill">情境模擬 ➔</span>
+          </div>
+        </div>
+
+        <!-- Mode 7: GEPT 8,365 Dictionary & Flashcard -->
+        <div class="mode-card" data-mode="dictionary">
+          <div>
+            <div class="mode-icon-box">📖</div>
+            <span class="mode-tag tag-gept">全量 8,365 詞庫</span>
+            <h3 class="mode-title">GEPT 詞庫與閃卡</h3>
+            <p class="mode-desc">搜尋 PDF 全本中高級、中級單字，支援發音朗讀與 3D 翻轉閃卡自我檢測。</p>
+          </div>
+          <div class="mode-meta-footer">
+            <span>📚 查詞與翻卡</span>
+            <span class="mode-btn-pill">瀏覽詞庫 ➔</span>
+          </div>
+        </div>
+
+        <!-- Mode 8: Knowledge Mastery Map (知識圖鑑) -->
+        <div class="mode-card" data-mode="mastery" style="border-color: rgba(245, 158, 11, 0.25);">
+          <div>
+            <div class="mode-icon-box" style="background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3);">🗺️</div>
+            <span class="mode-tag" style="background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3);">熟練度圖鑑</span>
+            <h3 class="mode-title">知識圖鑑 (Mastery Pokédex)</h3>
+            <p class="mode-desc">追蹤每個單字的學習歷程與熟練程度，需 5 次連續答對才算「精通」，清楚知道自己什麼會、什麼不會。</p>
+          </div>
+          <div class="mode-meta-footer">
+            <span>⭐ 5 連對 = 精通解鎖</span>
+            <span class="mode-btn-pill" style="color: #fcd34d;">查看圖鑑 ➔</span>
+          </div>
+        </div>
+    </main>
+
+    <!-- PRACTICE WORKSPACES (Rendered dynamically) -->
+    
+    <!-- 1. Word Blitz Workspace -->
+    <section class="practice-container" id="view-blitz">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2>⚡ 60秒詞彙狂飆 (Word Blitz)</h2>
+            <p id="blitz-level-sub">GEPT 中高級 / 多益金證詞彙反應挑戰</p>
+          </div>
+        </div>
+        <div class="practice-header-right">
+          <div class="combo-pill" id="blitz-combo-display" style="display: none;">🔥 連擊 x0</div>
+          <div class="timer-pill" id="blitz-timer-display">⏱️ 60s</div>
+        </div>
+      </div>
+
+      <div id="blitz-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 2. Native Expressions Workspace -->
+    <section class="practice-container" id="view-native">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2>☕ 地道表達與俚語 (Native Expressions)</h2>
+            <p>母語者高頻地道表達 vs. 課本死板說法</p>
+          </div>
+        </div>
+        <div class="practice-header-right">
+          <button class="btn-secondary" id="btn-next-native">🎲 換下一句</button>
+        </div>
+      </div>
+
+      <div id="native-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 3. Grammar & Trap Detective Workspace -->
+    <section class="practice-container" id="view-grammar">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2>🕵️ 語感找碴偵探 (TOEIC & Grammar Detective)</h2>
+            <p>多益金色證書 860+ 高頻考點直擊</p>
+          </div>
+        </div>
+        <div class="practice-header-right">
+          <button class="btn-secondary" id="btn-next-grammar">🎲 換下一題</button>
+        </div>
+      </div>
+
+      <div id="grammar-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 4. Echo & Speak Workspace -->
+    <section class="practice-container" id="view-echo">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2>🎙️ 口說回音發音教練 (Echo & Speak)</h2>
+            <p>高質量母語朗讀 ✕ 麥克風跟讀評分</p>
+          </div>
+        </div>
+        <div class="practice-header-right">
+          <button class="btn-secondary" id="btn-next-echo">🎲 換下一句</button>
+        </div>
+      </div>
+
+      <div id="echo-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 5. Micro-Reading Workspace -->
+    <section class="practice-container" id="view-reading">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2>📰 2分鐘短篇微閱讀 (Micro-Reading Bite)</h2>
+            <p>零碎時間增強語感與深度理解力</p>
+          </div>
+        </div>
+        <div class="practice-header-right">
+          <button class="btn-secondary" id="btn-next-reading">🎲 換下一篇</button>
+        </div>
+      </div>
+
+      <div id="reading-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 6. 3-Turn Dialogue Workspace -->
+    <section class="practice-container" id="view-dialogue">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2>🥊 情境快打對決 (3-Turn Dialogue)</h2>
+            <p>職場與生活臨場應對模擬</p>
+          </div>
+        </div>
+        <div class="practice-header-right">
+          <button class="btn-secondary" id="btn-next-dialogue">🎲 換下一情境</button>
+        </div>
+      </div>
+
+      <div id="dialogue-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 7. GEPT 8,365 Dictionary & Flashcard Workspace -->
+    <section class="practice-container" id="view-dictionary">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2>📖 GEPT 8,365 詞庫大字典與閃卡</h2>
+            <p>包含初級、中級、中高級與學術字彙完整索引</p>
+          </div>
+        </div>
+        <div class="practice-header-right">
+          <button class="btn-primary" id="btn-dict-flashcard-mode">🎴 進入 3D 閃卡模式</button>
+        </div>
+      </div>
+
+      <div id="dictionary-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 8. Mistake Vault / Favorites Workspace -->
+    <section class="practice-container" id="view-vault">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2 id="vault-title">🛡️ 錯題本 (Mistake Vault)</h2>
+            <p id="vault-desc">專注消滅弱點，穩步晉升金色證書</p>
+          </div>
+        </div>
+        <div class="practice-header-right">
+          <button class="btn-secondary" id="btn-clear-vault">清空列表</button>
+        </div>
+      </div>
+
+      <div id="vault-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 9. Knowledge Mastery Map (知識圖鑑 Pokédex) -->
+    <section class="practice-container" id="view-mastery">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2>🗺️ 知識圖鑑 (Mastery Pokédex)</h2>
+            <p>每個字詞的熟練度旅程 — 5 次連續答對才算真正學會</p>
+          </div>
+        </div>
+        <div class="practice-header-right">
+          <button class="btn-primary" onclick="app.startMode('blitz')">⚡ 去練習以解鎖更多</button>
+        </div>
+      </div>
+
+      <div id="mastery-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Floating Toast Notifications -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/gept_data.js"></script>
+  <script src="js/practice_data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/speech.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
