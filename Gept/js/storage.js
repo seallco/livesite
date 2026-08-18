@@ -22,15 +22,15 @@ class StorageManager {
 
     this.LEVEL_RANKS = [
       { lvl: 1, title: "English Explorer (英語探索者)", minXp: 0, badge: "🌱", toeic: "TOEIC 350~450 (初級啟蒙)" },
-      { lvl: 2, title: "Sentence Builder (語感啟蒙)", minXp: 300, badge: "🧩", toeic: "TOEIC 450~550 (基礎穩固)" },
-      { lvl: 3, title: "Fluent Rookie (初露鋒芒)", minXp: 800, badge: "⚡", toeic: "TOEIC 550~650 (綠證門檻)" },
-      { lvl: 4, title: "Workplace Communicator (職場實戰)", minXp: 1800, badge: "💼", toeic: "TOEIC 650~750 (藍證門檻)" },
-      { lvl: 5, title: "Advanced Specialist (進階專家)", minXp: 3500, badge: "🔷", toeic: "TOEIC 750~850 (GEPT中級高標)" },
-      { lvl: 6, title: "TOEIC Gold Aspirant (金證獵手)", minXp: 6500, badge: "🏅", toeic: "TOEIC 860+ (金色證書起步)" },
-      { lvl: 7, title: "GEPT High-Intermediate (中高級達人)", minXp: 11000, badge: "💎", toeic: "TOEIC 900+ (GEPT中高級)" },
-      { lvl: 8, title: "Executive Communicator (高管商務家)", minXp: 17000, badge: "👑", toeic: "TOEIC 950+ (頂尖高管)" },
-      { lvl: 9, title: "Near-Native Fluency (神級語感)", minXp: 24000, badge: "🔥", toeic: "TOEIC 980+ (母語流利)" },
-      { lvl: 10, title: "Native Master Mind (母語頂峰大師)", minXp: 32000, badge: "🌌", toeic: "TOEIC 990 滿分 ✕ 全庫支配" }
+      { lvl: 2, title: "Sentence Builder (語感啟蒙)", minXp: 1000, badge: "🧩", toeic: "TOEIC 450~550 (基礎穩固)" },
+      { lvl: 3, title: "Fluent Rookie (初露鋒芒)", minXp: 3000, badge: "⚡", toeic: "TOEIC 550~650 (綠證門檻)" },
+      { lvl: 4, title: "Workplace Communicator (職場實戰)", minXp: 7000, badge: "💼", toeic: "TOEIC 650~750 (藍證門檻)" },
+      { lvl: 5, title: "Advanced Specialist (進階專家)", minXp: 14000, badge: "🔷", toeic: "TOEIC 750~850 (GEPT中級高標)" },
+      { lvl: 6, title: "TOEIC Gold Aspirant (金證獵手)", minXp: 25000, badge: "🏅", toeic: "TOEIC 860+ (金色證書起步)" },
+      { lvl: 7, title: "GEPT High-Intermediate (中高級達人)", minXp: 40000, badge: "💎", toeic: "TOEIC 900+ (GEPT中高級)" },
+      { lvl: 8, title: "Executive Communicator (高管商務家)", minXp: 55000, badge: "👑", toeic: "TOEIC 950+ (頂尖高管)" },
+      { lvl: 9, title: "Near-Native Fluency (神級語感)", minXp: 70000, badge: "🔥", toeic: "TOEIC 980+ (母語流利)" },
+      { lvl: 10, title: "Native Master Mind (母語頂峰大師)", minXp: 88000, badge: "🌌", toeic: "TOEIC 990 滿分 ✕ 全庫支配" }
     ];
 
     this.init();
@@ -196,9 +196,16 @@ class StorageManager {
 
   addXP(points, isCorrect = true) {
     const prevLevel = this.getLevelInfo(this.userData.xp).lvl;
-    this.userData.xp += points;
+    
+    if (isCorrect) {
+      this.userData.xp += points;
+      this.userData.correctCount += 1;
+    } else {
+      // 答錯失誤扣減經驗值（底線為 0），確保每 1 點經驗值都貨真價實
+      this.userData.xp = Math.max(0, this.userData.xp - Math.abs(points));
+    }
+    
     this.userData.totalPractices += 1;
-    if (isCorrect) this.userData.correctCount += 1;
     this.userData.dailyPractices += 1;
 
     const today = new Date().toISOString().split('T')[0];
@@ -210,7 +217,7 @@ class StorageManager {
     this.saveUserData();
 
     return {
-      addedXp: points,
+      addedXp: isCorrect ? points : -Math.abs(points),
       totalXp: this.userData.xp,
       levelInfo: newLevelInfo,
       leveledUp

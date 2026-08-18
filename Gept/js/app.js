@@ -450,7 +450,10 @@ class LinguaPulseApp {
 
     if (isCorrect) {
       window.soundEngine.correct();
-      this.showToast(`+${amount} XP！${reason}`);
+      if (reason) this.showToast(`+${amount} XP！${reason}`);
+    } else {
+      window.soundEngine.wrong();
+      if (reason) this.showToast(`⚠️ ${reason} (-${amount} XP)`);
     }
 
     if (res.leveledUp) {
@@ -1210,6 +1213,17 @@ class LinguaPulseApp {
       { word: target.w, meaning: target.m, pos: target.p, level: target.l, type: 'blitz' }
     );
 
+    // 嚴格經驗值收支：答對 +1 XP，5★ 完全精通額外 +10 XP，答錯失誤 -2 XP
+    if (isCorrect) {
+      if (masteryResult.justMastered) {
+        this.awardXP(10, true, `⭐ 恭喜「${target.w}」達成 5★ 完全精通 (+10 XP)！`);
+      } else {
+        this.awardXP(1, true);
+      }
+    } else {
+      this.awardXP(2, false, `答錯「${target.w}」扣除 2 XP`);
+    }
+
     // 清除先前的定時器
     if (this.blitzCountdownInterval) clearInterval(this.blitzCountdownInterval);
     if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
@@ -1637,9 +1651,6 @@ class LinguaPulseApp {
     const correctCount = history.filter(h => h.isCorrect).length;
     const wrongCount = totalCount - correctCount;
     const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
-
-    const xpEarned = Math.max(5, (correctCount * 2) + Math.min(20, Math.round(this.blitzScore / 10)));
-    this.awardXP(xpEarned, true, `詞彙特訓完成！共答 ${totalCount} 題，獲得 ${xpEarned} XP`);
 
     this.renderBlitzSummary('all');
   }
