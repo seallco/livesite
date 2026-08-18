@@ -275,33 +275,33 @@ window.PRACTICE_DATA = {
     }
   ],
 
-  // 3. 3-Turn Smart Situational Dialogues (情境快打對決)
+  // 3. 3-Turn Smart Situational Dialogues (情境快打對決 - 頂峰語感辨析)
   dialogues: [
     {
       id: "diag_1",
-      title: "☕ Local Coffee Shop Customization (像母語者一樣點咖啡)",
-      role: "Barista (咖啡師)",
-      scenario: "你正在紐約一家精品咖啡店點餐，需要點一杯燕麥奶拿鐵並調整甜度與冰塊。",
+      title: "☕ Custom Coffee Ordering in NYC (紐約精品咖啡客製化點餐)",
+      role: "NYC Barista (紐約資深咖啡師)",
+      scenario: "你在紐約曼哈頓一家知名精品咖啡館，需要向咖啡師精準、得體且地道地點一杯客製化燕麥奶拿鐵。",
       turns: [
         {
-          botSays: "Hey there! Welcome to Brew & Co. What can I get started for you today?",
+          botSays: "Morning! What can I get started for you today?",
           options: [
             {
-              text: "Can I get an iced oat latte, light ice, with an extra shot please?",
-              feedback: "🔥 完美！非常自然地道的點餐句型，流暢且精準掌握細節。",
+              text: "Can I get a large iced oat latte with an extra shot, please?",
+              feedback: "🔥 【母語高頻得體句型】：'Can I get + 飲料品項 + 客製細節 + please' 是北美咖啡店最自然、禮貌且專業的點餐句型。",
               points: 10,
               isBest: true
             },
             {
-              text: "I want to buy one iced coffee with oat milk and less ice.",
-              feedback: "文法沒錯，但在英語系國家點餐用 'Can I get...' 或 'Could I have...' 會更得體。",
-              points: 6,
+              text: "I would like to order one large cup of iced latte with oat milk, and please add more espresso into it.",
+              feedback: "💡 【文法完全正確，但略顯冗長】：典型課本直翻表達，母語者通常直接說 'iced oat latte, extra shot'，更簡練道地。",
+              points: 7,
               isBest: false
             },
             {
-              text: "Give me oat latte quickly.",
-              feedback: "太生硬且不禮貌，在英語文化中可能會顯得粗魯。",
-              points: 2,
+              text: "I want a big iced coffee with oat milk and double espresso shots.",
+              feedback: "💡 【可溝通但語氣略硬】：使用 'I want...' 雖然意思清楚，但在服務業語境中不如 'Can I get...' 或 'Could I have...' 來得親切得體。",
+              points: 6,
               isBest: false
             }
           ]
@@ -310,21 +310,21 @@ window.PRACTICE_DATA = {
           botSays: "You got it! Would you like any flavored syrup in that, like vanilla or hazelnut?",
           options: [
             {
-              text: "Just one pump of vanilla, please. Not too sweet.",
-              feedback: "🔥 專業！母語者量化糖漿都用 'pump' (按壓次數)，非常道地。",
+              text: "Just one pump of vanilla, please. Keep it lightly sweetened.",
+              feedback: "🔥 【專業量化單位】：在北美咖啡店，糖漿都是按壓次數 ('pumps') 來計量，'one pump' 與 'lightly sweetened' 展現十足在地語感！",
               points: 10,
               isBest: true
             },
             {
-              text: "Add some sugar water please, 30 percent sugar.",
-              feedback: "外國咖啡店通常不講百分比糖度，而是講 'one/two pumps' 或 'light syrup'。",
-              points: 5,
+              text: "Yes, please add a small amount of vanilla syrup, but not too much sugar.",
+              feedback: "💡 【意思清楚，但缺乏行話語感】：'a small amount' 雖然咖啡師聽得懂，但不如直接指定 'one pump' 或 'half sweet' 來得精確。",
+              points: 7,
               isBest: false
             },
             {
-              text: "No sugar. Sugar is bad.",
-              feedback: "稍嫌唐突，簡單說 'I'm good without syrup, thanks!' 即可。",
-              points: 4,
+              text: "Could I have vanilla flavor, but make it thirty percent sugar level?",
+              feedback: "💡 【台式手搖飲思維直翻】：西方咖啡店通常不講 30% / 50% 糖度，通常以 'one pump' 或 'light syrup' 表達微糖。",
+              points: 6,
               isBest: false
             }
           ]
@@ -334,20 +334,20 @@ window.PRACTICE_DATA = {
           options: [
             {
               text: "To go, please! I'll tap with Apple Pay.",
-              feedback: "🔥 滿分！'To go' 與 'tap with Apple Pay' 是現代母語者最高頻日常用語。",
+              feedback: "🔥 【現代生活高頻用語】：美式口語用 'To go'（而非英式 Take away），感應付款用 'tap with...'，流暢俐落！",
               points: 10,
               isBest: true
             },
             {
-              text: "Take away, I pay with my phone.",
-              feedback: "美式多說 'To go'（英澳常用 Take away），意思可通但美式口語 To go 更自然。",
+              text: "Take away, please. I will make the payment by using my mobile phone wallet.",
+              feedback: "💡 【偏英式且用語過於正式】：'Take away' 在英國常見（美式偏好 'To go'）；'mobile phone wallet' 在結帳時說 'Apple Pay / tap' 更自然。",
               points: 7,
               isBest: false
             },
             {
-              text: "I leave now. Take money.",
-              feedback: "表達過於碎片化，容易造成誤解。",
-              points: 2,
+              text: "For taking out, please. Can I pay via credit card transaction?",
+              feedback: "💡 【用字過度書面化】：日常結帳通常直接說 'card' 或 'tap'，'credit card transaction' 常用於商務報表而非口語櫃檯。",
+              points: 6,
               isBest: false
             }
           ]
@@ -356,29 +356,29 @@ window.PRACTICE_DATA = {
     },
     {
       id: "diag_2",
-      title: "💼 Polite Disagreement in a Tech Meeting (外商會議高情商表達異議)",
-      role: "Product Lead (產品經理)",
-      scenario: "在專案會議中，主管提議將原定兩個月的上線時程壓縮到兩週，你必須得體且有說服力地指出風險。",
+      title: "💼 High-EQ Disagreement in an Executive Tech Meeting (外商會議高情商表達異議)",
+      role: "VP of Product (產品副總裁)",
+      scenario: "在跨國專案會議中，主管提議將原定兩個月的上線時程壓縮到兩週。你必須在不激怒對方的同時，展現專業風險評估並提出替代方案。",
       turns: [
         {
           botSays: "To beat our competitor to market, I propose we rush this feature and launch in two weeks instead of two months. Thoughts?",
           options: [
             {
-              text: "I see where you're coming from, but I have some reservations about the QA testing timeline.",
-              feedback: "🔥 極高情商！先認同對方出發點 ('I see where you're coming from') 再委婉提出疑慮 ('have some reservations')。",
+              text: "I definitely see the strategic urgency, but I have some strong reservations regarding the QA timeline and code stability.",
+              feedback: "🔥 【頂級商務情商】：先同理對方的商業考量 ('see the strategic urgency')，再用專業語氣引出風險 ('have reservations regarding...')。",
               points: 10,
               isBest: true
             },
             {
-              text: "No, that is impossible and a very bad idea.",
-              feedback: "過於直接且具對抗性，容易破壞會議氛圍並引發防禦心理。",
-              points: 3,
+              text: "I understand the goal, but two weeks is simply too tight and our engineering team will face extreme workload.",
+              feedback: "💡 【表達直接但偏向抱怨】：指出時程緊迫沒錯，但聚焦在『工程師工作量太大』容易被管理層視為推託，不如聚焦在『品質與系統風險』有力。",
+              points: 7,
               isBest: false
             },
             {
-              text: "Okay, we will try our best without sleep.",
-              feedback: "承諾了無法做到的事，在職場中缺乏專業風險評估。",
-              points: 4,
+              text: "I think that is quite risky because two months of work cannot be done within two weeks without errors.",
+              feedback: "💡 【邏輯清晰但用詞較為平淡】：'cannot be done without errors' 略顯生硬，在商務談判中使用 'compromise system integrity' 會更具說服力。",
+              points: 6,
               isBest: false
             }
           ]
@@ -387,44 +387,44 @@ window.PRACTICE_DATA = {
           botSays: "What specific risks are you worried about if we cut down the testing phase?",
           options: [
             {
-              text: "Rushing this could introduce critical bugs that damage user trust. What if we release a core MVP first and iterate?",
-              feedback: "🔥 卓越！不僅清晰指出風險 (critical bugs, damage user trust)，還主動提供替代方案 (MVP + iterate)。",
+              text: "Rushing this could introduce critical security vulnerabilities that damage customer trust. What if we release a core MVP first and iterate quickly?",
+              feedback: "🔥 【黃金解決方案】：精準指出核心風險 ('critical vulnerabilities', 'customer trust')，同時主動提供折衷解法 ('core MVP + iterate')！",
               points: 10,
               isBest: true
             },
             {
-              text: "The software will have many errors and customers will be angry.",
-              feedback: "意思清楚，但用字較為初階，缺乏商務說服力。",
-              points: 6,
+              text: "The main risk is that the software will have many technical bugs and users will submit negative reviews.",
+              feedback: "💡 【通俗易懂但缺乏高管語境】：用 'bugs' 與 'negative reviews' 是日常說法，商務高層更看重 'user retention' 或 'system reliability'。",
+              points: 7,
               isBest: false
             },
             {
-              text: "Everything will be broken.",
-              feedback: "誇大其詞，缺乏具體分析。",
-              points: 2,
+              text: "If we skip testing, the system might crash frequently and we will have to spend more time fixing it later.",
+              feedback: "💡 【論點正確但缺乏具體替代方案】：只說事後要花更多時間修復，缺少主動引導會議走向具體解決方案（如分階段上線）。",
+              points: 6,
               isBest: false
             }
           ]
         },
         {
-          botSays: "That's a valid point. Releasing an MVP sounds like a balanced compromise. Can you draft a quick rollout plan by tomorrow?",
+          botSays: "That's a very solid compromise. Releasing an MVP addresses our speed requirement while safeguarding stability. Can you draft a quick rollout plan by tomorrow?",
           options: [
             {
-              text: "Absolutely. I'll put together an outline with milestone targets and share it before noon tomorrow.",
-              feedback: "🔥 滿分商務回應！給予明確時限 (before noon) 與交付內容 (outline with milestone targets)。",
+              text: "Absolutely. I'll put together a phased roadmap with clear milestone deliverables and share it with the team before noon tomorrow.",
+              feedback: "🔥 【完美職業素養】：明確給出具體交付物 ('phased roadmap with milestone deliverables') 與確定時間點 ('before noon tomorrow')，展現執行力！",
               points: 10,
               isBest: true
             },
             {
-              text: "Yes, I will write something for you tomorrow.",
-              feedback: "略顯被動模糊，不如明確指出時間點與具體交付物來得專業。",
-              points: 6,
+              text: "Sure, I will write an action plan outlining the steps and email it to everyone sometime tomorrow afternoon.",
+              feedback: "💡 【良好但稍嫌寬泛】：'sometime tomorrow afternoon' 比起具體時間點（如 before noon / by 2 PM）略顯鬆散。",
+              points: 7,
               isBest: false
             },
             {
-              text: "Maybe if I have time.",
-              feedback: "職場大忌，給人不負責任的印象。",
-              points: 1,
+              text: "Yes, I can definitely make a summary of our discussion and send it over as soon as possible.",
+              feedback: "💡 【缺乏明確交付承諾】：'as soon as possible (ASAP)' 在跨國職場中定義模糊，最好給出確切的時間承諾。",
+              points: 6,
               isBest: false
             }
           ]
@@ -433,75 +433,75 @@ window.PRACTICE_DATA = {
     },
     {
       id: "diag_3",
-      title: "🍸 Networking & Small Talk at a Global Tech Mixer (國際酒會社交破冰)",
-      role: "Senior AI Engineer at Google",
-      scenario: "你在舊金山一場科技交流會上，正與一位母語工程師進行自然不尷尬的 Small Talk。",
+      title: "🍸 High-Impact Networking & Small Talk at a Global Mixer (國際科技酒會高情商社交)",
+      role: "Director of AI Partnerships at Google",
+      scenario: "在舊金山一場國際科技產業酒會上，你與一位跨國總監同桌，如何進行自然、專業且能建立後續人脈連結的 Small Talk。",
       turns: [
         {
-          botSays: "Hey! Mind if I join you? Great turnout tonight, isn't it?",
+          botSays: "Hey there! Mind if I grab this open seat next to you? Fantastic turnout tonight, isn't it?",
           options: [
             {
-              text: "Not at all, have a seat! Yeah, the energy in the room is fantastic tonight. I'm Alex, by the way.",
-              feedback: "🔥 自然熱情！'Not at all' + 'have a seat' + 自我介紹，瞬間拉近社交距離。",
+              text: "Not at all, please have a seat! Yeah, the energy in the room is incredible tonight. I'm Alex, by the way.",
+              feedback: "🔥 【熱情、自然且主動】：'Not at all' 搭配 'have a seat'，並主動報上姓名，瞬間化解陌生感並主導社交節奏。",
               points: 10,
               isBest: true
             },
             {
-              text: "Yes, you can sit. Many people are here.",
-              feedback: "課本式回答，文法正確但語氣略顯冷淡。",
-              points: 5,
+              text: "Sure, go ahead and sit down. Yes, there are indeed a lot of attendees participating in the event.",
+              feedback: "💡 【偏向教科書書面語】：'attendees participating in the event' 用詞過於正式生硬，酒會社交更適合輕鬆口語（如 'turnout'、'energy'）。",
+              points: 7,
               isBest: false
             },
             {
-              text: "No, don't sit here.",
-              feedback: "太過拒人於千里之外。",
-              points: 1,
+              text: "Of course you can sit here. It is really crowded in this hall today.",
+              feedback: "💡 【稍帶負面詞彙】：'crowded' (擁擠) 容易讓人聯想到不舒服，母語者在社交場合通常用正面詞如 'lively' 或 'great turnout'。",
+              points: 6,
               isBest: false
             }
           ]
         },
         {
-          botSays: "Nice to meet you, Alex! I'm David. So, what brings you to this summit? Working on anything exciting?",
+          botSays: "Nice to meet you, Alex! I'm David. So, what brings you to this summit? Working on anything exciting lately?",
           options: [
             {
-              text: "Nice to meet you, David! I'm currently working on LLM optimizations and wanted to see how other teams tackle latency challenges. How about yourself?",
-              feedback: "🔥 黃金對話公式！簡潔介紹自己的亮點 + 將話題拋回給對方 ('How about yourself?')。",
+              text: "Great to meet you, David! I'm currently focusing on enterprise AI workflows, and I'm really curious to see how different teams tackle inference latency. How about yourself?",
+              feedback: "🔥 【黃金社交公式】：簡練點出專業亮點 ('enterprise AI workflows') + 當前關注焦點 + 順勢把話題拋回給對方 ('How about yourself?')！",
               points: 10,
               isBest: true
             },
             {
-              text: "I write computer code in Taiwan. I come here to listen to speeches.",
-              feedback: "稍微簡短，沒有提供足夠的延伸話題讓對方接話。",
-              points: 5,
+              text: "Nice to meet you! My company sent me here to learn more about artificial intelligence and listen to industry keynote speakers.",
+              feedback: "💡 【略顯被動】：'My company sent me here' 聽起來像例行公事，缺少個人對領域的熱忱與亮點。",
+              points: 7,
               isBest: false
             },
             {
-              text: "My boss told me to come here.",
-              feedback: "話題終結者，顯得缺乏熱情。",
-              points: 3,
+              text: "I work as a software engineer in tech. I came here mainly to expand my network and find new business opportunities.",
+              feedback: "💡 【過於直白目的導向】：直接說 'find business opportunities' 略嫌功利，Small Talk 應先從共同感興趣的技術或趨勢切入。",
+              points: 6,
               isBest: false
             }
           ]
         },
         {
-          botSays: "Latency optimization is huge right now! We're actually running a workshop on speculative decoding tomorrow. Are you planning to drop by?",
+          botSays: "Inference latency is actually our main focus this quarter! We're hosting a private roundtable discussion on it tomorrow. Would you be interested in joining?",
           options: [
             {
-              text: "That sounds right up my alley! I'd love to check it out. Would you mind if we connected on LinkedIn?",
-              feedback: "🔥 完美收尾！'right up my alley' (正合我胃口) 是地道俚語，並主動建立長遠人脈連結。",
+              text: "That sounds right up my alley! I'd love to join. Would you mind if we connected on LinkedIn so I can grab the invite details?",
+              feedback: "🔥 【地道俚語 + 完美收網】：運用俚語 'right up my alley' (正合我意/完全對口)，並自然銜接 LinkedIn 建立長期商務連結！",
               points: 10,
               isBest: true
             },
             {
-              text: "I will go if I wake up early. Give me your phone number.",
-              feedback: "在商務社交中直接要私人電話略顯突兀，使用 LinkedIn 更專業且自然。",
-              points: 5,
+              text: "That sounds very interesting and relevant to my work. Please send me the meeting invitation to my email address.",
+              feedback: "💡 【語氣偏被動指令】：直接要求對方寄到 Email，不如主動提議互加 LinkedIn 或交換電子名片來得得體互惠。",
+              points: 7,
               isBest: false
             },
             {
-              text: "I am not interested in decoding.",
-              feedback: "直接潑冷水，破壞了原本良好的交流氣氛。",
-              points: 1,
+              text: "Yes, I am definitely willing to attend if my schedule allows tomorrow. What is the exact location and time?",
+              feedback: "💡 【條件句略顯猶豫】：'if my schedule allows' 會給人熱情不足的印象，對於難得的私人圓桌論壇應先熱情答應再私下協調時間。",
+              points: 6,
               isBest: false
             }
           ]
