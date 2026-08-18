@@ -1473,123 +1473,56 @@ class LinguaPulseApp {
     let breakdown = [];
     let mnemonic = "";
 
-    // 2. 深度語境適配生成器 (Context-Aware Semantic Builder)
+    // 2. 深度語境自然生成引擎 (Natural Idiomatic Sentence Builder)
     if (p === 'verb') {
-      if (cleanM.includes('提高') || cleanM.includes('增加') || cleanM.includes('加強') || cleanM.includes('提升') || cleanM.includes('擴大')) {
-        enEx = `The management implemented a series of strategic initiatives to ${w} overall operational efficiency.`;
-        zhEx = `管理層實施了一系列戰略舉措，以提高整體營運效率。`;
-        breakdown = [
-          { en: "The management implemented", zh: "管理層實施了" },
-          { en: "strategic initiatives", zh: "戰略舉措" },
-          { en: `to ${w} operational efficiency`, zh: `以提高營運效率` }
-        ];
-        mnemonic = `💡 【動詞搭配】：${w} efficiency / productivity (提升效率/生產力)。`;
-      } else if (cleanM.includes('減少') || cleanM.includes('降低') || cleanM.includes('消滅') || cleanM.includes('限制') || cleanM.includes('阻止')) {
-        enEx = `The new environmental policy aims to ${w} greenhouse gas emissions by thirty percent.`;
-        zhEx = `這項新環保政策旨在將溫室氣體排放量減少百分之三十。`;
-        breakdown = [
-          { en: "The new environmental policy", zh: "新環保政策" },
-          { en: "aims to", zh: "旨在" },
-          { en: `${w} gas emissions`, zh: `減少氣體排放` }
-        ];
-        mnemonic = `💡 【動詞搭配】：${w} emissions / costs (減少排放/降低成本)。`;
-      } else if (cleanM.includes('提供') || cleanM.includes('給予') || cleanM.includes('展示') || cleanM.includes('發表') || cleanM.includes('說明')) {
-        enEx = `The lead researcher will ${w} the latest clinical findings at the upcoming medical symposium.`;
-        zhEx = `首席研究員將在即將舉行的醫學研討會上發表並分享最新的臨床發現。`;
-        breakdown = [
-          { en: "The lead researcher will", zh: "首席研究員將會" },
-          { en: `${w} the clinical findings`, zh: `發表臨床研究發現` },
-          { en: "at the symposium", zh: "在研討會上" }
-        ];
-        mnemonic = `💡 【學術與商務】：${w} the findings / results (發表發現/展示結果)。`;
-      } else if (cleanM.includes('建立') || cleanM.includes('組織') || cleanM.includes('創建') || cleanM.includes('制定') || cleanM.includes('規劃')) {
-        enEx = `The committee agreed to ${w} clear quality standards to guide future product development.`;
-        zhEx = `委員會一致同意制定出明確的品質標準，用以指導未來的產品開發。`;
-        breakdown = [
-          { en: "The committee agreed to", zh: "委員會同意" },
-          { en: `${w} quality standards`, zh: `制定品質標準` },
-          { en: "for future development", zh: "以用於未來開發" }
-        ];
-        mnemonic = `💡 【固定搭配】：${w} standards / guidelines (制定標準/建立準則)。`;
-      } else {
-        enEx = `Before making a final decision, analysts must carefully ${w} the relevant market data.`;
-        zhEx = `在做出最終決策之前，分析師必須仔細審視相關的市場數據。`;
-        breakdown = [
-          { en: "Before making a final decision", zh: "在做最後決定之前" },
-          { en: `carefully ${w}`, zh: `仔細地進行處理` },
-          { en: "the relevant market data", zh: "相關的市場數據" }
-        ];
-        mnemonic = `💡 【商務常用】：carefully ${w} (仔細地進行處理/操作)。`;
-      }
+      enEx = `Industry professionals often ${w} new strategies to achieve better operational outcomes.`;
+      zhEx = `行業專業人士經常採取並${firstMeaning}新策略，以取得更好的營運成果。`;
+      breakdown = [
+        { en: "Professionals often", zh: "專業人士經常" },
+        { en: `${w} new strategies`, zh: `${firstMeaning}新策略` },
+        { en: "to achieve better outcomes", zh: "以獲得更好的成果" }
+      ];
+      mnemonic = `💡 【動詞搭配】：${w} + 受詞 (如 ${w} strategies / goals)。`;
 
     } else if (p === 'noun') {
-      if (cleanM.includes('人') || cleanM.includes('者') || cleanM.includes('員') || cleanM.includes('師') || cleanM.includes('官') || cleanM.includes('生')) {
-        enEx = `An experienced ${w} was hired to oversee the daily logistics operations.`;
-        zhEx = `公司聘請了一位經驗豐富的${firstMeaning}來監督日常的物流營運。`;
-        breakdown = [
-          { en: `An experienced ${w}`, zh: `一位經驗豐富的${firstMeaning}` },
-          { en: "was hired to oversee", zh: "被聘請來監督" },
-          { en: "daily operations", zh: "日常營運工作" }
-        ];
-        mnemonic = `💡 【人物名詞】：experienced ${w} (經驗豐富的${firstMeaning})。`;
-      } else if (cleanM.includes('協議') || cleanM.includes('合約') || cleanM.includes('文件') || cleanM.includes('報告') || cleanM.includes('條款') || cleanM.includes('政策')) {
-        enEx = `Both corporations signed the official ${w} following extensive legal negotiations.`;
-        zhEx = `兩家企業在經過廣泛的法律談判後，正式簽署了該項${firstMeaning}。`;
-        breakdown = [
-          { en: "Both corporations signed", zh: "兩家企業簽署了" },
-          { en: `the official ${w}`, zh: `正式的${firstMeaning}` },
-          { en: "after negotiations", zh: "經過談判之後" }
-        ];
-        mnemonic = `💡 【法律與合約】：sign the ${w} (簽署${firstMeaning})。`;
-      } else if (cleanM.includes('費用') || cleanM.includes('價格') || cleanM.includes('預算') || cleanM.includes('資金') || cleanM.includes('薪水') || cleanM.includes('收入')) {
-        enEx = `The chief financial officer reviewed the quarterly ${w} to identify potential cost savings.`;
-        zhEx = `財務長審查了季度的${firstMeaning}，以找出潛在的成本節省空間。`;
-        breakdown = [
-          { en: "The CFO reviewed", zh: "財務長審查了" },
-          { en: `the quarterly ${w}`, zh: `季度的${firstMeaning}` },
-          { en: "for cost savings", zh: "以尋求節省成本" }
-        ];
-        mnemonic = `💡 【財會高頻】：quarterly ${w} (季度${firstMeaning})。`;
-      } else {
-        enEx = `The latest industry survey confirmed a significant rise in consumer demand for ${w}.`;
-        zhEx = `最新的行業調查證實，消費者對${firstMeaning}的需求出現了顯著上升。`;
-        breakdown = [
-          { en: "The industry survey confirmed", zh: "行業調查證實了" },
-          { en: "a significant rise in demand", zh: "需求的顯著上升" },
-          { en: `for ${w}`, zh: `對於${firstMeaning}` }
-        ];
-        mnemonic = `💡 【商務句構】：demand for ${w} (對${firstMeaning}的需求)。`;
-      }
+      enEx = `Understanding the fundamental concept of ${w} is essential for strategic decision-making.`;
+      zhEx = `理解「${firstMeaning}」的核心概念，對於做出戰略決策至關重要。`;
+      breakdown = [
+        { en: "Understanding the concept", zh: "理解概念" },
+        { en: `of ${w}`, zh: `關於「${firstMeaning}」` },
+        { en: "is essential for decisions", zh: "對決策至關重要" }
+      ];
+      mnemonic = `💡 【名詞用法】：the concept / importance of ${w} (${firstMeaning}的概念/重要性)。`;
 
     } else if (p === 'adj.') {
-      enEx = `The project succeeded largely due to the ${w} leadership of the executive director.`;
-      zhEx = `該專案的成功，很大程度上歸功於執行總監${firstMeaning}的卓越領導。`;
+      enEx = `The committee held a detailed discussion to address the most ${w} issues facing the company.`;
+      zhEx = `委員會進行了深入討論，以應對公司所面臨的各項${firstMeaning}問題。`;
       breakdown = [
-        { en: "The project succeeded", zh: "專案取得了成功" },
-        { en: "due to", zh: "歸功於" },
-        { en: `the ${w} leadership`, zh: `${firstMeaning}的領導能力` }
+        { en: "The committee held discussion", zh: "委員會進行討論" },
+        { en: `to address ${w} issues`, zh: `以應對${firstMeaning}的問題` },
+        { en: "facing the company", zh: "公司所面臨的" }
       ];
-      mnemonic = `💡 【修飾名詞】：${w} + 名詞 (如 ${w} response / solution)。`;
+      mnemonic = `💡 【修飾名詞】：${w} + 名詞 (如 ${w} issues / factors)。`;
 
     } else if (p === 'adv.') {
-      enEx = `The newly designed software system operated ${w} without any unexpected downtime.`;
-      zhEx = `全新設計的軟體系統運行得${firstMeaning}，未出現任何意外當機。`;
+      enEx = `The entire system was upgraded and performed ${w} during peak operational hours.`;
+      zhEx = `整個系統經過升級，在尖峰營運時段運行得${firstMeaning}。`;
       breakdown = [
-        { en: "The software system", zh: "軟體系統" },
-        { en: `operated ${w}`, zh: `${firstMeaning}地運行` },
-        { en: "without downtime", zh: "沒有發生停機中斷" }
+        { en: "The system was upgraded", zh: "系統已升級" },
+        { en: `and performed ${w}`, zh: `且${firstMeaning}地運行` },
+        { en: "during peak hours", zh: "在尖峰時段" }
       ];
-      mnemonic = `💡 【副詞修飾】：修飾動詞如「work / operate ${w}」。`;
+      mnemonic = `💡 【副詞修飾】：修飾動詞 (如 perform / operate ${w})。`;
 
     } else {
-      enEx = `The technical team will proceed with testing ${w} all safety requirements have been verified.`;
-      zhEx = `在所有安全要求均得到驗證${firstMeaning}，技術團隊將繼續推進測試。`;
+      enEx = `The project will move into the next development phase ${w} the final review is complete.`;
+      zhEx = `在最終審查完成${firstMeaning}，專案將推進至下一個開發階段。`;
       breakdown = [
-        { en: "The team will proceed", zh: "團隊將會繼續推進" },
-        { en: w, zh: firstMeaning },
-        { en: "all requirements verified", zh: "所有要求得到驗證" }
+        { en: "The project will move", zh: "專案將推進" },
+        { en: `into the next phase ${w}`, zh: `至下個階段${firstMeaning}` },
+        { en: "the review is complete", zh: "審查完成" }
       ];
-      mnemonic = `💡 【邏輯連接】：注意前後子句的因果、條件或時間順序。`;
+      mnemonic = `💡 【邏輯連接】：注意前後子句的邏輯關係。`;
     }
 
     // 額外字根與結構記憶小撇步
