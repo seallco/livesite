@@ -526,6 +526,22 @@ class LinguaPulseApp {
     return lower.split('/')[0].split(' ')[0];
   }
 
+  // 徹底過濾選項釋義中的英文殘留（例如 = ad, British English, = flat 等），只保留乾淨中文，防止透露英文答案
+  cleanMeaning(m) {
+    if (!m) return "";
+    let cleaned = m
+      .replace(/=\s*[a-zA-Z\s,.-]+/g, '') // 移除 = ad, = flat 等
+      .replace(/\([a-zA-Z\s,.-]+(English|American|noun|verb|adj|adv|prep|conj)?\)/gi, '') // 移除 (British English) 等
+      .replace(/[a-zA-Z]+/g, '') // 移除任何殘留英文字母
+      .replace(/[=＝]/g, '') // 移除等號
+      .replace(/[(（]\s*[)）]/g, '') // 移除空括號
+      .replace(/\s+/g, ' ') // 壓縮多餘空格
+      .trim();
+
+    // 如果過濾後過短或全空，則保留原字
+    return cleaned.length > 0 ? cleaned : m;
+  }
+
   nextBlitzQuestion() {
     if (!this.blitzActive) return;
 
@@ -607,7 +623,7 @@ class LinguaPulseApp {
         <div class="options-stack two-cols" id="blitz-options-container">
           ${options.map((opt, idx) => `
             <button class="option-btn" onclick="app.handleBlitzAnswer(${idx}, '${opt.w.replace(/'/g, "\\'")}', this)">
-              <span>${opt.m}</span>
+              <span>${app.cleanMeaning(opt.m)}</span>
               <span style="font-size: 0.8rem; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">${opt.p}</span>
             </button>
           `).join('')}
