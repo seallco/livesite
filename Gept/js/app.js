@@ -888,7 +888,6 @@ class LinguaPulseApp {
     if (lower.startsWith('conj') || lower.includes('conj.')) return 'conj.';
     return lower.split('/')[0].split(' ')[0];
   }
-
   // 徹底過濾選項釋義中的英文殘留（例如 = ad, British English, = flat 等），只保留乾淨中文，防止透露英文答案
   cleanMeaning(m) {
     if (!m) return "";
@@ -905,33 +904,56 @@ class LinguaPulseApp {
     return cleaned.length > 0 ? cleaned : m;
   }
 
+  // ==========================================
+  // 1. ⚡ Word Blitz Mode (詞彙特訓狂飆：由簡入難 ✕ 雙向隨機鑑別 ✕ 動態題庫更新)
+  // ==========================================
+  getAdaptiveVocabPool() {
+    let pool = this.geptData;
+    if (this.selectedDifficulty !== 'all') {
+      pool = pool.filter(item => item.l === this.selectedDifficulty);
+    }
+
+    // 由簡入難 + 優先抓取未精通單字演算法：
+    // 1. 優先權 1：待消滅的錯題單字 (Wrong in Mistakes)
+    // 2. 優先權 2：尚未達到 5★ 精通的單字 (Unmastered 0~4★)
+    // 3. 排序規則：初級 ➔ 中級 ➔ 中高級 循序漸進
+    const unmastered = pool.filter(item => {
+      const info = window.storageManager.getMasteryInfo(item.w);
+      return !info || info.stars < 5;
+    });
+
+    const levelWeight = { '初級': 1, '中級': 2, '中高級': 3 };
+    const targetPool = unmastered.length >= 10 ? unmastered : pool;
+
+    return targetPool.sort((a, b) => (levelWeight[a.l] || 1) - (levelWeight[b.l] || 1));
+  }
+
   nextBlitzQuestion() {
     if (!this.blitzActive) return;
 
-    const pool = this.getFilteredVocabPool();
-    if (!pool || pool.length === 0) return;
+    if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
+    if (this.blitzCountdownInterval) clearInterval(this.blitzCountdownInterval);
 
-    // Use weighted random: lower-mastery words appear more frequently
-    const target = window.storageManager.pickWeightedItem(pool);
-    const targetNormalizedPos = this.normalizePos(target.p);
-
-    // 1. 先從同難度 pool 尋找同詞性干擾項
-    let samePosPool = pool.filter(item => 
-      item.w !== target.w && this.normalizePos(item.p) === targetNormalizedPos
-    );
-
-    // 2. 如果同難度同詞性不足，擴展至全詞庫中同詞性的單字，確保絕對同詞性
-    if (samePosPool.length < 3) {
-      const fullSamePosPool = this.geptData.filter(item => 
-        item.w !== target.w && this.normalizePos(item.p) === targetNormalizedPos
-      );
-      samePosPool = fullSamePosPool.length >= 3 ? fullSamePosPool : pool.filter(item => item.w !== target.w);
+    const pool = this.getAdaptiveVocabPool();
+    if (!pool || pool.length === 0) {
+      this.endWordBlitzSession();
+      return;
     }
 
+    // 隨機選題：在前 50 個候選池中加權抽題，確保由簡入難循序漸進
+    const candidateSlice = pool.slice(0, Math.min(60, pool.length));
+    const target = candidateSlice[Math.floor(Math.random() * candidateSlice.length)];
+
+    // 🎯 隨機決定考驗維度（50% 機率看英選中，50% 機率看中選英）
+    const questionDirection = Math.random() > 0.5 ? 'enToZh' : 'zhToEn';
+
+    // 嚴格同詞性干擾項抽取
+    const samePosPool = this.geptData.filter(item => item.p === target.p && item.w !== target.w);
     const distractors = [];
     const usedIndices = new Set();
     let attempts = 0;
-    while (distractors.length < 3 && attempts < 100) {
+
+    while (distractors.length < 3 && attempts < 100 && samePosPool.length > 0) {
       attempts++;
       const randIdx = Math.floor(Math.random() * samePosPool.length);
       if (!usedIndices.has(randIdx)) {
@@ -943,16 +965,15 @@ class LinguaPulseApp {
       }
     }
 
-    // 防禦機制：若極端情況不足 3 個，補足候選項
     while (distractors.length < 3) {
-      const candidate = pool[Math.floor(Math.random() * pool.length)];
+      const candidate = this.geptData[Math.floor(Math.random() * this.geptData.length)];
       if (candidate.w !== target.w && !distractors.some(d => d.w === candidate.w)) {
         distractors.push(candidate);
       }
     }
 
     const options = [target, ...distractors].sort(() => Math.random() - 0.5);
-    this.blitzCurrentQuestion = { target, options };
+    this.blitzCurrentQuestion = { target, options, direction: questionDirection };
 
     // Update Question Counter
     const counterDisplay = document.getElementById('blitz-counter-display');
@@ -961,44 +982,86 @@ class LinguaPulseApp {
     }
 
     const area = document.getElementById('blitz-content-area');
-    area.innerHTML = `
-      <div class="drill-card">
-        <div class="drill-badge-row">
-          <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <span class="level-tag-pill">${target.l} ${target.a ? `(${target.a})` : ''}</span>
-            <span class="level-tag-pill" style="background: rgba(6, 182, 212, 0.15); color: #38bdf8; border-color: rgba(6, 182, 212, 0.35);">
-              同詞性辨析：${target.p}
-            </span>
-          </div>
-          <div class="action-tool-btns">
-            <button class="tool-mini-btn" title="發音" onclick="window.speechEngine.speak('${target.w.replace(/'/g, "\\'")}')">🔊</button>
-            <button class="tool-mini-btn ${window.storageManager.isBookmarked(target.w) ? 'bookmarked' : ''}" title="收藏" onclick="app.toggleBookmarkWord('${target.w.replace(/'/g, "\\'")}', this)">⭐</button>
-          </div>
-        </div>
+    const masteryInfo = window.storageManager.getMasteryInfo(target.w);
+    const starsHtml = window.storageManager.getStarsHTML(masteryInfo.stars || 0);
 
-        <div class="drill-prompt-text" style="font-size: 2.3rem; text-align: center; color: #fff; margin: 1rem 0; font-family: 'Outfit', sans-serif;">
-          ${target.w}
-        </div>
-        <div class="drill-sub-prompt" style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #38bdf8; font-size: 1.05rem;">
-          [詞性: ${target.p}]
-        </div>
+    if (questionDirection === 'enToZh') {
+      // Dimension 1: 看英選中
+      area.innerHTML = `
+        <div class="drill-card">
+          <div class="drill-badge-row">
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <span class="level-tag-pill">${target.l}</span>
+              <span class="level-tag-pill" style="background: rgba(6, 182, 212, 0.15); color: #38bdf8; border-color: rgba(6, 182, 212, 0.35);">
+                英 ➔ 中辨析 [${target.p}]
+              </span>
+              <span style="font-size: 0.8rem;">${starsHtml}</span>
+            </div>
+            <div class="action-tool-btns">
+              <button class="tool-mini-btn" title="發音" onclick="window.speechEngine.speak('${target.w.replace(/'/g, "\\'")}')">🔊</button>
+              <button class="tool-mini-btn ${window.storageManager.isBookmarked(target.w) ? 'bookmarked' : ''}" title="收藏" onclick="app.toggleBookmarkWord('${target.w.replace(/'/g, "\\'")}', this)">⭐</button>
+            </div>
+          </div>
 
-        <div class="options-stack two-cols" id="blitz-options-container">
-          ${options.map((opt, idx) => `
-            <button class="option-btn" onclick="app.handleBlitzAnswer(${idx}, '${opt.w.replace(/'/g, "\\'")}', this)">
-              <span>${app.cleanMeaning(opt.m)}</span>
-              <span style="font-size: 0.8rem; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">${opt.p}</span>
-            </button>
-          `).join('')}
+          <div class="drill-prompt-text" style="font-size: 2.4rem; text-align: center; color: #fff; margin: 1.25rem 0; font-family: 'Outfit', sans-serif;">
+            ${target.w}
+          </div>
+          <div class="drill-sub-prompt" style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #38bdf8; font-size: 1rem;">
+            [詞性: ${target.p}] · 請選出最精確的中文釋義
+          </div>
+
+          <div class="options-stack two-cols" id="blitz-options-container">
+            ${options.map((opt, idx) => `
+              <button class="option-btn" onclick="app.handleBlitzAnswer(${idx}, '${opt.w.replace(/'/g, "\\'")}', this)">
+                <span>${app.cleanMeaning(opt.m)}</span>
+                <span style="font-size: 0.8rem; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">${opt.p}</span>
+              </button>
+            `).join('')}
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    } else {
+      // Dimension 2: 看中選/辨英
+      area.innerHTML = `
+        <div class="drill-card" style="border: 2px solid rgba(99, 102, 241, 0.35);">
+          <div class="drill-badge-row">
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <span class="level-tag-pill">${target.l}</span>
+              <span class="level-tag-pill" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.35);">
+                中 ➔ 英逆向考驗 [${target.p}]
+              </span>
+              <span style="font-size: 0.8rem;">${starsHtml}</span>
+            </div>
+            <div class="action-tool-btns">
+              <button class="tool-mini-btn" title="發音" onclick="window.speechEngine.speak('${target.w.replace(/'/g, "\\'")}')">🔊</button>
+              <button class="tool-mini-btn ${window.storageManager.isBookmarked(target.w) ? 'bookmarked' : ''}" title="收藏" onclick="app.toggleBookmarkWord('${target.w.replace(/'/g, "\\'")}', this)">⭐</button>
+            </div>
+          </div>
+
+          <div class="drill-prompt-text" style="font-size: 2.1rem; text-align: center; color: #fbbf24; margin: 1.25rem 0; font-family: 'Outfit', sans-serif;">
+            ${app.cleanMeaning(target.m)}
+          </div>
+          <div class="drill-sub-prompt" style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #c084fc; font-size: 1rem;">
+            [詞性: ${target.p}] · 請選出對應的英文單字
+          </div>
+
+          <div class="options-stack two-cols" id="blitz-options-container">
+            ${options.map((opt, idx) => `
+              <button class="option-btn" onclick="app.handleBlitzAnswer(${idx}, '${opt.w.replace(/'/g, "\\'")}', this)">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; font-weight: 700;">${opt.w}</span>
+                <span style="font-size: 0.8rem; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">[${opt.p}]</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
   }
 
   handleBlitzAnswer(selectedIndex, chosenWord, btnElement) {
     if (!this.blitzActive) return;
 
-    const { target, options } = this.blitzCurrentQuestion;
+    const { target, options, direction } = this.blitzCurrentQuestion;
     const isCorrect = chosenWord === target.w;
     const chosenOption = options[selectedIndex];
 
@@ -1016,6 +1079,7 @@ class LinguaPulseApp {
       chosen: chosenOption,
       isCorrect: isCorrect,
       allOptions: options,
+      direction: direction,
       timestamp: Date.now()
     });
 
@@ -1030,10 +1094,11 @@ class LinguaPulseApp {
       this.checkJourneyActionProgress('blitz', 1);
     }
 
-    // Track mastery progress in persistent storage
-    const masteryResult = window.storageManager.recordAnswer(
+    // Track dual-direction mastery progress in persistent storage
+    const masteryResult = window.storageManager.recordDualAnswer(
       target.w,
       isCorrect,
+      direction || 'enToZh',
       { word: target.w, meaning: target.m, pos: target.p, level: target.l, type: 'blitz' }
     );
 

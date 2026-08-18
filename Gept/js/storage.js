@@ -295,32 +295,35 @@ class StorageManager {
   }
 
   // =============================================
-  // 🏆 Mastery Tracking System (知識圖鑑熟練度)
+  // 🏆 Dual-Direction Mastery Tracking System (雙向雙考驗精通引擎)
   // =============================================
 
   /**
-   * Record an answer for a vocabulary/practice item.
-   * @param {string} key   - Unique identifier (word or item id)
-   * @param {boolean} correct - Whether the user answered correctly
-   * @param {object} meta  - { word, meaning, pos, level, type } for display
-   * @returns {{ newStars, prevStars, justMastered, currentStreak }}
+   * Record a dual-direction answer for a vocabulary item.
+   * A word ONLY becomes 5★ Mastered when BOTH English->Chinese (enToZh) and Chinese->English (zhToEn) are verified!
+   * @param {string} key - Unique identifier (word)
+   * @param {boolean} correct - Whether user answered correctly
+   * @param {string} direction - 'enToZh' (看英選/填中) | 'zhToEn' (看中選/填英)
+   * @param {object} meta - { word, meaning, pos, level, type }
    */
-  recordAnswer(key, correct, meta = {}) {
+  recordDualAnswer(key, correct, direction = 'enToZh', meta = {}) {
     if (!this.mastery[key]) {
       this.mastery[key] = {
         stars: 0,
-        streak: 0,       // current consecutive correct streak
+        streak: 0,
+        enToZhCorrect: 0,
+        zhToEnCorrect: 0,
         totalSeen: 0,
         totalCorrect: 0,
         totalWrong: 0,
         masteredAt: null,
         lastSeen: null,
-        ...meta           // word, meaning, pos, level, type
+        ...meta
       };
     }
 
     const entry = this.mastery[key];
-    const prevStars = entry.stars;
+    const prevStars = entry.stars || 0;
     entry.totalSeen += 1;
     entry.lastSeen = new Date().toISOString();
 
@@ -328,25 +331,40 @@ class StorageManager {
       entry.totalCorrect += 1;
       entry.streak = (entry.streak || 0) + 1;
 
-      // Stars increase with each correct up to the required streak
-      const newStars = Math.min(this.MASTERY_REQUIRED_STREAK, entry.streak);
+      if (direction === 'enToZh') {
+        entry.enToZhCorrect = (entry.enToZhCorrect || 0) + 1;
+      } else {
+        entry.zhToEnCorrect = (entry.zhToEnCorrect || 0) + 1;
+      }
+
+      // 星級評定階梯：
+      // 1★: 接觸答對 1 次
+      // 2★: 單向連續答對 2 次
+      // 3★: 單向連續答對 3 次
+      // 4★: 雙向皆有答對記錄 (enToZh >= 1 且 zhToEn >= 1) 且 streak >= 4
+      // 5★ (完全精通): 雙向各至少答對 2 次以上且 streak >= 5
+      let newStars = 1;
+      if (entry.streak >= 2) newStars = 2;
+      if (entry.streak >= 3) newStars = 3;
+      if (entry.streak >= 4 && (entry.enToZhCorrect >= 1 && entry.zhToEnCorrect >= 1)) newStars = 4;
+      if (entry.streak >= 5 && (entry.enToZhCorrect >= 2 && entry.zhToEnCorrect >= 2)) newStars = 5;
+
       entry.stars = newStars;
 
-      if (newStars >= this.MASTERY_REQUIRED_STREAK && prevStars < this.MASTERY_REQUIRED_STREAK) {
+      if (newStars >= 5 && prevStars < 5) {
         entry.masteredAt = new Date().toISOString();
+        this.checkAndGraduateMasteredMistakes();
       }
     } else {
       entry.totalWrong += 1;
-      // Reset streak on wrong; drop 1 star (minimum 1 if already seen, 0 if never correct)
       entry.streak = 0;
+      // 答錯降星
       if (entry.stars > 1) {
         entry.stars = entry.stars - 1;
-      } else if (entry.stars === 1) {
-        entry.stars = 1; // stay at 1, don't drop to 0 once seen
       } else {
-        entry.stars = 1; // first interaction but wrong - mark as seen
+        entry.stars = 1;
       }
-      entry.masteredAt = null; // un-master if wrong after mastery
+      entry.masteredAt = null;
     }
 
     this.saveJSON(this.KEY_MASTERY, this.mastery);
@@ -354,9 +372,16 @@ class StorageManager {
     return {
       newStars: entry.stars,
       prevStars,
-      justMastered: entry.stars >= this.MASTERY_REQUIRED_STREAK && prevStars < this.MASTERY_REQUIRED_STREAK,
-      currentStreak: entry.streak
+      justMastered: entry.stars >= 5 && prevStars < 5,
+      currentStreak: entry.streak,
+      enToZhCorrect: entry.enToZhCorrect,
+      zhToEnCorrect: entry.zhToEnCorrect
     };
+  }
+
+  // Compatible wrapper
+  recordAnswer(key, correct, meta = {}) {
+    return this.recordDualAnswer(key, correct, meta.direction || 'enToZh', meta);
   }
 
   /**
