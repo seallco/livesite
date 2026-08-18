@@ -720,77 +720,162 @@ class LinguaPulseApp {
     }
   }
 
-  // Generate Smart Contextual Examples, Word-by-Word Translation & Memory Mnemonics
+  // Generate Semantically Accurate, Natural Examples, Translations & Memory Mnemonics
   generateWordDetails(wordObj) {
     const w = wordObj.w;
-    const m = wordObj.m;
+    const cleanM = this.cleanMeaning(wordObj.m);
+    const firstMeaning = cleanM.split(/[、,，;；]/)[0].trim() || cleanM;
     const p = this.normalizePos(wordObj.p);
 
-    // 1. 動態例句庫與翻譯模板 (依詞性與意義精準匹配)
     let enEx = "";
     let zhEx = "";
     let breakdown = [];
     let mnemonic = "";
 
-    if (p === 'verb') {
-      enEx = `We need to ${w} this crucial project before the upcoming deadline.`;
-      zhEx = `我們必須在即將到來的截止日前${m.split('、')[0]}這個關鍵專案。`;
+    const lowerW = w.toLowerCase();
+
+    // 1. 特殊高頻語境專屬處理（如 closure, access, finance, policy 等）
+    if (lowerW === 'closure') {
+      enEx = `The road closure caused significant traffic delays throughout the city.`;
+      zhEx = `道路封閉導致整個城市出現了嚴重的交通延誤。`;
       breakdown = [
-        { en: "We need to", zh: "我們需要" },
-        { en: w, zh: m.split('、')[0] },
-        { en: "this crucial project", zh: "這個關鍵專案" },
-        { en: "before the deadline", zh: "在截止期限之前" }
+        { en: "The road closure", zh: "道路封閉" },
+        { en: "caused significant", zh: "造成了嚴重的" },
+        { en: "traffic delays", zh: "交通延誤" },
+        { en: "throughout the city", zh: "遍及全城" }
       ];
-      mnemonic = `💡 【動詞搭配記憶法】：常用動詞片語如「${w} closely (密切${m.split('、')[0]})」或「attempt to ${w} (試圖${m.split('、')[0]})」，在句子中通常緊接受詞或副詞。`;
-    } else if (p === 'noun') {
-      enEx = `The international team achieved a significant ${w} during the annual summit.`;
-      zhEx = `這個國際團隊在年度高峰會期間取得了顯著的${m.split('、')[0]}。`;
+      mnemonic = `💡 【多義詞精解】：closure 來自 close (關閉)。作名詞除了「封閉、關閉（如 factory closure 廠房關閉）」，在心理學/職場也常指「（事情了結帶來的）釋懷、圓滿收場 (bring closure)」。`;
+    } else if (lowerW.includes('access')) {
+      enEx = `Only authorized employees have access to the confidential database.`;
+      zhEx = `只有獲得授權的員工才能存取該機密資料庫。`;
       breakdown = [
-        { en: "The team", zh: "團隊" },
-        { en: "achieved a significant", zh: "取得了顯著的" },
-        { en: w, zh: m.split('、')[0] },
-        { en: "during the summit", zh: "在高峰會期間" }
+        { en: "Only authorized employees", zh: "只有授權員工" },
+        { en: "have access to", zh: "擁有存取...的權限" },
+        { en: "the confidential database", zh: "機密資料庫" }
       ];
-      mnemonic = `💡 【名詞結構記憶法】：常放在「a/an/the + 形容詞 + ${w}」位置，如「key ${w} (關鍵${m.split('、')[0]})」或「great ${w}」。`;
-    } else if (p === 'adj.') {
-      enEx = `Her proactive and ${w} attitude played a vital role in our success.`;
-      zhEx = `她積極主動且${m.split('、')[0]}的態度，在我們的成功中發揮了關鍵作用。`;
+      mnemonic = `💡 【黃金搭配】：have access to + N (擁有使用/進入...的權限)。`;
+    } else if (lowerW.includes('accommodate')) {
+      enEx = `The newly renovated hotel can accommodate up to five hundred guests.`;
+      zhEx = `新裝修的飯店最多可容納五百名賓客。`;
       breakdown = [
-        { en: "Her proactive and", zh: "她積極主動且" },
-        { en: w, zh: m.split('、')[0] },
-        { en: "attitude", zh: "態度" },
-        { en: "played a vital role", zh: "發揮了關鍵作用" }
+        { en: "The hotel", zh: "這家飯店" },
+        { en: "can accommodate", zh: "能夠容納" },
+        { en: "up to 500 guests", zh: "多達 500 位賓客" }
       ];
-      mnemonic = `💡 【形容詞修飾小撇步】：修飾後方名詞，例如「${w} result (${m.split('、')[0]}的成果)」或接在 be 動詞後面「is highly ${w} (非常${m.split('、')[0]})」。`;
-    } else if (p === 'adv.') {
-      enEx = `The system was updated and is now running ${w} without any technical delay.`;
-      zhEx = `系統已經更新，現在運行得${m.split('、')[0]}且沒有任何技術延遲。`;
-      breakdown = [
-        { en: "The system", zh: "系統" },
-        { en: "is running", zh: "正運行得" },
-        { en: w, zh: m.split('、')[0] },
-        { en: "without delay", zh: "毫無延遲" }
-      ];
-      mnemonic = `💡 【副詞情境小撇步】：多數副詞字尾為 -ly，專門用來加強修飾動詞或形容詞，如「work ${w} (${m.split('、')[0]}地運作)」。`;
+      mnemonic = `💡 【多益高頻考點】：accommodate 除了「容納」，還常考「配合/迎合需求 (accommodate needs)」。`;
     } else {
-      enEx = `The manager explained the policy regarding ${w} in clear detail.`;
-      zhEx = `經理清楚詳細地解釋了關於 ${w} (${m}) 的政策規定。`;
-      breakdown = [
-        { en: "The manager", zh: "經理" },
-        { en: "explained the policy", zh: "解釋了政策" },
-        { en: w, zh: m },
-        { en: "in clear detail", zh: "清楚詳細地" }
-      ];
-      mnemonic = `💡 【語感速記法】：將 ${w} 放入短語固定搭配中朗讀 3 次，形成語音肌肉記憶！`;
+      // 2. 依據詞性與語意特徵挑選最自然合理的句型架構
+      if (p === 'verb') {
+        // 動詞自然句型
+        if (cleanM.includes('去') || cleanM.includes('到') || cleanM.includes('來') || cleanM.includes('走') || cleanM.includes('住')) {
+          enEx = `Many professionals choose to ${w} abroad for career advancement.`;
+          zhEx = `許多專業人士選擇前往海外以求職業晉升（${firstMeaning}）。`;
+          breakdown = [
+            { en: "Many professionals", zh: "許多專業人士" },
+            { en: "choose to", zh: "選擇去" },
+            { en: `${w} abroad`, zh: `${firstMeaning}海外` },
+            { en: "for career advancement", zh: "為了職業發展" }
+          ];
+        } else if (cleanM.includes('看') || cleanM.includes('聽') || cleanM.includes('說') || cleanM.includes('寫') || cleanM.includes('問')) {
+          enEx = `Please ${w} the instructions carefully before submitting your application.`;
+          zhEx = `提交申請前，請仔細${firstMeaning}說明。`;
+          breakdown = [
+            { en: "Please", zh: "請" },
+            { en: `${w} the instructions`, zh: `${firstMeaning}說明` },
+            { en: "carefully", zh: "仔細地" },
+            { en: "before submitting", zh: "在提交之前" }
+          ];
+        } else {
+          enEx = `The organization plans to ${w} new measures to enhance workplace efficiency.`;
+          zhEx = `該組織計劃${firstMeaning}新措施，以提升工作場所的效率。`;
+          breakdown = [
+            { en: "The organization plans to", zh: "該機構計劃" },
+            { en: `${w} new measures`, zh: `${firstMeaning}新措施` },
+            { en: "to enhance efficiency", zh: "以提升效率" }
+          ];
+        }
+        mnemonic = `💡 【動詞搭配記憶法】：掌握「${w} + 受詞」的核心用法，如「plan to ${w} (計劃${firstMeaning})」，多朗讀整組動作！`;
+
+      } else if (p === 'noun') {
+        // 名詞自然句型
+        if (cleanM.includes('人') || cleanM.includes('者') || cleanM.includes('員') || cleanM.includes('師') || cleanM.includes('官') || cleanM.includes('家')) {
+          enEx = `She has been working as a professional ${w} for more than ten years.`;
+          zhEx = `她擔任專業${firstMeaning}已有十多年時間。`;
+          breakdown = [
+            { en: "She has been working as", zh: "她一直擔任" },
+            { en: `a professional ${w}`, zh: `專業${firstMeaning}` },
+            { en: "for more than 10 years", zh: "超過十年" }
+          ];
+        } else if (cleanM.includes('室') || cleanM.includes('館') || cleanM.includes('院') || cleanM.includes('房') || cleanM.includes('處') || cleanM.includes('場') || cleanM.includes('所')) {
+          enEx = `The new ${w} is fully equipped with modern facilities for all visitors.`;
+          zhEx = `新建的${firstMeaning}配備了現代化設施，供所有訪客使用。`;
+          breakdown = [
+            { en: `The new ${w}`, zh: `新建的${firstMeaning}` },
+            { en: "is fully equipped with", zh: "全面配備了" },
+            { en: "modern facilities", zh: "現代化設施" }
+          ];
+        } else if (cleanM.includes('期') || cleanM.includes('年') || cleanM.includes('月') || cleanM.includes('日') || cleanM.includes('季') || cleanM.includes('時')) {
+          enEx = `The company reported strong financial growth during this ${w}.`;
+          zhEx = `該公司在此${firstMeaning}報告了強勁的財務增長。`;
+          breakdown = [
+            { en: "The company reported", zh: "公司報告了" },
+            { en: "strong growth", zh: "強勁增長" },
+            { en: `during this ${w}`, zh: `在此${firstMeaning}期間` }
+          ];
+        } else {
+          enEx = `The report highlighted the importance of effective ${w} in modern management.`;
+          zhEx = `該報告強調了在現代管理中有效${firstMeaning}的重要性。`;
+          breakdown = [
+            { en: "The report highlighted", zh: "報告強調了" },
+            { en: "the importance of", zh: "...的重要性" },
+            { en: `effective ${w}`, zh: `有效的${firstMeaning}` },
+            { en: "in modern management", zh: "在現代管理中" }
+          ];
+        }
+        mnemonic = `💡 【名詞記憶法】：名詞在句中通常作主詞或受詞，例如「the importance of ${w} (${firstMeaning}的重要性)」。`;
+
+      } else if (p === 'adj.') {
+        // 形容詞自然句型
+        enEx = `The manager appreciated his ${w} feedback on the proposed project.`;
+        zhEx = `經理對他針對該提案所提出的${firstMeaning}回饋表示讚賞。`;
+        breakdown = [
+          { en: "The manager appreciated", zh: "經理讚賞" },
+          { en: `his ${w} feedback`, zh: `他${firstMeaning}的回饋` },
+          { en: "on the project", zh: "關於該專案" }
+        ];
+        mnemonic = `💡 【形容詞搭配法】：形容詞專門修飾名詞或放在 be 動詞後面，如「is very ${w} (非常${firstMeaning})」。`;
+
+      } else if (p === 'adv.') {
+        // 副詞自然句型
+        enEx = `The entire project was executed ${w} by the dedicated engineering team.`;
+        zhEx = `整個專案由敬業的工程團隊${firstMeaning}地執行完成。`;
+        breakdown = [
+          { en: "The project was executed", zh: "專案被執行" },
+          { en: w, zh: `${firstMeaning}地` },
+          { en: "by the engineering team", zh: "由工程團隊" }
+        ];
+        mnemonic = `💡 【副詞修飾心法】：副詞通常修飾動詞或形容詞，如「executed ${w} (${firstMeaning}地執行)」。`;
+
+      } else {
+        // 介系詞或連接詞
+        enEx = `We continued our business discussion ${w} the primary agenda had concluded.`;
+        zhEx = `在主要議程結束${firstMeaning}，我們繼續進行商務討論。`;
+        breakdown = [
+          { en: "We continued discussion", zh: "我們繼續討論" },
+          { en: w, zh: firstMeaning },
+          { en: "the agenda concluded", zh: "議程結束" }
+        ];
+        mnemonic = `💡 【連接/介系詞用法】：關注它連接的詞與子句之間的邏輯關係。`;
+      }
     }
 
-    // 額外加上字根字首或拆解巧記
-    if (w.startsWith('un') || w.startsWith('in') || w.startsWith('dis') || w.startsWith('im')) {
-      mnemonic += ` ⚡ 字首暗示：含有否定/相反意涵。`;
-    } else if (w.endsWith('tion') || w.endsWith('ment') || w.endsWith('ness')) {
-      mnemonic += ` ⚡ 字尾暗示：標準名詞字尾 (-${w.slice(-4)})。`;
-    } else if (w.endsWith('able') || w.endsWith('ive') || w.endsWith('ous')) {
-      mnemonic += ` ⚡ 字尾暗示：標準形容詞字尾 (-${w.slice(-3)})。`;
+    // 額外字根與結構記憶小撇步
+    if (lowerW.startsWith('un') || lowerW.startsWith('in') || lowerW.startsWith('dis') || lowerW.startsWith('im') || lowerW.startsWith('ir') || lowerW.startsWith('il')) {
+      mnemonic += ` ⚡ 字首暗示：帶有「否定 / 相反 / 不」的語義。`;
+    } else if (lowerW.endsWith('tion') || lowerW.endsWith('ment') || lowerW.endsWith('ness') || lowerW.endsWith('ity') || lowerW.endsWith('ance') || lowerW.endsWith('ence')) {
+      mnemonic += ` ⚡ 字尾結構：標準抽象名詞字尾 (-${w.slice(-4)})。`;
+    } else if (lowerW.endsWith('able') || lowerW.endsWith('ive') || lowerW.endsWith('ous') || lowerW.endsWith('ful') || lowerW.endsWith('ic') || lowerW.endsWith('al')) {
+      mnemonic += ` ⚡ 字尾結構：標準形容詞字尾 (-${w.slice(-3)})。`;
     }
 
     return { enEx, zhEx, breakdown, mnemonic };
