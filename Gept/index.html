@@ -237,7 +237,21 @@
           </div>
         </div>
 
-        <!-- Mode 7: GEPT 8,365 Dictionary & Flashcard -->
+        <!-- Mode 7: Dragon Sovereign Story Quest (龍傲天爽文背單字) -->
+        <div class="mode-card" data-mode="story">
+          <div>
+            <div class="mode-icon-box">🐉</div>
+            <span class="mode-tag" style="background: rgba(239, 68, 68, 0.18); color: #f87171; border-color: rgba(239, 68, 68, 0.35);">爽文沉浸 ✕ 中英逐句拆解</span>
+            <h3 class="mode-title">龍傲天神皇傳奇</h3>
+            <p class="mode-desc">異界神皇覺醒、星際降維打擊、修仙一劍斷萬古！看熱血爽文故事，輕鬆精通中高級核心單字！</p>
+          </div>
+          <div class="mode-meta-footer">
+            <span>⚔️ 雙語對照 / 點擊查詞發音</span>
+            <span class="mode-btn-pill">進入傳奇 ➔</span>
+          </div>
+        </div>
+
+        <!-- Mode 8: GEPT 8,365 Dictionary & Flashcard -->
         <div class="mode-card" data-mode="dictionary">
           <div>
             <div class="mode-icon-box">📖</div>
@@ -477,6 +491,28 @@
       </div>
     </section>
 
+    <!-- 10. Dragon Sovereign Story Quest View (龍傲天背單字傳奇) -->
+    <section class="practice-container" id="view-story">
+      <div class="practice-header">
+        <div class="practice-header-left">
+          <button class="back-to-hub-btn" onclick="app.showHub()">
+            <span>←</span> 返回主頁
+          </button>
+          <div class="practice-title-box">
+            <h2>🐉 龍傲天神皇傳奇 (Dragon Sovereign Chronicles)</h2>
+            <p>無敵流熱血爽文 ✕ 中英逐句對照 ✕ 沉浸式秒記中高級核心單字！</p>
+          </div>
+        </div>
+        <div class="practice-header-right" id="story-chapter-nav">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <div id="story-content-area">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
   </div>
 
   <!-- Floating Toast Notifications -->
@@ -486,6 +522,7 @@
   <script src="js/gept_data.js"></script>
   <script src="js/practice_data.js"></script>
   <script src="js/journey_data.js"></script>
+  <script src="js/story_data.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/speech.js"></script>
   <script src="js/storage.js"></script>

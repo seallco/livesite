@@ -443,9 +443,113 @@ class LinguaPulseApp {
         this.showView('view-mastery');
         this.loadMasteryMap();
         break;
+      case 'story':
+        this.showView('view-story');
+        this.loadStoryAdventure();
+        break;
       default:
         this.showHub();
     }
+  }
+
+  // ==========================================
+  // 🐉 Dragon Sovereign Story Adventure (龍傲天爽文背單字)
+  // ==========================================
+  loadStoryAdventure(chapterId = 'ch_1') {
+    if (!window.STORY_CHAPTERS || window.STORY_CHAPTERS.length === 0) return;
+
+    this.currentStoryChapterId = chapterId;
+    const chapters = window.STORY_CHAPTERS;
+    const currentChapter = chapters.find(c => c.id === chapterId) || chapters[0];
+
+    // Render Chapter Tab Selector in header
+    const navRight = document.getElementById('story-chapter-nav');
+    if (navRight) {
+      navRight.innerHTML = `
+        <div class="story-chapter-selector-bar" style="margin-bottom: 0;">
+          ${chapters.map((ch, idx) => `
+            <button class="story-tab-btn ${ch.id === currentChapter.id ? 'active' : ''}" onclick="app.loadStoryAdventure('${ch.id}')">
+              ${ch.coverEmoji} 第 ${idx + 1} 章
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    const area = document.getElementById('story-content-area');
+    if (!area) return;
+
+    area.innerHTML = `
+      <!-- Story Hero Header -->
+      <div class="story-hero-header">
+        <div class="story-tier-tag">🐉 ${currentChapter.tier}</div>
+        <h2 class="story-chapter-title">${currentChapter.title}</h2>
+        <div style="font-size: 1.05rem; font-weight: 700; color: #fbbf24; margin-bottom: 0.5rem;">
+          ⚡ ${currentChapter.subtitle}
+        </div>
+        <p class="story-chapter-desc">${currentChapter.summary}</p>
+      </div>
+
+      <!-- Story Paragraphs with Interactive Vocab -->
+      <div class="story-paragraphs-container">
+        ${currentChapter.paragraphs.map((p, pIdx) => {
+          // Replace {word} with interactive highlight tags
+          let formattedEn = p.en;
+          p.focusVocab.forEach(v => {
+            const regex = new RegExp(`\\{${v.word}\\}`, 'g');
+            formattedEn = formattedEn.replace(
+              regex, 
+              `<span class="story-vocab-highlight" onclick="window.speechEngine.speak('${v.word.replace(/'/g, "\\'")}'); app.showToast('🔊 【${v.word}】(${v.pos})：${v.meaning}');" title="點擊發音與速查">[${v.word}]</span>`
+            );
+          });
+
+          return `
+            <div class="story-paragraph-card">
+              <!-- English with Highlights & Listen button -->
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <div class="story-en-text" style="margin-bottom: 0;">
+                  ${formattedEn}
+                </div>
+                <button class="tool-mini-btn" style="flex-shrink: 0;" title="朗讀整段英文" onclick="window.speechEngine.speak('${p.en.replace(/[{}]/g, '').replace(/'/g, "\\'")}')">
+                  🔊
+                </button>
+              </div>
+
+              <!-- Chinese Translation -->
+              <div class="story-zh-text">
+                🇨🇳 <strong>譯文：</strong> ${p.zh}
+              </div>
+
+              <!-- Focus Vocab Chips -->
+              <div class="story-vocab-breakdown-row">
+                ${p.focusVocab.map(v => `
+                  <div class="story-vocab-chip">
+                    <span style="cursor: pointer;" onclick="window.speechEngine.speak('${v.word.replace(/'/g, "\\'")}')" title="朗讀">🔊</span>
+                    <b>${v.word}</b>
+                    <span class="chip-pos">[${v.pos}]</span>
+                    <span>${v.meaning}</span>
+                    <span class="chip-note">(${v.note})</span>
+                    <button class="tool-mini-btn ${window.storageManager.isBookmarked(v.word) ? 'bookmarked' : ''}" style="width: 22px; height: 22px; font-size: 0.75rem; margin-left: 4px;" onclick="app.toggleBookmarkWord('${v.word.replace(/'/g, "\\'")}', this)" title="收藏單字">⭐</button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <!-- Action Footer -->
+      <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; margin-bottom: 3rem;">
+        <button class="btn-primary" onclick="app.awardXP(50, true, '閱讀完本章故事！'); app.showToast('🎉 恭喜完成本章單字閱讀 (+50 XP)！');">
+          ✅ 閱讀完畢領取 +50 XP
+        </button>
+        <button class="btn-secondary" onclick="app.startMode('blitz')">
+          ⚡ 前往詞彙特訓進行考驗
+        </button>
+      </div>
+    `;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ==========================================
