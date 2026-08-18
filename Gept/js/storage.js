@@ -231,11 +231,30 @@ class StorageManager {
 
   // Mistake Vault management
   addMistake(item) {
-    // item: { type, question, yourAnswer, correctAnswer, explanation, date }
+    // item: { id, type, question, yourAnswer, correctAnswer, explanation, targetWord }
     const exists = this.mistakes.find(m => m.id === item.id || (m.question === item.question && m.type === item.type));
     if (!exists) {
       item.savedAt = new Date().toLocaleDateString();
+      item.wrongCount = 1;
       this.mistakes.unshift(item);
+    } else {
+      exists.wrongCount = (exists.wrongCount || 1) + 1;
+      exists.lastWrongAt = new Date().toLocaleDateString();
+    }
+    this.saveJSON(this.KEY_MISTAKES, this.mistakes);
+  }
+
+  // 檢查並在完全精通 (5★) 時自動將該單字/題目從錯題庫中安全畢業移除
+  checkAndGraduateMasteredMistakes() {
+    const beforeCount = this.mistakes.length;
+    this.mistakes = this.mistakes.filter(m => {
+      if (m.targetWord && this.mastery[m.targetWord]) {
+        // 如果該單字在外面的正規練習中已經達到 5 星（完全精通），才准許從錯題庫移除！
+        return this.mastery[m.targetWord].stars < this.MASTERY_REQUIRED_STREAK;
+      }
+      return true;
+    });
+    if (this.mistakes.length !== beforeCount) {
       this.saveJSON(this.KEY_MISTAKES, this.mistakes);
     }
   }

@@ -1096,6 +1096,8 @@ class LinguaPulseApp {
       // Show mastery progress notification
       if (masteryResult.justMastered) {
         window.soundEngine.levelUp();
+        window.storageManager.checkAndGraduateMasteredMistakes();
+        this.updateBadges();
         this.showMasteryToast(target.w, masteryResult.newStars, true);
       } else if (masteryResult.newStars > masteryResult.prevStars) {
         this.showMasteryToast(target.w, masteryResult.newStars, false);
@@ -2407,13 +2409,13 @@ class LinguaPulseApp {
             <div class="quickstat-row"><span>累積答對</span><strong style="color: #34d399;">${Object.values(window.storageManager.mastery).reduce((s, e) => s + (e.totalCorrect || 0), 0)}</strong></div>
             <div class="quickstat-row"><span>累積答錯</span><strong style="color: #fb7185;">${Object.values(window.storageManager.mastery).reduce((s, e) => s + (e.totalWrong || 0), 0)}</strong></div>
             <div class="quickstat-row"><span>進行中 (1-4⭐)</span><strong style="color: #818cf8;">${stats.inProgress}</strong></div>
-            <div class="quickstat-row"><span>尚未見過</span><strong style="color: #475569;">${geptTotal - stats.seen}</strong></div>
+            <div class="quickstat-row"><span>🚨 待消滅錯題</span><strong style="color: #ef4444;">${window.storageManager.mistakes.length}</strong></div>
             <div class="quickstat-row"><span>精通比例</span><strong style="color: #f59e0b;">${masteryPct}%</strong></div>
           </div>
         </div>
 
-        <!-- Filter Tabs & Search -->
-        <div class="mastery-filter-bar">
+        <!-- Filter Tabs & Search & Mistake Drill Button -->
+        <div class="mastery-filter-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
           <div class="mastery-tab-group">
             <button class="mastery-tab ${this.masteryTabFilter === 'all_seen' ? 'active' : ''}"
               onclick="app.setMasteryTab('all_seen')">📋 全部已接觸 (${stats.seen})</button>
@@ -2421,23 +2423,35 @@ class LinguaPulseApp {
               onclick="app.setMasteryTab('mastered')">⭐ 已精通 (${stats.mastered})</button>
             <button class="mastery-tab ${this.masteryTabFilter === 'in_progress' ? 'active' : ''}"
               onclick="app.setMasteryTab('in_progress')">🔥 進行中 (${stats.inProgress})</button>
+            <button class="mastery-tab ${this.masteryTabFilter === 'mistakes' ? 'active' : ''}" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;"
+              onclick="app.setMasteryTab('mistakes')">🚨 待消滅錯題 (${window.storageManager.mistakes.length})</button>
           </div>
-          <div class="mastery-level-filter">
-            <button class="filter-pill-btn ${this.masteryFilter === 'all' ? 'active' : ''}"
-              onclick="app.setMasteryFilter('all')">全部</button>
-            <button class="filter-pill-btn ${this.masteryFilter === '中高級' ? 'active' : ''}"
-              onclick="app.setMasteryFilter('中高級')">中高級</button>
-            <button class="filter-pill-btn ${this.masteryFilter === '中級' ? 'active' : ''}"
-              onclick="app.setMasteryFilter('中級')">中級</button>
-            <button class="filter-pill-btn ${this.masteryFilter === '初級' ? 'active' : ''}"
-              onclick="app.setMasteryFilter('初級')">初級</button>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            ${window.storageManager.mistakes.length > 0 ? `
+              <button class="btn-primary" style="padding: 5px 12px; font-size: 0.82rem; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);" onclick="app.startMistakesPokédexDrill()">
+                🎯 啟動錯題專屬特訓
+              </button>
+            ` : ''}
+            <div class="mastery-level-filter">
+              <button class="filter-pill-btn ${this.masteryFilter === 'all' ? 'active' : ''}"
+                onclick="app.setMasteryFilter('all')">全部</button>
+              <button class="filter-pill-btn ${this.masteryFilter === '中高級' ? 'active' : ''}"
+                onclick="app.setMasteryFilter('中高級')">中高級</button>
+              <button class="filter-pill-btn ${this.masteryFilter === '中級' ? 'active' : ''}"
+                onclick="app.setMasteryFilter('中級')">中級</button>
+              <button class="filter-pill-btn ${this.masteryFilter === '初級' ? 'active' : ''}"
+                onclick="app.setMasteryFilter('初級')">初級</button>
+            </div>
+            <input type="text" class="dict-input" placeholder="🔍 搜尋單字或錯題..."
+              value="${this.masterySearch || ''}"
+              oninput="app.setMasterySearch(this.value)"
+              style="max-width: 220px; padding: 4px 10px; font-size: 0.85rem;">
           </div>
-          <input type="text" class="dict-input" placeholder="🔍 搜尋已練習的單字..."
-            value="${this.masterySearch || ''}"
-            oninput="app.setMasterySearch(this.value)"
-            style="max-width: 260px;">
         </div>
       </div>
+
+      <!-- In-Pokédex Mistake Practice Container (Hidden by default) -->
+      <div id="mastery-mistake-drill-view" style="display: none; margin-bottom: 2rem;"></div>
 
       <!-- ===== POKÉDEX GRID ===== -->
       <div id="mastery-grid-container">
@@ -2447,6 +2461,56 @@ class LinguaPulseApp {
   }
 
   _buildMasteryGrid(stats) {
+    if (this.masteryTabFilter === 'mistakes') {
+      const mistakes = window.storageManager.mistakes;
+      if (mistakes.length === 0) {
+        return `
+          <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+            <h3 style="color: #34d399;">太棒了！目前沒有任何待消滅錯題！</h3>
+            <p style="margin-top: 0.5rem;">你在練習中累積的錯題都已成功掌握並畢業移除。</p>
+          </div>
+        `;
+      }
+
+      return `
+        <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.75rem 1.25rem; border-radius: var(--radius-md);">
+          <div style="font-size: 0.88rem; color: #fca5a5;">
+            ⚠️ <strong>重要規則：</strong> 圖鑑內的錯題特訓僅供加強記憶；唯有在<strong>「外部正規模式」</strong>（詞彙狂飆、段位闖關等）中連續答對達到 <strong>5★ 完全精通</strong>，該單字才會自動從錯題本畢業移除！
+          </div>
+        </div>
+        <div class="mistakes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+          ${mistakes.map(m => {
+            const mastery = m.targetWord ? window.storageManager.getMasteryInfo(m.targetWord) : null;
+            const starsHtml = mastery ? window.storageManager.getStarsHTML(mastery.stars || 0) : '';
+            return `
+              <div class="mistake-item-card" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: var(--radius-md); padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <span class="level-tag-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.35); font-size: 0.72rem;">${m.type}</span>
+                  <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    ${mastery ? `<span style="font-size: 0.75rem;">${starsHtml}</span>` : ''}
+                    <button class="tool-mini-btn" onclick="window.speechEngine.speak('${(m.targetWord || m.question).replace(/'/g, "\\'")}')">🔊</button>
+                  </div>
+                </div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 0.5rem;">
+                  ${m.question}
+                </div>
+                <div style="font-size: 0.85rem; color: #f87171; margin-bottom: 0.3rem;">
+                  ❌ 曾選錯誤：${m.yourAnswer || '未作答'}
+                </div>
+                <div style="font-size: 0.88rem; color: #34d399; font-weight: 700; margin-bottom: 0.5rem;">
+                  ✅ 正確解答：${m.correctAnswer}
+                </div>
+                <div style="font-size: 0.8rem; color: #94a3b8; background: rgba(0,0,0,0.3); padding: 0.5rem 0.75rem; border-radius: 4px;">
+                  💡 ${m.explanation}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
     // Determine which entries to show based on tab
     let entries = stats.entries;
 
@@ -2489,6 +2553,107 @@ class LinguaPulseApp {
         ${entries.map(entry => this._buildMasteryCard(entry)).join('')}
       </div>
     `;
+  }
+
+  // ==========================================
+  // 🎯 In-Pokédex Mistake Review Drill (圖鑑內錯題特訓模式)
+  // ==========================================
+  startMistakesPokédexDrill() {
+    window.soundEngine.click();
+    const mistakes = window.storageManager.mistakes;
+    if (mistakes.length === 0) {
+      this.showToast('目前沒有錯題可練習！');
+      return;
+    }
+
+    this.mistakeDrillPool = [...mistakes].sort(() => Math.random() - 0.5);
+    this.mistakeDrillIndex = 0;
+    this.mistakeDrillCorrect = 0;
+
+    const drillView = document.getElementById('mastery-mistake-drill-view');
+    if (drillView) {
+      drillView.style.display = 'block';
+      this.renderNextMistakeDrillCard();
+      drillView.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  renderNextMistakeDrillCard() {
+    const drillView = document.getElementById('mastery-mistake-drill-view');
+    if (!drillView) return;
+
+    if (this.mistakeDrillIndex >= this.mistakeDrillPool.length) {
+      drillView.innerHTML = `
+        <div class="drill-card" style="text-align: center; padding: 2rem; border: 2px solid #34d399;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎯✨</div>
+          <h3 style="color: #34d399; font-size: 1.5rem;">錯題特訓輪次完成！</h3>
+          <p style="color: #cbd5e1; margin-top: 0.5rem;">
+            本次特訓共複習 ${this.mistakeDrillPool.length} 道錯題（答對 ${this.mistakeDrillCorrect} 題）。
+          </p>
+          <p style="font-size: 0.85rem; color: #fbbf24; margin-top: 0.5rem;">
+            💡 提醒：請回到「外部正規測驗」中連續答對達到 5★ 完全精通，單字即可永久自錯題本畢業移除！
+          </p>
+          <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem;">
+            <button class="btn-secondary" onclick="document.getElementById('mastery-mistake-drill-view').style.display='none'">
+              關閉特訓視圖
+            </button>
+            <button class="btn-primary" onclick="app.startMode('blitz')">
+              ⚡ 前往詞彙狂飆挑戰 5★ 精通 ➔
+            </button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const currentMistake = this.mistakeDrillPool[this.mistakeDrillIndex];
+    const isVocab = currentMistake.targetWord || !currentMistake.question.includes('_____');
+
+    drillView.innerHTML = `
+      <div class="drill-card" style="border: 2px solid rgba(239, 68, 68, 0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div class="drill-badge-row">
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span class="level-tag-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.35);">
+              🚨 錯題特訓 (${this.mistakeDrillIndex + 1} / ${this.mistakeDrillPool.length})
+            </span>
+            <span class="level-tag-pill" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc;">
+              ${currentMistake.type}
+            </span>
+          </div>
+          <button class="tool-mini-btn" onclick="document.getElementById('mastery-mistake-drill-view').style.display='none'">✖ 關閉</button>
+        </div>
+
+        <div style="font-size: 1.6rem; font-weight: 800; text-align: center; color: #ffffff; margin: 1.25rem 0;">
+          ${currentMistake.question}
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.85rem; color: #fca5a5; margin-bottom: 0.4rem;">
+            ❌ 過去易錯紀錄：${currentMistake.yourAnswer || '未作答'}
+          </div>
+          <div style="font-size: 0.95rem; color: #34d399; font-weight: 700; margin-bottom: 0.4rem;">
+            ✅ 正確答案：${currentMistake.correctAnswer}
+          </div>
+          <div style="font-size: 0.85rem; color: #94a3b8;">
+            💡 解析：${currentMistake.explanation}
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <span style="font-size: 0.8rem; color: #94a3b8;">
+            （本處複習不計入 5★ 精通，需至外部正規測驗完成晉級）
+          </span>
+          <button class="btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="app.advanceMistakeDrill()">
+            我記住了，下一題 ➔
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  advanceMistakeDrill() {
+    this.mistakeDrillIndex++;
+    this.renderNextMistakeDrillCard();
   }
 
   _buildMasteryCard(entry) {
