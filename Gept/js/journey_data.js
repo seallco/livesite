@@ -1,0 +1,95 @@
+// LinguaPulse Learning Journey: 6-Stage Progressive Roadmap
+// 依據語言習得理論設計：核心詞彙 -> 句構語法 -> 地道習慣用語 -> 微閱讀理解 -> 影子跟讀發音 -> 實戰對話破冰
+
+window.JOURNEY_STAGES = [
+  {
+    id: 1,
+    key: "stage_vocab",
+    title: "第一關：核心單字辨析 (Vocabulary Foundation)",
+    subtitle: "單字是一切語言的基石！掌握 GEPT 初級與高頻核心字，透過同詞性嚴格選項，建立精準字義直覺。",
+    icon: "🌱",
+    color: "#10b981",
+    mode: "blitz",
+    targetGoal: 10,
+    unitName: "題單字辨析",
+    skills: ["詞性直覺", "核心字義", "記憶聯想"],
+    introTip: "【學習心法】不要死背中文，注意題目與選項的詞性，透過同詞性對比加深大腦記憶痕跡！",
+    passRewardXP: 100,
+    bossChallenge: "完成 10 題核心單字特訓"
+  },
+  {
+    id: 2,
+    key: "stage_grammar",
+    title: "第二關：句構語法偵探 (Grammar & Sentence Structure)",
+    subtitle: "有了單字就要組裝成句！擊破多益 Part 5 高頻文法陷阱（易混淆字、假設語氣、倒裝句、主從子句）。",
+    icon: "🧩",
+    color: "#6366f1",
+    mode: "grammar",
+    targetGoal: 5,
+    unitName: "道句型陷阱",
+    skills: ["動詞時態", "主被動關係", "連接詞辨析"],
+    introTip: "【學習心法】抓出句子的主要主詞與動詞，看懂修飾關係，文法就是句子的骨架！",
+    passRewardXP: 150,
+    bossChallenge: "破解 5 道多益 860+ 語法陷阱"
+  },
+  {
+    id: 3,
+    key: "stage_native",
+    title: "第三關：母語地道慣用語 (Native Expressions & Idioms)",
+    subtitle: "告別死板課本英語！掌握老外每天在說的 'on the fence', 'wiped out', 'play it by ear' 等高頻俚語與商務慣用表達。",
+    icon: "☕",
+    color: "#f59e0b",
+    mode: "native",
+    targetGoal: 5,
+    unitName: "個地道表達",
+    skills: ["職場口語", "母語語境", "課本與地道對比"],
+    introTip: "【學習心法】想像母語者的具體生活場景，用整個片語（Chunk）來記憶，不要逐字硬翻！",
+    passRewardXP: 200,
+    bossChallenge: "探索 5 個母語者必備習慣用語"
+  },
+  {
+    id: 4,
+    key: "stage_reading",
+    title: "第四關：短篇微閱讀理解 (Micro-Reading Comprehension)",
+    subtitle: "將單字、文法與片語融會貫通！閱讀科技、商業談判與心理學短文，鍛鍊快速抓取關鍵訊息的長文閱讀思維。",
+    icon: "📰",
+    color: "#06b6d4",
+    mode: "reading",
+    targetGoal: 2,
+    unitName: "篇微閱讀",
+    skills: ["段落主旨", "細節推論", "長句理解"],
+    introTip: "【學習心法】先掃視段落首尾句掌握大意，遇到生詞點擊即可發音查意，無痛累積語感！",
+    passRewardXP: 250,
+    bossChallenge: "完成 2 篇多益金證深度短文理解"
+  },
+  {
+    id: 5,
+    key: "stage_speech",
+    title: "第五關：影子跟讀發音教練 (Echo & Pronunciation Coach)",
+    subtitle: "看得懂還要說得準！透過語音辨識與聲學評分，模仿母語者的抑揚頓挫、連音（Linking）與重音節奏。",
+    icon: "🎙️",
+    color: "#ec4899",
+    mode: "echo",
+    targetGoal: 3,
+    unitName: "次發音跟讀",
+    skills: ["連音弱化", "重音節奏", "口腔肌肉記憶"],
+    introTip: "【學習心法】先按 🐢 0.8x 慢速聽清楚連音，再開啟麥克風跟讀，目標達到 80% 以上契合度！",
+    passRewardXP: 300,
+    bossChallenge: "完成 3 次高分發音評測"
+  },
+  {
+    id: 6,
+    key: "stage_dialogue",
+    title: "第六關：實戰情境快打對決 (Real-world Scenario Simulation)",
+    subtitle: "頂峰實戰！身歷其境紐約咖啡店客製點餐、國際會議高情商異議與科技酒會破冰社交，完成 3 回合多輪對話抉擇！",
+    icon: "🥊",
+    color: "#ef4444",
+    mode: "dialogue",
+    targetGoal: 1,
+    unitName: "場完整對決",
+    skills: ["即時應變", "高情商溝通", "多輪實戰"],
+    introTip: "【學習心法】根據對話對象的身分與當前語境，挑選最得體、最自然的表達方式！",
+    passRewardXP: 500,
+    bossChallenge: "通關一場 3 回合情境對決"
+  }
+];

@@ -37,9 +37,111 @@ class LinguaPulseApp {
 
   init() {
     this.renderHeaderStats();
+    this.renderJourneyRoadmap();
     this.bindEvents();
     this.updateBadges();
     console.log(`LinguaPulse Initialized with ${this.geptData.length} GEPT vocabulary entries!`);
+  }
+
+  // ==========================================
+  // 🏆 Progressive Learning Journey Manager
+  // ==========================================
+  renderJourneyRoadmap() {
+    const container = document.getElementById('journey-stages-container');
+    if (!container || !window.JOURNEY_STAGES) return;
+
+    const journeyState = window.storageManager.getJourneyProgress();
+    const currentStageId = journeyState.currentStageId || 1;
+    const stages = window.JOURNEY_STAGES;
+
+    const completedCount = stages.filter(s => journeyState.stages[s.id]?.completed).length;
+    const progressText = document.getElementById('journey-total-progress-text');
+    if (progressText) {
+      progressText.textContent = `已通關 ${completedCount} / ${stages.length} 階`;
+    }
+
+    container.innerHTML = stages.map(stage => {
+      const stageData = journeyState.stages[stage.id] || { progress: 0, completed: false };
+      const isCompleted = stageData.completed;
+      const isActive = stage.id === currentStageId && !isCompleted;
+      const isLocked = stage.id > currentStageId;
+
+      const progressPercent = Math.min(100, Math.round((stageData.progress / stage.targetGoal) * 100));
+
+      let statusBadgeHtml = '';
+      let actionBtnText = '';
+      let btnDisabled = '';
+
+      if (isCompleted) {
+        statusBadgeHtml = `<span class="stage-status-badge status-completed">✅ 已通關</span>`;
+        actionBtnText = `🔁 再次挑戰 (${stageData.progress}/${stage.targetGoal})`;
+      } else if (isActive) {
+        statusBadgeHtml = `<span class="stage-status-badge status-active">🔥 當前挑戰中</span>`;
+        actionBtnText = `⚡ 立即闖關 (${stageData.progress}/${stage.targetGoal})`;
+      } else {
+        statusBadgeHtml = `<span class="stage-status-badge status-locked">🔒 尚未解鎖</span>`;
+        actionBtnText = `🔒 通關第 ${stage.id - 1} 關解鎖`;
+        btnDisabled = 'disabled';
+      }
+
+      return `
+        <div class="stage-step-card ${isActive ? 'is-active' : ''} ${isCompleted ? 'is-completed' : ''} ${isLocked ? 'is-locked' : ''}">
+          <div class="stage-top-row">
+            <div class="stage-icon-num">
+              <div class="stage-num-badge">${stage.id}</div>
+              <span class="stage-icon">${stage.icon}</span>
+            </div>
+            ${statusBadgeHtml}
+          </div>
+
+          <div class="stage-card-title">${stage.title}</div>
+          <div class="stage-card-desc">${stage.subtitle}</div>
+
+          <div class="stage-skills-list">
+            ${stage.skills.map(s => `<span class="stage-skill-pill">✦ ${s}</span>`).join('')}
+          </div>
+
+          <div class="stage-progress-box">
+            <div class="stage-progress-text-row">
+              <span>通關目標: ${stage.bossChallenge}</span>
+              <span>${stageData.progress} / ${stage.targetGoal}</span>
+            </div>
+            <div class="stage-progress-bar-bg">
+              <div class="stage-progress-bar-fill" style="width: ${progressPercent}%; background: ${stage.color};"></div>
+            </div>
+            <button class="stage-action-btn" ${btnDisabled} onclick="app.startJourneyStage(${stage.id})">
+              ${actionBtnText}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  startCurrentJourneyStage() {
+    const journeyState = window.storageManager.getJourneyProgress();
+    this.startJourneyStage(journeyState.currentStageId || 1);
+  }
+
+  startJourneyStage(stageId) {
+    window.soundEngine.click();
+    const stage = window.JOURNEY_STAGES.find(s => s.id === stageId);
+    if (!stage) return;
+
+    this.showToast(`🚀 進入【${stage.title.split('：')[1] || stage.title}】！${stage.introTip}`, 4000);
+    this.startMode(stage.mode);
+  }
+
+  checkJourneyActionProgress(mode, amount = 1) {
+    const result = window.storageManager.recordJourneyAction(mode, amount);
+    if (result.justPassed) {
+      window.soundEngine.levelUp();
+      this.awardXP(result.stage.passRewardXP, true, `🎉 恭喜通關【${result.stage.title}】！`);
+      this.showToast(`🏆 恭喜通關【${result.stage.title}】！已解鎖下一階段挑戰！`, 5000);
+      this.renderJourneyRoadmap();
+    } else {
+      this.renderJourneyRoadmap();
+    }
   }
 
   // ==========================================
@@ -54,6 +156,7 @@ class LinguaPulseApp {
     document.getElementById('hub-view').style.display = 'block';
     this.currentMode = null;
     this.renderHeaderStats();
+    this.renderJourneyRoadmap();
   }
 
   showView(viewId) {
@@ -543,6 +646,11 @@ class LinguaPulseApp {
       counterDisplay.textContent = `📝 已答 ${this.blitzSessionHistory.length} 題`;
     }
 
+    // Advance Journey challenge progress
+    if (isCorrect) {
+      this.checkJourneyActionProgress('blitz', 1);
+    }
+
     // Track mastery progress in persistent storage
     const masteryResult = window.storageManager.recordAnswer(
       target.w,
@@ -877,7 +985,7 @@ class LinguaPulseApp {
         </div>
 
         <div class="drill-actions-bar">
-          <button class="btn-primary" onclick="app.awardXP(15, true, '學習了 1 個地道片語！'); app.loadNativeExpression();">
+          <button class="btn-primary" onclick="app.awardXP(15, true, '學習了 1 個地道片語！'); app.checkJourneyActionProgress('native', 1); app.loadNativeExpression();">
             ✅ 掌握了 (+15 XP) ➔ 下一句
           </button>
           <button class="btn-secondary" onclick="window.speechEngine.speak('${item.native.replace(/'/g, "\\'")}', {rate: 0.85})">
@@ -940,6 +1048,7 @@ class LinguaPulseApp {
     if (isCorrect) {
       btnElement.classList.add('selected-correct');
       this.awardXP(25, true, '破解多益金色考點！');
+      this.checkJourneyActionProgress('grammar', 1);
       fbContainer.className = 'feedback-box correct';
       fbContainer.innerHTML = `
         <div class="feedback-title">🎉 正確解答！金證直擊</div>
@@ -1101,6 +1210,9 @@ class LinguaPulseApp {
     `;
 
     this.awardXP(xp, true, `口說發音跟讀完成 (+${xp} XP)`);
+    if (evalResult.score >= 70) {
+      this.checkJourneyActionProgress('echo', 1);
+    }
   }
 
   // ==========================================
@@ -1178,6 +1290,7 @@ class LinguaPulseApp {
     if (isCorrect) {
       btnElement.classList.add('selected-correct');
       this.awardXP(35, true, '短篇閱讀理解挑戰成功！');
+      this.checkJourneyActionProgress('reading', 1);
       fb.className = 'feedback-box correct';
       fb.innerHTML = `
         <div class="feedback-title">🎉 理解精準！</div>
@@ -1297,6 +1410,7 @@ class LinguaPulseApp {
       window.soundEngine.levelUp();
       const xpEarned = this.dialogueTotalScore * 2;
       this.awardXP(xpEarned, true, `完成情境快打對決！獲得 ${this.dialogueTotalScore}/30 分`);
+      this.checkJourneyActionProgress('dialogue', 1);
 
       const area = document.getElementById('dialogue-content-area');
       area.innerHTML = `

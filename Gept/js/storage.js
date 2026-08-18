@@ -48,6 +48,8 @@ class StorageManager {
       history: []
     });
 
+    this.KEY_JOURNEY = 'linguapulse_journey_progress';
+
     this.mistakes = this.loadJSON(this.KEY_MISTAKES, []);
     this.bookmarks = this.loadJSON(this.KEY_BOOKMARKS, []);
     this.settings = this.loadJSON(this.KEY_SETTINGS, {
@@ -58,8 +60,60 @@ class StorageManager {
     });
     // mastery: { [wordKey]: { stars, streak, totalSeen, totalCorrect, totalWrong, masteredAt, lastSeen } }
     this.mastery = this.loadJSON(this.KEY_MASTERY, {});
+    // journey: { currentStageId: 1, stages: { 1: { progress: 0, completed: false, stars: 0 }, ... } }
+    this.journey = this.loadJSON(this.KEY_JOURNEY, {
+      currentStageId: 1,
+      stages: {
+        1: { progress: 0, completed: false },
+        2: { progress: 0, completed: false },
+        3: { progress: 0, completed: false },
+        4: { progress: 0, completed: false },
+        5: { progress: 0, completed: false },
+        6: { progress: 0, completed: false }
+      }
+    });
 
     this.checkAndUpdateStreak();
+  }
+
+  saveJourney() {
+    this.saveJSON(this.KEY_JOURNEY, this.journey);
+  }
+
+  getJourneyProgress() {
+    return this.journey;
+  }
+
+  recordJourneyAction(stageMode, amount = 1) {
+    if (!window.JOURNEY_STAGES) return { passed: false };
+    const currentStage = window.JOURNEY_STAGES.find(s => s.id === this.journey.currentStageId);
+    if (!currentStage || currentStage.mode !== stageMode) return { passed: false };
+
+    if (!this.journey.stages[currentStage.id]) {
+      this.journey.stages[currentStage.id] = { progress: 0, completed: false };
+    }
+
+    const stageData = this.journey.stages[currentStage.id];
+    stageData.progress += amount;
+
+    let justPassed = false;
+    if (stageData.progress >= currentStage.targetGoal && !stageData.completed) {
+      stageData.completed = true;
+      justPassed = true;
+      // Unlock next stage
+      if (this.journey.currentStageId < window.JOURNEY_STAGES.length) {
+        this.journey.currentStageId += 1;
+      }
+    }
+
+    this.saveJourney();
+    return {
+      justPassed,
+      stage: currentStage,
+      currentProgress: stageData.progress,
+      targetGoal: currentStage.targetGoal,
+      nextStageId: this.journey.currentStageId
+    };
   }
 
   loadJSON(key, defaultVal) {

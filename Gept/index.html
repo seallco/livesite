@@ -120,10 +120,36 @@
         </div>
       </section>
 
+      <!-- 🏆 NEW: 6-Stage Progressive Learning Journey Map (闖關挑戰模式) -->
+      <section class="journey-roadmap-card">
+        <div class="journey-roadmap-header">
+          <div>
+            <div class="journey-badge-pill">🗺️ 語言學習科學 ✕ 循序漸進階梯</div>
+            <h2 class="journey-main-title">🏆 英語大師養成闖關之路 (Mastery Journey)</h2>
+            <p class="journey-main-desc">
+              學英語最有效率的科學路徑：<b>單字基石 ➔ 句型文法 ➔ 地道片語 ➔ 微篇閱讀 ➔ 影子跟讀 ➔ 實戰對話</b>。一步一腳印解鎖通關！
+            </p>
+          </div>
+          <div class="journey-header-stats">
+            <div class="journey-progress-ring-box">
+              <span id="journey-total-progress-text">第 1 / 6 關</span>
+            </div>
+            <button class="btn-primary journey-continue-btn" onclick="app.startCurrentJourneyStage()">
+              🚀 繼續當前闖關
+            </button>
+          </div>
+        </div>
+
+        <!-- Stages Stepper Grid -->
+        <div class="journey-stepper-grid" id="journey-stages-container">
+          <!-- Injected dynamically by JS -->
+        </div>
+      </section>
+
       <!-- Practice Modes Grid (7+ Modes) -->
       <div class="section-title-row">
-        <h2 class="section-title">✨ 多樣化抗疲勞練習庫</h2>
-        <span class="section-subtitle">多元主題輪替，告別枯燥死背</span>
+        <h2 class="section-title">✨ 自選專項練習庫 (自由特訓模式)</h2>
+        <span class="section-subtitle">自由挑選喜愛的主題進行單項衝刺</span>
       </div>
 
       <div class="modes-grid">
@@ -459,6 +485,7 @@
   <!-- Scripts -->
   <script src="js/gept_data.js"></script>
   <script src="js/practice_data.js"></script>
+  <script src="js/journey_data.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/speech.js"></script>
   <script src="js/storage.js"></script>
