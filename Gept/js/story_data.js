@@ -1,137 +1,157 @@
-// Dragon Sovereign Chronicles: The Immortal Omnipotence (龍傲天連載長篇小說：神皇萬古第一帝)
-// 包含雙語對照、高頻考點生詞標記、點擊即時發音、逐段翻譯、單字註解與章節專屬小測驗
-// 【本期連載：第一卷・諸神禁忌・前三集】
+// ==========================================================================
+// 📖 《萬古龍尊：開局被挖神骨，我反手吞噬諸天》
+// (The Primordial Sovereign: Betrayed, Reborn, and Dominating the Cosmos)
+// 沉浸式長篇連載玄幻小說 · 第一卷：逆命崛起（第 1 ~ 3 回）
+// 特色：豐滿角色、生動對話、高潮迭起、幽默感人、虐心復仇、全考點單字精準嵌入
+// ==========================================================================
 
 window.STORY_CHAPTERS = [
   {
     id: "ch_1",
-    volume: "第一卷：諸神禁忌",
-    tier: "第 1 集・神脈復甦",
-    title: "Episode 1: The Broken Vessel and The Primordial Core (第一集：丹田重鑄・神格覺醒)",
-    coverEmoji: "⚡",
-    subtitle: "「既然凡人容不下我的仁慈，那我便重登至高神座，俯瞰這諸天萬界！」",
-    summary: "林夜原本是天凰聖宗百年難遇的絕世天驕，卻在突破聖境時遭宗門聖主與大長老暗中下毒，抽乾靈根並打碎丹田，淪為宗門棄子。被扔進萬丈魔淵絕地之際，他體內沉睡了億萬年的混沌至尊神格被生死之氣徹底引爆！",
+    volume: "第一卷：逆命崛起",
+    tier: "第 1 回 · 斷骨之痛與忠僕之血",
+    title: "Chapter 1: The Shattered Bone and The Faithful Flame (斷骨剜心：雪夜泣血與神格重塑)",
+    coverEmoji: "🩸",
+    subtitle: "「少爺…快逃！老奴就算粉身碎骨，也絕不讓這群畜生碰你一根汗毛！」",
+    summary: "北境大雪紛飛。天凰聖地少主林夜為護宗門出生入死，卻在封聖當夜被摯愛之人柳清雪與大長老聯手暗算，強行生生挖出至尊神骨！忠心耿耿的老管家林福以殘軀捨命相護，被長老一掌震碎心脈。林夜抱著冰冷的屍首墜入萬丈魔淵，在極度絕望與滔天恨意中，體內沉睡的太初鴻蒙神脈徹底暴走甦醒！",
     paragraphs: [
       {
-        en: "For three agonizing years, the noble elders of the Sacred Sect treated Lin Ye as an {insignificant} cripple. They believed he was {destined} to spend the remainder of his days in cold, solitary {obscurity}.",
-        zh: "在痛苦難熬的三年裡，聖宗高高在上的長老們將林夜視為微不足道的廢人。他們深信他注定要在寒冷、孤獨且默默無聞的幽暗中苟延殘喘度過餘生。",
+        en: "The winter snow fell like shards of frozen glass. Lin Ye lay pinned against the blood-stained altar, his body convulsing in {excruciating} agony as Grand Elder Zhao forced a cursed dagger into his chest to {extract} his celestial bone.",
+        zh: "漫天風雪如冰冷的碎玻璃般瘋狂呼嘯。林夜被死死釘在淌血的祭壇之上，身體在極度劇烈的劇痛中痙攣抽搐。大長老趙無極手持淬毒的剔骨匕首，正殘忍地生生挖出他胸膛中的至尊神骨！",
         focusVocab: [
-          { word: "insignificant", pos: "adj.", meaning: "微不足道的、無關緊要的", note: "字首 in- (否定) + significant (重要的)" },
-          { word: "destined", pos: "adj.", meaning: "注定的、命中注定的", note: "be destined to + V (注定會...)" },
-          { word: "obscurity", pos: "noun", meaning: "默默無聞、無名狀態", note: "形容詞為 obscure" }
+          { word: "excruciating", pos: "adj.", meaning: "極度痛苦的、折磨人的、難以忍受的", note: "形容劇烈痛楚的高級考點詞" },
+          { word: "extract", pos: "verb", meaning: "拔出、提取、榨取、抽出", note: "名詞 extraction" }
         ]
       },
       {
-        en: "Standing upon the edge of the Bottomless Abyss, Grand Elder Zhao sneered with deep {malice}. 'Hand over your ancestral jade, Lin Ye. A useless mortal has no right to {possess} divine treasures!'",
-        zh: "站在萬丈深淵邊緣，大長老趙無極露出陰毒殘忍的冷笑：「林夜，交出你的祖傳古玉！一個毫無修為的廢物螻蟻，根本不配佔有這等神級至寶！」",
+        en: "Beside the elder stood Liu Qingxue, the woman Lin Ye had loved and protected for seven years. She gazed at his suffering with chilling {indifference}. 'Do not blame us, Lin Ye,' she whispered softly. 'In this cruel world, a genius without a background is merely a {stepping-stone} for true royalty.'",
+        zh: "長老身旁站著的，正是林夜悉心守護了整整七年的未婚妻柳清雪。她冷冷地看著他受盡折磨，眼中滿是令人心寒的漠然：「別怪我們狠心，林夜哥哥。」她語氣輕柔卻無比惡毒：「在這個殘酷的世界裡，沒有通天背景的草根天才，終究只是一塊注定被踩在腳下的墊腳石罷了。」",
         focusVocab: [
-          { word: "malice", pos: "noun", meaning: "惡意、怨恨、陰險", note: "形容詞 malicious (懷有惡意的)" },
-          { word: "possess", pos: "verb", meaning: "擁有、持有、具備", note: "名詞 possession (所有物/財產)" }
+          { word: "indifference", pos: "noun", meaning: "冷漠、漠不關心、無動於衷", note: "形容詞 indifferent (冷漠的)" },
+          { word: "stepping-stone", pos: "noun", meaning: "墊腳石、進階的跳板", note: "常用於比喻晉升的工具" }
         ]
       },
       {
-        en: "When the executioners attempted to {confiscate} the relic by force, a blinding golden vortex {erupted} from Lin Ye's shattered dantian, creating an {overwhelming} shockwave that pulverized the surrounding cliffs into dust.",
-        zh: "當執法者試圖強行沒收那枚古玉時，一道刺目的璀璨金光漩渦從林夜破碎的丹田中轟然爆發！那股毀天滅地的浩瀚威壓化作無可匹敵的衝擊波，直接將周圍萬仞懸崖震成漫天齏粉！",
+        en: "'Stop! You beasts, release my young master!' Old Butler Lin Fu, a mortal with no cultivation, threw himself forward with {reckless} devotion, biting the elder's leg. With a casual wave of his sleeve, the elder {inflicted} a fatal strike, shattering the old man's frail chest.",
+        zh: "「住手！你們這群畜生，放開我家少爺！」毫無修為的駝背老僕林福，帶著不顧一切的捨命忠誠撲了上來，死死咬住長老的腿。長老嫌惡地一揮衣袖，直接施加了一記致命重擊，將老僕脆弱的胸骨徹底拍碎！",
         focusVocab: [
-          { word: "confiscate", pos: "verb", meaning: "沒收、充公、強制徵收", note: "多益法律與財經考點" },
-          { word: "erupt", pos: "verb", meaning: "爆發、噴發、突然發生", note: "名詞 eruption" },
-          { word: "overwhelming", pos: "adj.", meaning: "壓倒性的、勢不可擋的、巨大的", note: "overwhelm (壓倒/淹沒)" }
+          { word: "reckless", pos: "adj.", meaning: "不顧後果的、魯莽的、奮不顧身的", note: "副詞 recklessly" },
+          { word: "inflict", pos: "verb", meaning: "施加(打擊/痛苦)、遭受、給予打擊", note: "常接 inflict sth on sb" }
         ]
       },
       {
-        en: "Lin Ye hovered in midair as nine celestial dragon phantoms swirled behind him. 'You took my spirit root, yet awakened my supreme Primordial Sovereign Core,' he declared with {unrivaled} calm. 'Your entire sect will soon {tremble} under my footsteps.'",
-        zh: "林夜周身九道上古神龍虛影盤旋咆哮，傲立於萬丈虛空之中。「你們奪我凡俗靈根，卻不知反而解開了我封印億萬年的鴻蒙至尊神格！」他以無可匹敵的帝王從容冷冷宣告：「你們整座聖宗，很快都將在我的腳下顫抖哀鳴！」",
+        en: "Coughing up black blood into the snow, the dying old servant reached trembling, frostbitten fingers toward Lin Ye. 'Young master... forgive old Fu... I promised your late mother to protect you... but I was too {incompetent}...' His breath faded into the freezing void.",
+        zh: "老僕口中大口大口噴著黑血，在雪地中用顫抖且滿是凍瘡的手無力地伸向林夜：「少爺…老奴對不起你…老奴答應過夫人要護你周全…是老奴太無能了…」他的最後一絲氣息，永遠消散在刺骨的虛空中。",
         focusVocab: [
-          { word: "unrivaled", pos: "adj.", meaning: "無可匹敵的、舉世無雙的", note: "rival (競爭對手) ➔ un-rival-ed (沒有對手的)" },
-          { word: "tremble", pos: "verb", meaning: "顫抖、戰慄、發抖", note: "tremble with fear (因恐懼而發抖)" }
+          { word: "incompetent", pos: "adj.", meaning: "無能的、不稱職的、能力不足的", note: "反義詞 competent (勝任的)" }
+        ]
+      },
+      {
+        en: "'Uncle Fu!' Lin Ye let out a heartbreaking roar of despair as the executioners cast him into the Bottomless Abyss. Yet as his shattered body fell through the dark mist, the dying hatred ignited his soul. An {unprecedented} cosmic entity awakened in his dantian, swallowing the void itself.",
+        zh: "「福伯——！！」林夜發出了撕心裂肺的絕望咆哮，隨即被長老無情地踹落萬丈深淵。然而，當他破碎的身軀穿透魔霧墜落之際，極致的恨意瞬間引燃了他的神魂！一尊沉睡萬古、史無前例的鴻蒙神格在丹田徹底甦醒，開始瘋狂吞噬天地虛空！",
+        focusVocab: [
+          { word: "unprecedented", pos: "adj.", meaning: "史無前例的、空前的、絕無僅有的", note: "un- (無) + precedent (先例)" }
         ]
       }
     ]
   },
   {
     id: "ch_2",
-    volume: "第一卷：諸神禁忌",
-    tier: "第 2 集・帝國退婚",
-    title: "Episode 2: The Banquet of Humiliation and Retribution (第二集：帝國退婚・宴席打臉)",
-    coverEmoji: "🍷",
-    subtitle: "「今日你以帝國明珠自居要退婚，明日你皇族老祖跪地求饒也換不回我一瞥！」",
-    summary: "林夜重塑至尊神體後，悄然回到帝國皇城。正逢紫霜帝國長公主在百官壽宴上當眾宣佈解除婚約，並夥同隔壁天劍宗少主對林家極盡羞辱。林夜推開殿門，一念震碎全場強者佩劍！",
+    volume: "第一卷：逆命崛起",
+    tier: "第 2 回 · 皇都宴席與神豬降世",
+    title: "Episode 2: The Gluttonous Pig and The Imperial Slap (神豬吃垮宴席：退婚大典上的耳光)",
+    coverEmoji: "🐷",
+    subtitle: "「堂堂帝國長公主的訂婚宴，你們居然只上了這點靈果？都不夠我家神豬塞牙縫！」",
+    summary: "林夜自深淵破關而出，不僅重塑萬劫不滅神體，身邊還多了一隻能吞噬萬物、嘴碎又愛吃的粉色上古混沌神獸「小乳豬（八戒）」。此時皇城內正大宴賓客，慶祝柳清雪移植神骨後被帝國冊封為聖女，並準備在百官面前撕毀與林夜的婚約。林夜帶著一隻正啃著靈烤雞的神豬，大搖大擺踹開殿門！",
     paragraphs: [
       {
-        en: "Inside the grand imperial banquet hall, Princess Yunxi announced her {arrogant} decision to terminate the betrothal contract. She openly {ridiculed} the Lin clan, claiming a fallen genius was no longer {compatible} with her glorious future.",
-        zh: "在金碧輝煌的帝國皇宮壽宴大廳中，雲曦公主傲慢地宣佈單方面撕毀婚約。她當著文武百官的面肆意嘲諷林家，宣稱一個淪為廢人的過氣天才，根本不配與她輝煌璀璨的未來相提並論。",
+        en: "Inside the grand imperial pavilion, gold and jade gleamed under crystal lamps. Crown Prince Yan raised his goblet with an {ostentatious} grin. 'Today, we celebrate the divine ascending of Lady Qingxue, and officially {annul} the ludicrous engagement with that dead cripple Lin Ye!'",
+        zh: "金碧輝煌的帝國皇極殿內，琉璃宮燈下金玉交輝。太子燕南天手舉金樽，帶著炫耀張揚的得意笑容：「今日，我們共慶清雪仙子神骨大成，並在此正式廢除她與那個死廢物林夜之間荒謬可笑的婚約！」",
         focusVocab: [
-          { word: "arrogant", pos: "adj.", meaning: "傲慢的、自大的", note: "名詞 arrogance" },
-          { word: "ridicule", pos: "verb/noun", meaning: "嘲笑、奚落、嗤之以鼻", note: "ridiculous (荒謬可笑的)" },
-          { word: "compatible", pos: "adj.", meaning: "相容的、匹配的、適合的", note: "be compatible with... (與...相符/相配)" }
+          { word: "ostentatious", pos: "adj.", meaning: "炫耀的、鋪張的、誇示的", note: "形容排場奢華或為人高調" },
+          { word: "annul", pos: "verb", meaning: "廢除、宣告無效、取消(契約/婚約)", note: "多益法律高頻字 (如 annul a contract)" }
         ]
       },
       {
-        en: "The young master of the Heavenly Sword Sect stood up with a {condescending} smirk. 'A crippled dog should hide in the sewers. If Lin Ye dares to {object}, I will {dismantle} his limbs piece by piece.'",
-        zh: "天劍宗少主帶著居高臨下的輕蔑冷笑站起身來：「廢物野狗就該縮在臭水溝裡茍活。要是林夜那小子敢有半句異議，本少主親手將他的四肢一寸寸拆碎拆卸！」",
+        en: "Before the guests could applaud, a loud burp echoed through the hall. The palace doors flew off their hinges as a chubby pink piglet trotted in, chewing on a roasted dragon-fruit. 'Oink! Hey kid, you said this banquet was {luxurious}, but these appetizers are utterly {mediocre}!'",
+        zh: "賓客們的掌聲還沒來得及響起，一聲響亮的飽嗝在殿堂內迴盪。只見大門轟然飛脫，一隻圓滾滾的粉色小乳豬正大搖大擺地嚼著一顆千年火龍果：「哼唧！喂小子，你不是說這宴席很奢華嗎？怎麼這幾盤點心味道平庸得像啃木頭啊！」",
         focusVocab: [
-          { word: "condescending", pos: "adj.", meaning: "居高臨下的、居尊自傲的", note: "來自 condescend (俯就/屈尊)" },
-          { word: "object", pos: "verb", meaning: "反對、抗議", note: "object to + V-ing / N" },
-          { word: "dismantle", pos: "verb", meaning: "拆卸、廢除、瓦解", note: "多益工業與法律高頻詞" }
+          { word: "luxurious", pos: "adj.", meaning: "奢侈的、奢華的、極度舒適的", note: "名詞 luxury (奢侈品)" },
+          { word: "mediocre", pos: "adj.", meaning: "平庸的、二流的、普普通通的", note: "GEPT 中高級 / 多益 800+ 核心詞" }
         ]
       },
       {
-        en: "Suddenly, the heavy obsidian doors shattered into fragments. Lin Ye strolled in wearing casual robes, yet his aura was so {formidable} that the emperor's royal guards collapsed to their knees, unable to {withstand} the pressure.",
-        zh: "突然間，數噸重的黑曜石宮殿大門轟然粉碎成渣！林夜身著一襲素雅青衫閒庭信步走入，周身散發出的恐怖威壓卻令人窒息，皇宮禁衛軍瞬間雙膝跪地，根本無法承受這等實質般的帝威！",
+        en: "Behind the gluttonous pig walked Lin Ye, hands tucked in his pockets. The hall descended into dead silence. Liu Qingxue's face turned pale with {bewilderment}. 'You... how are you still alive? Your celestial bone was clearly {severed}!'",
+        zh: "在這隻貪吃神豬身後，林夜雙手插兜、步伐悠閒地踱步走入。整座大殿瞬間陷入死一般的寂靜。柳清雪手中的琉璃杯跌得粉碎，臉上滿是驚恐與困惑茫然：「你…你怎麼可能還活著？你的神骨明明已經被生生斬斷切除了！」",
         focusVocab: [
-          { word: "formidable", pos: "adj.", meaning: "令人敬畏的、強大可怕的、難以對付的", note: "GEPT 中高級必備核心詞" },
-          { word: "withstand", pos: "verb", meaning: "經受住、承受、抵擋", note: "withstand pressure/attacks" }
+          { word: "bewilderment", pos: "noun", meaning: "困惑、茫然不知所措、驚訝混亂", note: "動詞 bewilder (使困惑)" },
+          { word: "sever", pos: "verb", meaning: "切斷、割斷、斷絕關係", note: "sever ties (斷絕關係)" }
         ]
       },
       {
-        en: "'You think your sword dao is supreme?' Lin Ye snapped his fingers, and every sacred blade in the palace disintegrated {simultaneously}. 'In my eyes, your whole empire is merely an {illusion}.'",
-        zh: "「你自以為你的劍道天下無雙？」林夜隨意打了個響指，剎那間整座皇宮內包括宗門少主在內的所有神兵利刃同時崩解化為鐵屑！「在我眼中，你們整座帝國不過是一場隨手可滅的幻影。」",
+        en: "Crown Prince Yan slammed his fist onto the jade table, shouting {hysterically}, 'Guards! Execute this intruder and roast that obnoxious pig!' But before the imperial bodyguards could take half a step, an invisible mountain of gravity pinned them to the marble floor.",
+        zh: "太子燕南天怒不可遏地猛拍玉案，歇斯底里地咆哮：「禁衛軍何在！將這個不知死活的狂徒亂刀砍死，順便把那隻礙眼的臭豬給我架火烤了！」然而，禁衛軍還沒踏出半步，一股無形的萬鈞重力領域便直接將所有人死死拍在地上動彈不得！",
         focusVocab: [
-          { word: "simultaneously", pos: "adv.", meaning: "同時地、同步地", note: "形容詞 simultaneous" },
-          { word: "illusion", pos: "noun", meaning: "幻覺、假象、幻想", note: "optical illusion (視錯覺)" }
+          { word: "hysterically", pos: "adv.", meaning: "歇斯底里地、狂躁地、失控地", note: "形容詞 hysterical" },
+          { word: "obnoxious", pos: "adj.", meaning: "令人討厭的、可憎的、傲慢無禮的", note: "常用於形容惹人厭惡的舉止" }
+        ]
+      },
+      {
+        en: "Lin Ye appeared directly before the prince like a phantom. *SLAP!* A crisp, resounding slap sent the prince flying across three banquet tables. 'You wanted to cancel the wedding?' Lin Ye said calmly. 'You are not worthy to cancel anything. Today, I am the one who {discards} you like trash.'",
+        zh: "林夜如鬼魅般瞬移到太子面前。「啪——！」一記清脆至極的耳光直接將堂堂太子扇飛出數十丈，砸碎了三張宴席！林夜神色淡漠地擦了擦手掌：「退婚？你們這群跳梁小丑也配？今天，是我林夜將你們像垃圾一樣丟棄廢黜！」",
+        focusVocab: [
+          { word: "discard", pos: "verb", meaning: "丟棄、拋棄、廢棄", note: "多益職場與環保核心考點" }
         ]
       }
     ]
   },
   {
     id: "ch_3",
-    volume: "第一卷：諸神禁忌",
-    tier: "第 3 集・踏平神殿",
-    title: "Episode 3: The Obliteration of the Sacred Sect (第三集：踏平神殿・星域伏首)",
-    coverEmoji: "⚔️",
-    subtitle: "「十萬長老布陣誅我？那我便斬斷天道輪迴，讓萬界諸神皆尊我令！」",
-    summary: "天凰聖宗集結九大護宗太上長老，啟動耗費三千年打造的上古九階誅仙神陣，企圖將林夜徹底煉化。林夜一指點破陣眼，九天雷劫化作他的掌中玩物，直接踏滅聖宗傳承，威震浩瀚星域！",
+    volume: "第一卷：逆命崛起",
+    tier: "第 3 回 · 九霄雷劫與一劍破萬宗",
+    title: "Episode 3: The Tribulation and The Sword of Retribution (九霄雷動：一劍破萬法，聖地皆伏首)",
+    coverEmoji: "⚡",
+    subtitle: "「你搶了我的骨，以為就能成仙？在真正的神祇面前，你連爬的資格都沒有！」",
+    summary: "大長老趙無極惱羞成怒，祭出護宗帝兵「九幽滅世塔」，並號令全宗長老引動九階滅絕雷劫，欲在皇城上方將林夜轟得神魂俱滅。柳清雪企圖運轉奪來的神骨對抗林夜，卻發現體內神骨竟然在向林夜跪拜顫鳴！林夜折下一截枯枝，引九天劫雷為劍，一劍劈裂天門，聖地萬丈傳承轟然崩塌！",
     paragraphs: [
       {
-        en: "The Patriarch of the Sacred Sect gathered ten thousand elite disciples and activated the ancient killing formation, creating a {catastrophic} thunderstorm that covered the entire mountain range in purple lightning.",
-        zh: "聖宗宗主號令萬名精英弟子與太上長老，悍然啟動了護宗絕殺大陣。漫天紫霄神雷瞬間引發了一場災難性的毀滅雷暴，將整座百萬里山脈徹底籠罩封鎖！",
+        en: "Grand Elder Zhao activated the forbidden Nine Nether Pagoda. Dark purple lightning tore through the sky, creating an {ominous} vortex that threatened to {annihilate} the entire capital into smoldering ruins.",
+        zh: "大長老趙無極瘋狂催動宗門禁忌帝兵「九幽滅世塔」。黑紫色的毀滅神雷撕裂天穹，凝聚成一片不祥恐怖的劫雲漩渦，彷彿要將整座皇都徹底湮滅成冒煙的焦土廢墟！",
         focusVocab: [
-          { word: "catastrophic", pos: "adj.", meaning: "災難性的、毀滅性的、悲慘的", note: "名詞 catastrophe (大災難)" }
+          { word: "ominous", pos: "adj.", meaning: "不祥的、凶兆的、令人不安的", note: "名詞 omen (預兆)" },
+          { word: "annihilate", pos: "verb", meaning: "徹底消滅、毀滅、使消失", note: "名詞 annihilation" }
         ]
       },
       {
-        en: "The elders mocked Lin Ye, believing their divine barrier was {impenetrable}. They assumed it was {futile} for a solitary cultivator to challenge millennia of accumulated {heritage}.",
-        zh: "長老們猖狂大笑，深信這座神級結界無懈可擊、堅不可摧。他們認定區區一人想要挑戰聖宗傳承數千年的深厚底蘊，根本就是以卵擊石的徒勞笑話。",
+        en: "Liu Qingxue tried to activate the stolen divine bone in her chest, hoping its power would {intimidate} Lin Ye. 'I have already {assimilated} your bone! I am the favored child of destiny!' she screamed in desperation.",
+        zh: "柳清雪企圖強行運轉胸口偷來的至尊神骨，妄想藉此神威震懾恐嚇林夜：「我已經徹底融合吸收了你的神骨！我才是被天道眷顧的命運之子！」她歇斯底里地尖叫。",
         focusVocab: [
-          { word: "impenetrable", pos: "adj.", meaning: "無法穿透的、堅不可摧的", note: "im- (不) + penetrate (穿透) + -able" },
-          { word: "futile", pos: "adj.", meaning: "徒勞的、無效的、無用的", note: "futility (徒勞/白費力氣)" },
-          { word: "heritage", pos: "noun", meaning: "遺產、傳統、文化傳承", note: "cultural heritage" }
+          { word: "intimidate", pos: "verb", meaning: "恐嚇、威嚇、使害怕", note: "名詞 intimidation" },
+          { word: "assimilate", pos: "verb", meaning: "吸收、同化、融入、消化", note: "多益文化與學習高頻詞" }
         ]
       },
       {
-        en: "Lin Ye didn't even draw a weapon. He simply raised his left palm, and an ancient divine glyph materialized above the clouds, absorbing and {neutralizing} the lightning bolts {effortlessly}.",
-        zh: "林夜甚至未曾拔出任何兵刃。他只是神色淡漠地抬起左手，一道來自遠古洪荒的金色神紋在雲端凝聚顯化，輕而易舉地將漫天雷劫全部吞噬並瞬間中和化解！",
+        en: "However, the bone inside her chest resonated with Lin Ye's spiritual pulse and began to burn furiously. The divine energy {rebelled}, breaking her meridians from within and throwing her into a state of {paralyzing} agony.",
+        zh: "然而，她體內的神骨感應到林夜的本源神念後，竟開始劇烈燃燒哀鳴！至尊神力悍然反噬叛變，自內部寸寸震斷了她的全身經脈，讓她陷入了生不如死的麻痺劇痛之中！",
         focusVocab: [
-          { word: "neutralize", pos: "verb", meaning: "使中和、抵消、使失效", note: "neutral (中立的) + -ize" },
-          { word: "effortlessly", pos: "adv.", meaning: "毫不費力地、輕而易舉地", note: "effort + less + ly" }
+          { word: "rebel", pos: "verb", meaning: "造反、反叛、反抗", note: "名詞/形容詞 rebellious" },
+          { word: "paralyzing", pos: "adj.", meaning: "使人癱瘓的、令人無能為力的、極度嚴重的", note: "動詞 paralyze (使麻痺/癱瘓)" }
         ]
       },
       {
-        en: "With a single downward press of his hand, the legendary mountain was {obliterated}, and the sect's reign was completely {terminated}. From that day onward, the name of the Primordial Sovereign reigned supreme across all starry domains.",
-        zh: "隨著他手掌輕輕向下一按，傳承萬古的聖宗仙山瞬間被徹底湮滅抹殺，這座統治大陸數千年的霸主勢力被完全終結終止！自此之後，鴻蒙神皇之名響徹諸天萬界，星域億萬生靈盡皆俯首稱臣！",
+        en: "Lin Ye picked up a dry wooden branch from the garden. Looking up at the descending lightning cataclysm, his expression remained {serene}. 'You rely on borrowed artifacts, yet you understand nothing of true {dominance}.'",
+        zh: "林夜隨手折下庭院中一截乾枯的樹枝。仰望著從天而降的毀滅雷劫天災，他的神色淡泊從容依舊：「你們依賴借來的外物法寶，卻根本不懂什麼才是真正凌駕萬物的絕對主宰！」",
         focusVocab: [
-          { word: "obliterate", pos: "verb", meaning: "抹殺、徹底毀滅、消除", note: "GEPT 中高級 / 多益 950+ 頂級詞彙" },
-          { word: "terminate", pos: "verb", meaning: "終止、結束、終結", note: "多益商務合約與科技高頻詞" }
+          { word: "serene", pos: "adj.", meaning: "安詳的、寧靜從容的、晴朗的", note: "名詞 serenity" },
+          { word: "dominance", pos: "noun", meaning: "支配、統治地位、優勢掌控", note: "動詞 dominate (主導/統治)" }
+        ]
+      },
+      {
+        en: "With a single upward stroke of the wooden branch, a golden sword Qi {transcended} mortal physics, slicing the pagoda in half and dispersing the storm instantly. Grand Elder Zhao collapsed, his cultivation completely {shattered}, as the entire sect bowed in utter subjugation.",
+        zh: "只見他手握枯枝輕輕向上揮出一劍，一道璀璨浩瀚的金光劍氣瞬間超越了凡間物理法則，直接將九幽滅世塔一劈為二，漫天劫雷頃刻消散無蹤！大長老趙無極經脈修為盡數碎裂成廢人，整座聖地的強者全部瑟瑟發抖跪地叩首臣服！",
+        focusVocab: [
+          { word: "transcend", pos: "verb", meaning: "超越、凌駕於...之上、超出", note: "形容詞 transcendent (卓越的)" },
+          { word: "shatter", pos: "verb", meaning: "粉碎、砸碎、使破滅", note: "shatter one's dreams (擊碎某人的夢想)" }
         ]
       }
     ]
