@@ -267,6 +267,21 @@ class LinguaPulseApp {
     }
   }
 
+  showMasteryView() {
+    window.soundEngine.click();
+    this.startMode('mastery');
+  }
+
+  showMistakesView() {
+    window.soundEngine.click();
+    this.openVault('mistakes');
+  }
+
+  showBookmarksView() {
+    window.soundEngine.click();
+    this.openVault('bookmarks');
+  }
+
   updateTopNavActive(activeMode = 'hub') {
     const navItems = document.querySelectorAll('#top-mode-nav-bar .top-nav-item');
     navItems.forEach(item => {
