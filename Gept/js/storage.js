@@ -88,7 +88,7 @@ class StorageManager {
     return list;
   }
 
-  recordJourneyAction(stageMode, amount = 1) {
+  recordJourneyAction(stageMode, isCorrect = true) {
     const allStages = this.getAllJourneyStagesList();
     if (!allStages || allStages.length === 0) return { passed: false };
 
@@ -97,11 +97,22 @@ class StorageManager {
     if (!currentStage || currentStage.mode !== stageMode) return { passed: false };
 
     if (!this.journey.stages[currentStage.id]) {
-      this.journey.stages[currentStage.id] = { progress: 0, completed: false };
+      this.journey.stages[currentStage.id] = { progress: 0, completed: false, currentStreak: 0, maxStreak: 0 };
     }
 
     const stageData = this.journey.stages[currentStage.id];
-    stageData.progress += amount;
+    
+    if (isCorrect) {
+      stageData.currentStreak = (stageData.currentStreak || 0) + 1;
+      stageData.progress = stageData.currentStreak;
+      if (stageData.currentStreak > (stageData.maxStreak || 0)) {
+        stageData.maxStreak = stageData.currentStreak;
+      }
+    } else {
+      // 答錯連擊歸零（考驗真正連續掌握度）
+      stageData.currentStreak = 0;
+      stageData.progress = 0;
+    }
 
     let justPassed = false;
     if (stageData.progress >= currentStage.targetGoal && !stageData.completed) {
@@ -117,9 +128,12 @@ class StorageManager {
     this.saveJourney();
     return {
       justPassed,
+      isCorrect,
       stage: currentStage,
+      currentStreak: stageData.currentStreak || 0,
       currentProgress: stageData.progress,
       targetGoal: currentStage.targetGoal,
+      remaining: Math.max(0, currentStage.targetGoal - stageData.progress),
       nextStageId: this.journey.currentStageId
     };
   }

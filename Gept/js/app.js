@@ -166,14 +166,54 @@ class LinguaPulseApp {
 
     this.showToast(`🚀 進入【${stage.name}】！${stage.introTip}`, 4000);
     this.startMode(stage.mode);
+    this.updateJourneyStreakUI(stage.mode);
   }
 
-  checkJourneyActionProgress(mode, amount = 1) {
-    const result = window.storageManager.recordJourneyAction(mode, amount);
+  updateJourneyStreakUI(mode = 'blitz') {
+    const journeyState = window.storageManager.getJourneyProgress();
+    const allStages = window.storageManager.getAllJourneyStagesList();
+    const currentStageId = journeyState.currentStageId || allStages[0]?.id;
+    const currentStage = allStages.find(s => s.id === currentStageId);
+    if (!currentStage) return;
+
+    const banner = document.getElementById('blitz-journey-streak-banner');
+    if (!banner) return;
+
+    const stageData = journeyState.stages[currentStage.id] || { progress: 0, completed: false, currentStreak: 0 };
+    const streak = stageData.currentStreak || stageData.progress || 0;
+    const goal = currentStage.targetGoal;
+    const remaining = Math.max(0, goal - streak);
+    const percent = Math.min(100, Math.round((streak / goal) * 100));
+
+    const titleEl = document.getElementById('journey-stage-title-text');
+    const remainingEl = document.getElementById('journey-streak-remaining-text');
+    const fillEl = document.getElementById('journey-streak-progress-fill');
+    const iconEl = document.getElementById('journey-stage-badge-icon');
+
+    if (titleEl) titleEl.textContent = `${currentStage.name.split('：')[0]}：${currentStage.name.split('：')[1] || currentStage.name}`;
+    if (remainingEl) {
+      if (stageData.completed) {
+        remainingEl.innerHTML = `<span style="color: #34d399;">🏆 本關已完美通關！</span>`;
+      } else {
+        remainingEl.innerHTML = `已連續答對: <strong style="color: #fbbf24; font-size: 1rem;">${streak}</strong> / ${goal} 題 (還剩 <strong style="color: #f87171;">${remaining}</strong> 題)`;
+      }
+    }
+    if (fillEl) fillEl.style.width = `${percent}%`;
+    if (iconEl) iconEl.textContent = stageData.completed ? '🏆' : '🎯';
+  }
+
+  checkJourneyActionProgress(mode, isCorrect = true) {
+    const result = window.storageManager.recordJourneyAction(mode, isCorrect);
+    this.updateJourneyStreakUI(mode);
+
     if (result.justPassed) {
       window.soundEngine.levelUp();
-      this.awardXP(result.stage.rewardXP || 200, true, `🎉 恭喜通關【${result.stage.name}】！`);
-      this.showToast(`🏆 恭喜通關【${result.stage.name}】！已解鎖下一階段挑戰！`, 5000);
+      this.awardXP(result.stage.rewardXP || 200, true, `🎉 恭喜連續答對達成！通關【${result.stage.name}】！`);
+      this.showToast(`🏆 完美通關【${result.stage.name}】！已成功解鎖下一關卡！`, 5000);
+      this.renderJourneyRoadmap();
+    } else if (!isCorrect) {
+      // 答錯連擊重置提示
+      this.showToast(`⚠️ 失誤！連對計數歸零，請重新挑戰連續 ${result.targetGoal} 題！`, 2500);
       this.renderJourneyRoadmap();
     } else {
       this.renderJourneyRoadmap();
@@ -871,6 +911,7 @@ class LinguaPulseApp {
       subTitle.textContent = `難度設定：GEPT ${this.selectedDifficulty === 'all' ? '全部難度' : this.selectedDifficulty} 詞庫 ✕ 嚴格同詞性選項`;
     }
 
+    this.updateJourneyStreakUI('blitz');
     this.nextBlitzQuestion();
   }
 
@@ -1107,10 +1148,8 @@ class LinguaPulseApp {
       counterDisplay.textContent = `📝 已答 ${this.blitzSessionHistory.length} 題`;
     }
 
-    // Advance Journey challenge progress
-    if (isCorrect) {
-      this.checkJourneyActionProgress('blitz', 1);
-    }
+    // Advance Journey challenge progress (Strict Streak Mode: 連續答對推進，答錯歸零)
+    this.checkJourneyActionProgress('blitz', isCorrect);
 
     // Track dual-direction mastery progress in persistent storage
     const masteryResult = window.storageManager.recordDualAnswer(

@@ -6,15 +6,15 @@ window.JOURNEY_TIERS = [
     tier: 1,
     title: "🌱 段位 I：青銅探索者 (Bronze Explorer)",
     targetRank: "TOEIC 350~450 (GEPT 初級啟蒙)",
-    desc: "打好第一步！從初級核心 2,385 詞庫中辨析 15 題、建立基本五大句型直覺與生活打招呼習慣用語。",
+    desc: "打好第一步！從初級核心 2,385 詞庫中挑戰「連續答對 15 題」，建立基本五大句型直覺與生活打招呼習慣用語。",
     stages: [
       {
         id: "t1_s1",
-        name: "關卡 1-1：初級核心基礎詞彙 (15 題抽測)",
+        name: "關卡 1-1：初級核心基礎詞彙 (連續 15 題挑戰)",
         mode: "blitz",
         targetGoal: 15,
-        unitName: "題單字辨析",
-        introTip: "專注於名詞與動詞的直覺反應，累積答對 15 題即可通關（進度隨時自動保存）！",
+        unitName: "題連續答對",
+        introTip: "專注於名詞與動詞的直覺反應，需連續答對 15 題無失誤方可通關！",
         rewardXP: 250
       },
       {
@@ -22,8 +22,8 @@ window.JOURNEY_TIERS = [
         name: "關卡 1-2：主詞動詞一致與基本句型",
         mode: "grammar",
         targetGoal: 10,
-        unitName: "題文法陷阱",
-        introTip: "看清單複數主詞與對應動詞，穩固基本句構！",
+        unitName: "題連續答對",
+        introTip: "看清單複數主詞與對應動詞，連續答對 10 題穩固基本句構！",
         rewardXP: 300
       },
       {
@@ -31,8 +31,8 @@ window.JOURNEY_TIERS = [
         name: "關卡 1-3：生活高頻破冰表達",
         mode: "native",
         targetGoal: 8,
-        unitName: "個地道片語",
-        introTip: "學習母語者生活中的高頻自然表達，告別生硬直翻。",
+        unitName: "個連續掌握",
+        introTip: "連續掌握 8 個母語者生活高頻自然表達，告別生硬直翻。",
         rewardXP: 350
       }
     ]
@@ -41,15 +41,15 @@ window.JOURNEY_TIERS = [
     tier: 2,
     title: "🧩 段位 II：白銀啟蒙者 (Silver Builder)",
     targetRank: "TOEIC 450~550 (GEPT 初級穩固)",
-    desc: "加強時態變化與被動語態！完成 20 題中初級詞彙抽測與發音跟讀啟蒙。",
+    desc: "加強時態變化與被動語態！完成「連續答對 20 題」中初級詞彙抽測與發音跟讀啟蒙。",
     stages: [
       {
         id: "t2_s1",
         name: "關卡 2-1：初級高頻生活詞擴充",
         mode: "blitz",
         targetGoal: 20,
-        unitName: "題單字辨析",
-        introTip: "擴充生活情境、交通、餐飲高頻單字肌肉記憶！",
+        unitName: "題連續答對",
+        introTip: "連續答對 20 題，擴充生活情境、交通、餐飲高頻單字肌肉記憶！",
         rewardXP: 400
       },
       {
@@ -57,8 +57,8 @@ window.JOURNEY_TIERS = [
         name: "關卡 2-2：被動語態與完成式時態",
         mode: "grammar",
         targetGoal: 12,
-        unitName: "題文法考點",
-        introTip: "掌握 have + p.p. 與 be + p.p. 的核心邏輯！",
+        unitName: "題連續答對",
+        introTip: "連續答對 12 題，掌握 have + p.p. 與 be + p.p. 的核心邏輯！",
         rewardXP: 450
       },
       {
@@ -66,8 +66,8 @@ window.JOURNEY_TIERS = [
         name: "關卡 2-3：初級發音與單詞連音跟讀",
         mode: "echo",
         targetGoal: 6,
-        unitName: "次發音評測",
-        introTip: "大聲跟讀，訓練嘴部肌肉習慣英語發音節奏！",
+        unitName: "次連續高分評測",
+        introTip: "大聲跟讀，連續 6 次發音達標訓練嘴部肌肉！",
         rewardXP: 450
       }
     ]
