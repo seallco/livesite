@@ -2267,6 +2267,213 @@ body {
   color: #94a3b8;
 }
 
+/* ==========================================================================
+   Comprehensive Multi-Device Responsive System (全裝置深度響應式系統)
+   ========================================================================== */
+
+/* 📱 1. Mobile Phones (<= 480px) */
+@media (max-width: 480px) {
+  .app-layout {
+    padding: 0.5rem 0.5rem 3rem 0.5rem;
+  }
+
+  .header-nav {
+    padding: 0.6rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .brand-logo {
+    font-size: 1.15rem;
+  }
+
+  .brand-tag-badge {
+    display: none;
+  }
+
+  .user-stats-strip {
+    gap: 0.35rem;
+  }
+
+  .stat-pill {
+    padding: 3px 6px;
+    font-size: 0.72rem;
+    gap: 3px;
+  }
+
+  .hero-spark-card {
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title-area h1 {
+    font-size: 1.35rem;
+  }
+
+  .hero-title-area p {
+    font-size: 0.85rem;
+  }
+
+  .difficulty-filter-group {
+    width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 4px;
+  }
+
+  .filter-pill-btn {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+
+  .journey-roadmap-card {
+    padding: 1.25rem 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .journey-main-title {
+    font-size: 1.25rem;
+  }
+
+  .journey-tier-selector {
+    overflow-x: auto;
+    width: 100%;
+    justify-content: flex-start;
+    padding-bottom: 6px;
+  }
+
+  .tier-tab-btn {
+    font-size: 0.78rem;
+    padding: 5px 12px;
+    white-space: nowrap;
+  }
+
+  .journey-stepper-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .modes-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .practice-container {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .practice-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .options-stack.two-cols {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .drill-prompt-text {
+    font-size: 1.6rem !important;
+  }
+
+  .story-chapter-title {
+    font-size: 1.3rem;
+  }
+
+  .story-en-text {
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .story-zh-text {
+    font-size: 0.88rem;
+  }
+
+  .story-paragraph-card {
+    padding: 1rem;
+  }
+
+  .mastery-overview-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mastery-pokemon-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .mistakes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 📲 2. Tablets & Medium Screens (481px ~ 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .app-layout {
+    padding: 0.85rem 1rem 3rem 1rem;
+  }
+
+  .header-nav {
+    padding: 0.75rem 1rem;
+  }
+
+  .journey-stepper-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .modes-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.15rem;
+  }
+
+  .options-stack.two-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .mastery-overview-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mastery-pokemon-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}
+
+/* 💻 3. Laptops & Desktops (769px ~ 1200px) */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .journey-stepper-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .modes-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .mastery-overview-row {
+    grid-template-columns: auto auto 1fr;
+  }
+}
+
+/* 🖥️ 4. Large Screens & 4K Displays (> 1200px) */
+@media (min-width: 1201px) {
+  .app-layout {
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+
+  .modes-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .journey-stepper-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+
 
 
 
