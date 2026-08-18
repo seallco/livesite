@@ -539,17 +539,251 @@ class LinguaPulseApp {
       </div>
 
       <!-- Action Footer -->
-      <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; margin-bottom: 3rem;">
-        <button class="btn-primary" onclick="app.awardXP(50, true, '閱讀完本章故事！'); app.showToast('🎉 恭喜完成本章單字閱讀 (+50 XP)！');">
-          ✅ 閱讀完畢領取 +50 XP
-        </button>
-        <button class="btn-secondary" onclick="app.startMode('blitz')">
-          ⚡ 前往詞彙特訓進行考驗
+      <div id="story-action-footer" style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; margin-bottom: 3rem;">
+        <button class="btn-primary" style="padding: 0.75rem 1.8rem; font-size: 1rem; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);" onclick="app.startStoryChapterQuiz('${currentChapter.id}')">
+          ⚔️ 開始本章【${currentChapter.paragraphs.reduce((acc, p) => acc + p.focusVocab.length, 0)} 個生詞】專屬通關小測驗 ➔
         </button>
       </div>
+
+      <!-- Quiz Container (Hidden initially, loaded on click) -->
+      <div id="story-quiz-container" style="display: none; margin-top: 2rem;"></div>
     `;
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ==========================================
+  // ⚔️ Story Vocab Mastery Quiz (本章故事生詞專屬通關測驗)
+  // ==========================================
+  startStoryChapterQuiz(chapterId) {
+    window.soundEngine.click();
+    const currentChapter = window.STORY_CHAPTERS.find(c => c.id === chapterId);
+    if (!currentChapter) return;
+
+    // Collect all unique focus words from this chapter
+    const storyVocabList = [];
+    currentChapter.paragraphs.forEach(p => {
+      p.focusVocab.forEach(v => {
+        if (!storyVocabList.some(item => item.word === v.word)) {
+          storyVocabList.push(v);
+        }
+      });
+    });
+
+    this.storyQuizList = storyVocabList.sort(() => Math.random() - 0.5);
+    this.storyQuizIndex = 0;
+    this.storyQuizCorrectCount = 0;
+    this.storyQuizChapter = currentChapter;
+
+    const footer = document.getElementById('story-action-footer');
+    if (footer) footer.style.display = 'none';
+
+    const quizContainer = document.getElementById('story-quiz-container');
+    if (quizContainer) {
+      quizContainer.style.display = 'block';
+      this.renderNextStoryQuizQuestion();
+      quizContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  renderNextStoryQuizQuestion() {
+    const quizContainer = document.getElementById('story-quiz-container');
+    if (!quizContainer) return;
+
+    if (this.storyQuizIndex >= this.storyQuizList.length) {
+      // Completed all words in this chapter!
+      this.renderStoryQuizCompletion();
+      return;
+    }
+
+    const currentItem = this.storyQuizList[this.storyQuizIndex];
+    const targetWord = currentItem.word;
+    const targetMeaning = currentItem.meaning;
+    const targetPos = currentItem.pos;
+
+    // Generate 3 plausible distractors from GEPT database with same or similar POS
+    const samePosCandidates = this.geptData.filter(d => d.w !== targetWord && d.m !== targetMeaning);
+    const distractors = [];
+    const used = new Set();
+    while (distractors.length < 3 && samePosCandidates.length > 0) {
+      const rand = samePosCandidates[Math.floor(Math.random() * samePosCandidates.length)];
+      if (!used.has(rand.w)) {
+        used.add(rand.w);
+        distractors.push(rand.m);
+      }
+    }
+
+    const options = [targetMeaning, ...distractors].sort(() => Math.random() - 0.5);
+
+    quizContainer.innerHTML = `
+      <div class="drill-card" style="border: 2px solid rgba(239, 68, 68, 0.4); box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
+        <div class="drill-badge-row">
+          <span class="level-tag-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.35);">
+            🐉 本章生詞驗收 (${this.storyQuizIndex + 1} / ${this.storyQuizList.length})
+          </span>
+          <div class="action-tool-btns">
+            <button class="tool-mini-btn" title="發音" onclick="window.speechEngine.speak('${targetWord.replace(/'/g, "\\'")}')">🔊</button>
+          </div>
+        </div>
+
+        <div class="drill-prompt-text" style="font-size: 2.2rem; text-align: center; color: #fbbf24; margin: 1rem 0; font-family: 'Outfit', sans-serif;">
+          ${targetWord}
+        </div>
+        <div class="drill-sub-prompt" style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #38bdf8; font-size: 1rem; margin-bottom: 1.25rem;">
+          [詞性: ${targetPos}]
+        </div>
+
+        <div class="options-stack two-cols" id="story-quiz-options-box">
+          ${options.map((opt, idx) => `
+            <button class="option-btn" onclick="app.handleStoryQuizAnswer(${idx}, '${opt.replace(/'/g, "\\'")}', this, '${targetMeaning.replace(/'/g, "\\'")}', '${targetWord.replace(/'/g, "\\'")}', '${targetPos}', '${currentItem.note || ''}')">
+              <span>${app.cleanMeaning(opt)}</span>
+            </button>
+          `).join('')}
+        </div>
+
+        <div id="story-quiz-feedback-box"></div>
+      </div>
+    `;
+  }
+
+  handleStoryQuizAnswer(idx, chosenMeaning, btnElement, correctMeaning, targetWord, targetPos, targetNote) {
+    const isCorrect = chosenMeaning === correctMeaning;
+    document.querySelectorAll('#story-quiz-options-box .option-btn').forEach(btn => {
+      btn.disabled = true;
+      if (btn.innerText.includes(app.cleanMeaning(correctMeaning))) {
+        btn.classList.add('selected-correct');
+      }
+    });
+
+    if (isCorrect) {
+      this.storyQuizCorrectCount++;
+      window.soundEngine.correct();
+    } else {
+      btnElement.classList.add('selected-wrong');
+      window.soundEngine.wrong();
+    }
+
+    const feedbackBox = document.getElementById('story-quiz-feedback-box');
+    if (feedbackBox) {
+      feedbackBox.innerHTML = `
+        <div class="feedback-box ${isCorrect ? 'correct' : 'wrong'}" style="margin-top: 1.25rem; animation: fadeIn 0.2s ease-out;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <div class="feedback-title" style="margin-bottom: 0;">
+              ${isCorrect ? '🎉 正確！完美掌握本詞！' : '⚠️ 答錯了！正確釋義如下：'}
+            </div>
+            <span style="font-size: 0.8rem; font-weight: 700; color: #38bdf8; font-family: monospace;" id="story-quiz-countdown">
+              ⏱️ 3 秒後進入下一題...
+            </span>
+          </div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 0.3rem;">
+            ${targetWord} <span style="font-size: 0.85rem; color: #38bdf8;">[${targetPos}]</span> ➔ <span style="color: #fbbf24;">${correctMeaning}</span>
+          </div>
+          ${targetNote ? `<div style="font-size: 0.82rem; color: #94a3b8;">💡 記憶撇步：${targetNote}</div>` : ''}
+          <div style="margin-top: 0.75rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <button class="btn-secondary" style="padding: 3px 10px; font-size: 0.78rem;" onclick="app.pauseStoryQuizAdvance(this)">
+              ⏸️ 停留慢慢看
+            </button>
+            <button class="btn-primary" style="padding: 3px 12px; font-size: 0.78rem;" onclick="app.advanceStoryQuizImmediately()">
+              ⚡ 立即下一題 ➔
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 3s Timer
+    let timeLeft = 3;
+    const countdownEl = document.getElementById('story-quiz-countdown');
+    if (this.storyQuizCountdownInterval) clearInterval(this.storyQuizCountdownInterval);
+    this.storyQuizCountdownInterval = setInterval(() => {
+      timeLeft--;
+      if (countdownEl && timeLeft > 0) {
+        countdownEl.textContent = `⏱️ ${timeLeft} 秒後進入下一題...`;
+      } else if (countdownEl && timeLeft <= 0) {
+        clearInterval(this.storyQuizCountdownInterval);
+      }
+    }, 1000);
+
+    if (this.storyQuizAdvanceTimer) clearTimeout(this.storyQuizAdvanceTimer);
+    this.storyQuizAdvanceTimer = setTimeout(() => {
+      clearInterval(this.storyQuizCountdownInterval);
+      this.storyQuizIndex++;
+      this.renderNextStoryQuizQuestion();
+    }, 3000);
+  }
+
+  pauseStoryQuizAdvance(btnElement) {
+    if (this.storyQuizAdvanceTimer) clearTimeout(this.storyQuizAdvanceTimer);
+    if (this.storyQuizCountdownInterval) clearInterval(this.storyQuizCountdownInterval);
+    this.storyQuizAdvanceTimer = null;
+    this.storyQuizCountdownInterval = null;
+
+    const timerEl = document.getElementById('story-quiz-countdown');
+    if (timerEl) {
+      timerEl.textContent = '⏸️ 已暫停（確認完畢點擊「立即下一題」）';
+      timerEl.style.color = '#fbbf24';
+    }
+    if (btnElement) {
+      btnElement.textContent = '✅ 已停留';
+      btnElement.disabled = true;
+    }
+  }
+
+  advanceStoryQuizImmediately() {
+    if (this.storyQuizAdvanceTimer) clearTimeout(this.storyQuizAdvanceTimer);
+    if (this.storyQuizCountdownInterval) clearInterval(this.storyQuizCountdownInterval);
+    this.storyQuizAdvanceTimer = null;
+    this.storyQuizCountdownInterval = null;
+    this.storyQuizIndex++;
+    this.renderNextStoryQuizQuestion();
+  }
+
+  renderStoryQuizCompletion() {
+    const quizContainer = document.getElementById('story-quiz-container');
+    if (!quizContainer) return;
+
+    const total = this.storyQuizList.length;
+    const correct = this.storyQuizCorrectCount;
+    const accuracy = Math.round((correct / total) * 100);
+    const xpReward = correct * 15 + 50;
+
+    this.awardXP(xpReward, true, `完成 ${this.storyQuizChapter.title} 專屬測驗！`);
+    window.soundEngine.levelUp();
+
+    quizContainer.innerHTML = `
+      <div class="drill-card" style="text-align: center; padding: 2.5rem; border: 2px solid #ef4444; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);">
+        <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🐉🏆</div>
+        <h2 style="color: #fbbf24; font-size: 1.8rem; margin-bottom: 0.5rem;">
+          ${this.storyQuizChapter.title} — 生詞測驗通關！
+        </h2>
+        <p style="color: #cbd5e1; font-size: 1rem; margin-bottom: 1.5rem;">
+          你在本章核心生詞測驗中取得了 <strong>${accuracy}%</strong> 的正確率 (${correct} / ${total} 題)！
+        </p>
+
+        <div style="display: inline-flex; gap: 1rem; background: rgba(0,0,0,0.3); padding: 1rem 2rem; border-radius: var(--radius-lg); margin-bottom: 2rem;">
+          <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #10b981;">+${xpReward} XP</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">獲得經驗值</div>
+          </div>
+          <div style="border-right: 1px solid var(--border-subtle);"></div>
+          <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #38bdf8;">${total} 個</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">本章掌握單字</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+          <button class="btn-secondary" onclick="app.startStoryChapterQuiz('${this.storyQuizChapter.id}')">
+            🔄 重新測驗本章生詞
+          </button>
+          <button class="btn-primary" onclick="app.loadStoryAdventure()">
+            📖 返回故事章節選單
+          </button>
+        </div>
+      </div>
+    `;
+
+    quizContainer.scrollIntoView({ behavior: 'smooth' });
   }
 
   // ==========================================
