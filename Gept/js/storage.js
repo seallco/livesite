@@ -417,6 +417,31 @@ class StorageManager {
   }
 
   /**
+   * 手動移除或重置精通狀態 (降為 1★ 重練或完全重置)
+   */
+  unmasterWord(key) {
+    if (this.mastery[key]) {
+      this.mastery[key].stars = 1;
+      this.mastery[key].streak = 1;
+      this.mastery[key].enToZhCorrect = Math.min(1, this.mastery[key].enToZhCorrect || 0);
+      this.mastery[key].zhToEnCorrect = Math.min(1, this.mastery[key].zhToEnCorrect || 0);
+      this.mastery[key].masteredAt = null;
+      this.saveJSON(this.KEY_MASTERY, this.mastery);
+      return true;
+    }
+    return false;
+  }
+
+  removeWordFromMastery(key) {
+    if (this.mastery[key]) {
+      delete this.mastery[key];
+      this.saveJSON(this.KEY_MASTERY, this.mastery);
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Get mastery info for a single key.
    */
   getMasteryInfo(key) {

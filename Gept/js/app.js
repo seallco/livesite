@@ -2986,15 +2986,29 @@ class LinguaPulseApp {
           <div class="mastery-card-progress-fill" style="width: ${progressPct}%; background: ${starInfo.color};"></div>
         </div>
 
-        <!-- Stats mini row -->
+        <!-- Stats mini row & Unmaster Action -->
         <div class="mastery-card-stats">
           <span title="連續答對次數">🔥${streak}/5</span>
           <span title="答題準確率" style="color: ${accuracy >= 70 ? '#34d399' : '#fb7185'};">${accuracy}%</span>
-          <button class="tool-mini-btn" style="height: 22px; width: 22px; font-size: 0.75rem;"
-            onclick="window.speechEngine.speak('${(entry.word || entry.key || '').replace(/'/g, "\\'")}')">🔊</button>
+          <div style="display: flex; gap: 4px; align-items: center;">
+            <button class="tool-mini-btn" style="height: 22px; width: 22px; font-size: 0.75rem;"
+              onclick="window.speechEngine.speak('${(entry.word || entry.key || '').replace(/'/g, "\\'")}')" title="朗讀">🔊</button>
+            <button class="tool-mini-btn" style="height: 22px; width: 22px; font-size: 0.75rem; color: #f87171;"
+              onclick="app.handleUnmasterWord('${(entry.word || entry.key || '').replace(/'/g, "\\'")}')" title="手動移除精通 (降為重練)">🔄</button>
+          </div>
         </div>
       </div>
     `;
+  }
+
+  handleUnmasterWord(wordKey) {
+    window.soundEngine.click();
+    if (confirm(`確定要將單字「${wordKey}」移出精通狀態並重新納入特訓題庫嗎？`)) {
+      window.storageManager.unmasterWord(wordKey);
+      this.showToast(`已重置「${wordKey}」，已恢復為練習中！`);
+      this._renderMasteryMap();
+      this.renderHeaderStats();
+    }
   }
 
   setMasteryTab(tab) {
