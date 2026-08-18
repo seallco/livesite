@@ -796,12 +796,37 @@ class LinguaPulseApp {
       this.checkJourneyActionProgress('blitz', 1);
     }
 
-    // Track mastery progress in persistent storage
-    const masteryResult = window.storageManager.recordAnswer(
-      target.w,
-      isCorrect,
-      { word: target.w, meaning: target.m, pos: target.p, level: target.l, type: 'blitz' }
-    );
+    // Render immediate confirmation banner (中英文對照確認卡片)
+    const optionsContainer = document.getElementById('blitz-options-container');
+    if (optionsContainer) {
+      const details = this.generateWordDetails(target);
+      const confirmBox = document.createElement('div');
+      confirmBox.className = `feedback-box ${isCorrect ? 'correct' : 'wrong'}`;
+      confirmBox.style.cssText = 'margin-top: 1.25rem; animation: fadeIn 0.2s ease-out;';
+      confirmBox.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div class="feedback-title" style="margin-bottom: 0;">
+            ${isCorrect ? '🎉 答對了！' : '⚠️ 答錯了！正確釋義如下：'}
+          </div>
+          <span style="font-size: 0.8rem; color: #a5b4fc; font-family: monospace;" id="blitz-countdown-timer">⏱️ 3 秒後進入下一題...</span>
+        </div>
+        <div style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">
+          ${target.w} <span style="font-size: 0.9rem; color: #38bdf8; font-weight: normal;">[${target.p}]</span> ➔ <span style="color: #fbbf24;">${target.m}</span>
+        </div>
+        <div style="font-size: 0.9rem; color: #e2e8f0; line-height: 1.5; margin-top: 0.4rem;">
+          📖 <strong>例句：</strong> ${details.enEx}
+        </div>
+        <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 0.2rem;">
+          🇨🇳 <strong>翻譯：</strong> ${details.zhEx}
+        </div>
+        <div style="margin-top: 0.75rem; text-align: right;">
+          <button class="btn-secondary" style="padding: 3px 10px; font-size: 0.78rem;" onclick="if (app.blitzAdvanceTimer) clearTimeout(app.blitzAdvanceTimer); app.nextBlitzQuestion();">
+            ⚡ 點擊直接跳過 ➔
+          </button>
+        </div>
+      `;
+      optionsContainer.after(confirmBox);
+    }
 
     if (isCorrect) {
       this.blitzScore += 10 + (this.blitzCombo * 2);
@@ -824,8 +849,6 @@ class LinguaPulseApp {
       } else if (masteryResult.newStars > masteryResult.prevStars) {
         this.showMasteryToast(target.w, masteryResult.newStars, false);
       }
-
-      setTimeout(() => this.nextBlitzQuestion(), masteryResult.justMastered ? 1200 : 350);
     } else {
       btnElement.classList.add('selected-wrong');
       window.soundEngine.wrong();
@@ -844,9 +867,25 @@ class LinguaPulseApp {
         targetWord: target.w
       });
       this.updateBadges();
-
-      setTimeout(() => this.nextBlitzQuestion(), 700);
     }
+
+    // 停等 3 秒 (3000ms)，並即時倒數
+    let timeLeft = 3;
+    const countdownEl = document.getElementById('blitz-countdown-timer');
+    const countdownInterval = setInterval(() => {
+      timeLeft--;
+      if (countdownEl && timeLeft > 0) {
+        countdownEl.textContent = `⏱️ ${timeLeft} 秒後進入下一題...`;
+      } else {
+        clearInterval(countdownInterval);
+      }
+    }, 1000);
+
+    if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
+    this.blitzAdvanceTimer = setTimeout(() => {
+      clearInterval(countdownInterval);
+      this.nextBlitzQuestion();
+    }, 3000);
   }
 
   // Generate Semantically Accurate, Natural Examples, Translations & Memory Mnemonics
