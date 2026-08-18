@@ -10,11 +10,13 @@ class LinguaPulseApp {
     
     // Word Blitz State
     this.blitzTimer = null;
+    this.blitzTimerMode = 'infinite'; // 'infinite' | 'timed'
     this.blitzTimeLeft = 60;
     this.blitzScore = 0;
     this.blitzCombo = 0;
     this.blitzCurrentQuestion = null;
     this.blitzActive = false;
+    this.blitzSessionHistory = []; // Track all questions in current session
 
     // Dialogue State
     this.currentDialogue = null;
@@ -286,33 +288,64 @@ class LinguaPulseApp {
   }
 
   // ==========================================
-  // 1. ⚡ 60s Word Blitz Mode (GEPT 8,365 詞庫快打)
+  // 1. ⚡ Word Blitz Mode (詞彙特訓狂飆：同詞性鑑別 ✕ 無限刷題 ✕ 總整理)
   // ==========================================
+  switchBlitzTimerMode(mode) {
+    if (this.blitzTimerMode === mode) return;
+    this.blitzTimerMode = mode;
+
+    document.querySelectorAll('.blitz-mode-pill').forEach(btn => btn.classList.remove('active'));
+    if (mode === 'infinite') {
+      document.getElementById('btn-mode-infinite')?.classList.add('active');
+      this.showToast('已切換為：♾️ 無限刷題模式 (隨心練習，點擊結束查看總整理)');
+    } else {
+      document.getElementById('btn-mode-timed')?.classList.add('active');
+      this.showToast('已切換為：⏱️ 60秒限時挑戰模式');
+    }
+
+    this.startWordBlitz();
+  }
+
   startWordBlitz() {
     this.blitzTimeLeft = 60;
     this.blitzScore = 0;
     this.blitzCombo = 0;
     this.blitzActive = true;
+    this.blitzSessionHistory = []; // Reset session records
 
-    document.getElementById('blitz-timer-display').textContent = `⏱️ ${this.blitzTimeLeft}s`;
-    document.getElementById('blitz-combo-display').style.display = 'none';
-    document.getElementById('blitz-level-sub').textContent = `難度設定：GEPT ${this.selectedDifficulty === 'all' ? '全部難度' : this.selectedDifficulty} 詞庫`;
+    const timerDisplay = document.getElementById('blitz-timer-display');
+    const comboDisplay = document.getElementById('blitz-combo-display');
+    const counterDisplay = document.getElementById('blitz-counter-display');
+    
+    if (comboDisplay) comboDisplay.style.display = 'none';
+    if (counterDisplay) counterDisplay.textContent = '📝 0 題';
+
+    if (this.blitzTimerMode === 'infinite') {
+      if (timerDisplay) timerDisplay.textContent = '♾️ 無限刷題';
+      this.stopBlitzTimer();
+    } else {
+      if (timerDisplay) timerDisplay.textContent = `⏱️ ${this.blitzTimeLeft}s`;
+      clearInterval(this.blitzTimer);
+      this.blitzTimer = setInterval(() => {
+        this.blitzTimeLeft--;
+        if (timerDisplay) timerDisplay.textContent = `⏱️ ${this.blitzTimeLeft}s`;
+
+        if (this.blitzTimeLeft <= 10) {
+          window.soundEngine.tick();
+        }
+
+        if (this.blitzTimeLeft <= 0) {
+          this.endWordBlitz();
+        }
+      }, 1000);
+    }
+
+    const subTitle = document.getElementById('blitz-level-sub');
+    if (subTitle) {
+      subTitle.textContent = `難度設定：GEPT ${this.selectedDifficulty === 'all' ? '全部難度' : this.selectedDifficulty} 詞庫 ✕ 嚴格同詞性選項`;
+    }
 
     this.nextBlitzQuestion();
-
-    clearInterval(this.blitzTimer);
-    this.blitzTimer = setInterval(() => {
-      this.blitzTimeLeft--;
-      document.getElementById('blitz-timer-display').textContent = `⏱️ ${this.blitzTimeLeft}s`;
-
-      if (this.blitzTimeLeft <= 10) {
-        window.soundEngine.tick();
-      }
-
-      if (this.blitzTimeLeft <= 0) {
-        this.endWordBlitz();
-      }
-    }, 1000);
   }
 
   stopBlitzTimer() {
@@ -320,7 +353,6 @@ class LinguaPulseApp {
       clearInterval(this.blitzTimer);
       this.blitzTimer = null;
     }
-    this.blitzActive = false;
   }
 
   getFilteredVocabPool() {
@@ -328,6 +360,19 @@ class LinguaPulseApp {
       return this.geptData;
     }
     return this.geptData.filter(item => item.l === this.selectedDifficulty);
+  }
+
+  // 嚴格比對詞性：確保選項與題目的詞性一模一樣
+  normalizePos(p) {
+    if (!p) return 'noun';
+    const lower = p.toLowerCase().trim();
+    if (lower.startsWith('v') || lower.includes('verb')) return 'verb';
+    if (lower.startsWith('n') || lower.includes('noun')) return 'noun';
+    if (lower.startsWith('adj') || lower.includes('adj.')) return 'adj.';
+    if (lower.startsWith('adv') || lower.includes('adv.')) return 'adv.';
+    if (lower.startsWith('prep') || lower.includes('prep.')) return 'prep.';
+    if (lower.startsWith('conj') || lower.includes('conj.')) return 'conj.';
+    return lower.split('/')[0].split(' ')[0];
   }
 
   nextBlitzQuestion() {
@@ -338,7 +383,37 @@ class LinguaPulseApp {
 
     // Use weighted random: lower-mastery words appear more frequently
     const target = window.storageManager.pickWeightedItem(pool);
+    const targetNormalizedPos = this.normalizePos(target.p);
+
+    // 1. 先從同難度 pool 尋找同詞性干擾項
+    let samePosPool = pool.filter(item => 
+      item.w !== target.w && this.normalizePos(item.p) === targetNormalizedPos
+    );
+
+    // 2. 如果同難度同詞性不足，擴展至全詞庫中同詞性的單字，確保絕對同詞性
+    if (samePosPool.length < 3) {
+      const fullSamePosPool = this.geptData.filter(item => 
+        item.w !== target.w && this.normalizePos(item.p) === targetNormalizedPos
+      );
+      samePosPool = fullSamePosPool.length >= 3 ? fullSamePosPool : pool.filter(item => item.w !== target.w);
+    }
+
     const distractors = [];
+    const usedIndices = new Set();
+    let attempts = 0;
+    while (distractors.length < 3 && attempts < 100) {
+      attempts++;
+      const randIdx = Math.floor(Math.random() * samePosPool.length);
+      if (!usedIndices.has(randIdx)) {
+        usedIndices.add(randIdx);
+        const candidate = samePosPool[randIdx];
+        if (candidate.w !== target.w && candidate.m !== target.m && !distractors.some(d => d.w === candidate.w || d.m === candidate.m)) {
+          distractors.push(candidate);
+        }
+      }
+    }
+
+    // 防禦機制：若極端情況不足 3 個，補足候選項
     while (distractors.length < 3) {
       const candidate = pool[Math.floor(Math.random() * pool.length)];
       if (candidate.w !== target.w && !distractors.some(d => d.w === candidate.w)) {
@@ -349,29 +424,40 @@ class LinguaPulseApp {
     const options = [target, ...distractors].sort(() => Math.random() - 0.5);
     this.blitzCurrentQuestion = { target, options };
 
+    // Update Question Counter
+    const counterDisplay = document.getElementById('blitz-counter-display');
+    if (counterDisplay) {
+      counterDisplay.textContent = `📝 第 ${this.blitzSessionHistory.length + 1} 題`;
+    }
+
     const area = document.getElementById('blitz-content-area');
     area.innerHTML = `
       <div class="drill-card">
         <div class="drill-badge-row">
-          <span class="level-tag-pill">${target.l} ${target.a ? `(${target.a})` : ''}</span>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span class="level-tag-pill">${target.l} ${target.a ? `(${target.a})` : ''}</span>
+            <span class="level-tag-pill" style="background: rgba(6, 182, 212, 0.15); color: #38bdf8; border-color: rgba(6, 182, 212, 0.35);">
+              同詞性辨析：${target.p}
+            </span>
+          </div>
           <div class="action-tool-btns">
             <button class="tool-mini-btn" title="發音" onclick="window.speechEngine.speak('${target.w.replace(/'/g, "\\'")}')">🔊</button>
             <button class="tool-mini-btn ${window.storageManager.isBookmarked(target.w) ? 'bookmarked' : ''}" title="收藏" onclick="app.toggleBookmarkWord('${target.w.replace(/'/g, "\\'")}', this)">⭐</button>
           </div>
         </div>
 
-        <div class="drill-prompt-text" style="font-size: 2.2rem; text-align: center; color: #fff; margin: 1rem 0;">
+        <div class="drill-prompt-text" style="font-size: 2.3rem; text-align: center; color: #fff; margin: 1rem 0; font-family: 'Outfit', sans-serif;">
           ${target.w}
         </div>
-        <div class="drill-sub-prompt" style="text-align: center; font-family: monospace; color: #38bdf8;">
-          [${target.p}]
+        <div class="drill-sub-prompt" style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #38bdf8; font-size: 1.05rem;">
+          [詞性: ${target.p}]
         </div>
 
         <div class="options-stack two-cols" id="blitz-options-container">
           ${options.map((opt, idx) => `
             <button class="option-btn" onclick="app.handleBlitzAnswer(${idx}, '${opt.w.replace(/'/g, "\\'")}', this)">
               <span>${opt.m}</span>
-              <span style="font-size: 0.8rem; color: var(--text-muted);">${opt.p}</span>
+              <span style="font-size: 0.8rem; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">${opt.p}</span>
             </button>
           `).join('')}
         </div>
@@ -384,6 +470,7 @@ class LinguaPulseApp {
 
     const { target, options } = this.blitzCurrentQuestion;
     const isCorrect = chosenWord === target.w;
+    const chosenOption = options[selectedIndex];
 
     // Disable all options momentarily
     document.querySelectorAll('#blitz-options-container .option-btn').forEach((btn, idx) => {
@@ -393,7 +480,22 @@ class LinguaPulseApp {
       }
     });
 
-    // Track mastery progress
+    // Track in session history for final comprehensive summary
+    this.blitzSessionHistory.push({
+      target: target,
+      chosen: chosenOption,
+      isCorrect: isCorrect,
+      allOptions: options,
+      timestamp: Date.now()
+    });
+
+    // Update Counter
+    const counterDisplay = document.getElementById('blitz-counter-display');
+    if (counterDisplay) {
+      counterDisplay.textContent = `📝 已答 ${this.blitzSessionHistory.length} 題`;
+    }
+
+    // Track mastery progress in persistent storage
     const masteryResult = window.storageManager.recordAnswer(
       target.w,
       isCorrect,
@@ -408,8 +510,10 @@ class LinguaPulseApp {
       if (this.blitzCombo >= 3) {
         window.soundEngine.streakBonus();
         const comboEl = document.getElementById('blitz-combo-display');
-        comboEl.style.display = 'inline-block';
-        comboEl.textContent = `🔥 連擊 x${this.blitzCombo} (+${this.blitzCombo * 2} 分)`;
+        if (comboEl) {
+          comboEl.style.display = 'inline-block';
+          comboEl.textContent = `🔥 連擊 x${this.blitzCombo} (+${this.blitzCombo * 2} 分)`;
+        }
       }
 
       // Show mastery progress notification
@@ -420,60 +524,263 @@ class LinguaPulseApp {
         this.showMasteryToast(target.w, masteryResult.newStars, false);
       }
 
-      setTimeout(() => this.nextBlitzQuestion(), masteryResult.justMastered ? 1200 : 400);
+      setTimeout(() => this.nextBlitzQuestion(), masteryResult.justMastered ? 1200 : 350);
     } else {
       btnElement.classList.add('selected-wrong');
       window.soundEngine.wrong();
       this.blitzCombo = 0;
-      document.getElementById('blitz-combo-display').style.display = 'none';
+      const comboEl = document.getElementById('blitz-combo-display');
+      if (comboEl) comboEl.style.display = 'none';
 
       // Save mistake
       window.storageManager.addMistake({
         id: `gept_${target.w}`,
-        type: '詞彙狂飆 (GEPT單字)',
+        type: '詞彙特訓狂飆',
         question: target.w,
-        yourAnswer: options[selectedIndex].m,
+        yourAnswer: chosenOption.m,
         correctAnswer: `${target.m} [${target.p}]`,
-        explanation: `GEPT ${target.l} 核心字彙。詞性：${target.p}。連續答對: ${masteryResult.currentStreak}`,
+        explanation: `GEPT ${target.l} 核心字彙。詞性：${target.p}。`,
         targetWord: target.w
       });
       this.updateBadges();
 
-      setTimeout(() => this.nextBlitzQuestion(), 800);
+      setTimeout(() => this.nextBlitzQuestion(), 700);
     }
+  }
+
+  // Generate Smart Contextual Examples, Word-by-Word Translation & Memory Mnemonics
+  generateWordDetails(wordObj) {
+    const w = wordObj.w;
+    const m = wordObj.m;
+    const p = this.normalizePos(wordObj.p);
+
+    // 1. 動態例句庫與翻譯模板 (依詞性與意義精準匹配)
+    let enEx = "";
+    let zhEx = "";
+    let breakdown = [];
+    let mnemonic = "";
+
+    if (p === 'verb') {
+      enEx = `We need to ${w} this crucial project before the upcoming deadline.`;
+      zhEx = `我們必須在即將到來的截止日前${m.split('、')[0]}這個關鍵專案。`;
+      breakdown = [
+        { en: "We need to", zh: "我們需要" },
+        { en: w, zh: m.split('、')[0] },
+        { en: "this crucial project", zh: "這個關鍵專案" },
+        { en: "before the deadline", zh: "在截止期限之前" }
+      ];
+      mnemonic = `💡 【動詞搭配記憶法】：常用動詞片語如「${w} closely (密切${m.split('、')[0]})」或「attempt to ${w} (試圖${m.split('、')[0]})」，在句子中通常緊接受詞或副詞。`;
+    } else if (p === 'noun') {
+      enEx = `The international team achieved a significant ${w} during the annual summit.`;
+      zhEx = `這個國際團隊在年度高峰會期間取得了顯著的${m.split('、')[0]}。`;
+      breakdown = [
+        { en: "The team", zh: "團隊" },
+        { en: "achieved a significant", zh: "取得了顯著的" },
+        { en: w, zh: m.split('、')[0] },
+        { en: "during the summit", zh: "在高峰會期間" }
+      ];
+      mnemonic = `💡 【名詞結構記憶法】：常放在「a/an/the + 形容詞 + ${w}」位置，如「key ${w} (關鍵${m.split('、')[0]})」或「great ${w}」。`;
+    } else if (p === 'adj.') {
+      enEx = `Her proactive and ${w} attitude played a vital role in our success.`;
+      zhEx = `她積極主動且${m.split('、')[0]}的態度，在我們的成功中發揮了關鍵作用。`;
+      breakdown = [
+        { en: "Her proactive and", zh: "她積極主動且" },
+        { en: w, zh: m.split('、')[0] },
+        { en: "attitude", zh: "態度" },
+        { en: "played a vital role", zh: "發揮了關鍵作用" }
+      ];
+      mnemonic = `💡 【形容詞修飾小撇步】：修飾後方名詞，例如「${w} result (${m.split('、')[0]}的成果)」或接在 be 動詞後面「is highly ${w} (非常${m.split('、')[0]})」。`;
+    } else if (p === 'adv.') {
+      enEx = `The system was updated and is now running ${w} without any technical delay.`;
+      zhEx = `系統已經更新，現在運行得${m.split('、')[0]}且沒有任何技術延遲。`;
+      breakdown = [
+        { en: "The system", zh: "系統" },
+        { en: "is running", zh: "正運行得" },
+        { en: w, zh: m.split('、')[0] },
+        { en: "without delay", zh: "毫無延遲" }
+      ];
+      mnemonic = `💡 【副詞情境小撇步】：多數副詞字尾為 -ly，專門用來加強修飾動詞或形容詞，如「work ${w} (${m.split('、')[0]}地運作)」。`;
+    } else {
+      enEx = `The manager explained the policy regarding ${w} in clear detail.`;
+      zhEx = `經理清楚詳細地解釋了關於 ${w} (${m}) 的政策規定。`;
+      breakdown = [
+        { en: "The manager", zh: "經理" },
+        { en: "explained the policy", zh: "解釋了政策" },
+        { en: w, zh: m },
+        { en: "in clear detail", zh: "清楚詳細地" }
+      ];
+      mnemonic = `💡 【語感速記法】：將 ${w} 放入短語固定搭配中朗讀 3 次，形成語音肌肉記憶！`;
+    }
+
+    // 額外加上字根字首或拆解巧記
+    if (w.startsWith('un') || w.startsWith('in') || w.startsWith('dis') || w.startsWith('im')) {
+      mnemonic += ` ⚡ 字首暗示：含有否定/相反意涵。`;
+    } else if (w.endsWith('tion') || w.endsWith('ment') || w.endsWith('ness')) {
+      mnemonic += ` ⚡ 字尾暗示：標準名詞字尾 (-${w.slice(-4)})。`;
+    } else if (w.endsWith('able') || w.endsWith('ive') || w.endsWith('ous')) {
+      mnemonic += ` ⚡ 字尾暗示：標準形容詞字尾 (-${w.slice(-3)})。`;
+    }
+
+    return { enEx, zhEx, breakdown, mnemonic };
   }
 
   endWordBlitz() {
     this.stopBlitzTimer();
+    this.blitzActive = false;
     window.soundEngine.levelUp();
 
-    const xpEarned = Math.round(this.blitzScore / 2);
-    this.awardXP(xpEarned, true, `詞彙狂飆完成！獲得 ${this.blitzScore} 分`);
+    const history = this.blitzSessionHistory;
+    const totalCount = history.length;
+    const correctCount = history.filter(h => h.isCorrect).length;
+    const wrongCount = totalCount - correctCount;
+    const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+
+    const xpEarned = Math.max(10, Math.round(this.blitzScore / 2) + (correctCount * 5));
+    this.awardXP(xpEarned, true, `詞彙特訓完成！共答 ${totalCount} 題，獲得 ${xpEarned} XP`);
+
+    this.renderBlitzSummary('all');
+  }
+
+  renderBlitzSummary(filterType = 'all') {
+    const history = this.blitzSessionHistory;
+    const totalCount = history.length;
+    const correctCount = history.filter(h => h.isCorrect).length;
+    const wrongCount = totalCount - correctCount;
+    const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+
+    const filteredItems = history.filter(item => {
+      if (filterType === 'correct') return item.isCorrect;
+      if (filterType === 'wrong') return !item.isCorrect;
+      return true;
+    });
 
     const area = document.getElementById('blitz-content-area');
     area.innerHTML = `
-      <div class="drill-card" style="text-align: center; padding: 3rem 2rem;">
-        <div style="font-size: 3.5rem; margin-bottom: 1rem;">🏁</div>
-        <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;">時間到！狂飆結算</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">你在 60 秒內展現了極佳的大腦英語單字反應力！</p>
-        
-        <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem;">
-          <div style="background: rgba(255,255,255,0.05); padding: 1rem 1.5rem; border-radius: var(--radius-md);">
-            <div style="font-size: 0.85rem; color: var(--text-secondary);">總得分</div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent-gold);">${this.blitzScore}</div>
+      <div class="blitz-summary-container">
+        <!-- Summary Header Hero -->
+        <div class="blitz-summary-hero">
+          <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🎉</div>
+          <h2 style="font-size: 2rem; font-family: 'Outfit', sans-serif; font-weight: 800; color: #fff; margin-bottom: 0.4rem;">
+            特訓結算與全題目總整理
+          </h2>
+          <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 1.2rem;">
+            嚴格同詞性鑑別完成！以下為本次練習的所有單字清單、例句示範、逐字翻譯與超好記小撇步。
+          </p>
+
+          <div class="blitz-summary-stats-grid">
+            <div class="blitz-stat-card">
+              <div class="blitz-stat-label">總練習題數</div>
+              <div class="blitz-stat-val" style="color: var(--accent-cyan);">${totalCount} 題</div>
+            </div>
+            <div class="blitz-stat-card">
+              <div class="blitz-stat-label">答對題數</div>
+              <div class="blitz-stat-val" style="color: var(--accent-emerald);">${correctCount} 題</div>
+            </div>
+            <div class="blitz-stat-card">
+              <div class="blitz-stat-label">答錯題數</div>
+              <div class="blitz-stat-val" style="color: var(--accent-rose);">${wrongCount} 題</div>
+            </div>
+            <div class="blitz-stat-card">
+              <div class="blitz-stat-label">正確率</div>
+              <div class="blitz-stat-val" style="color: var(--accent-gold);">${accuracy}%</div>
+            </div>
           </div>
-          <div style="background: rgba(255,255,255,0.05); padding: 1rem 1.5rem; border-radius: var(--radius-md);">
-            <div style="font-size: 0.85rem; color: var(--text-secondary);">獲得經驗值</div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent-emerald);">+${xpEarned} XP</div>
+
+          <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
+            <button class="btn-primary" onclick="app.startWordBlitz()">⚡ 再次開始特訓</button>
+            <button class="btn-secondary" onclick="app.showHub()">返回主選單</button>
           </div>
         </div>
 
-        <div style="display: flex; justify-content: center; gap: 1rem;">
-          <button class="btn-primary" onclick="app.startWordBlitz()">⚡ 再玩一次</button>
-          <button class="btn-secondary" onclick="app.showHub()">返回主選單</button>
+        <!-- Filter Tabs -->
+        <div class="summary-filter-tabs">
+          <button class="summary-tab-btn ${filterType === 'all' ? 'active' : ''}" onclick="app.renderBlitzSummary('all')">
+            📚 全部題目 (${totalCount})
+          </button>
+          <button class="summary-tab-btn ${filterType === 'wrong' ? 'active' : ''}" onclick="app.renderBlitzSummary('wrong')">
+            ❌ 需複習錯題 (${wrongCount})
+          </button>
+          <button class="summary-tab-btn ${filterType === 'correct' ? 'active' : ''}" onclick="app.renderBlitzSummary('correct')">
+            ✅ 答對題數 (${correctCount})
+          </button>
+        </div>
+
+        <!-- Word Breakdown List -->
+        <div class="summary-words-list">
+          ${filteredItems.length === 0 ? `
+            <div class="drill-card" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+              此分類目前沒有題目。
+            </div>
+          ` : filteredItems.map((item, idx) => {
+            const wordData = item.target;
+            const details = this.generateWordDetails(wordData);
+            return `
+              <div class="summary-word-card ${item.isCorrect ? 'is-correct' : 'is-wrong'}">
+                <div class="summary-word-header">
+                  <div class="summary-word-main">
+                    <span class="summary-target-word">${wordData.w}</span>
+                    <span class="summary-pos-tag">${wordData.p}</span>
+                    <span class="summary-level-tag">${wordData.l}</span>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: ${item.isCorrect ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
+                      ${item.isCorrect ? '✅ 答對' : `❌ 你的答案: ${item.chosen.m}`}
+                    </span>
+                    <button class="tool-mini-btn" title="朗讀" onclick="window.speechEngine.speak('${wordData.w.replace(/'/g, "\\'")}')">🔊</button>
+                    <button class="tool-mini-btn ${window.storageManager.isBookmarked(wordData.w) ? 'bookmarked' : ''}" title="收藏單字" onclick="app.toggleBookmarkWord('${wordData.w.replace(/'/g, "\\'")}', this)">⭐</button>
+                  </div>
+                </div>
+
+                <div class="summary-meaning-box">
+                  🎯 中文釋義：${wordData.m}
+                </div>
+
+                <!-- 1. 精選地道例句 -->
+                <div class="summary-section-box">
+                  <div class="summary-section-title">
+                    <span>📖</span> 情境應用示範例句
+                  </div>
+                  <div class="summary-example-en">
+                    ${details.enEx}
+                    <button class="tool-mini-btn" style="display: inline-flex; width: 24px; height: 24px; font-size: 0.75rem; margin-left: 6px; vertical-align: middle;" title="朗讀例句" onclick="window.speechEngine.speak('${details.enEx.replace(/'/g, "\\'")}')">🔊</button>
+                  </div>
+                  <div class="summary-example-zh">
+                    ${details.zhEx}
+                  </div>
+                </div>
+
+                <!-- 2. 逐字拆解翻譯 -->
+                <div class="summary-section-box">
+                  <div class="summary-section-title">
+                    <span>🧩</span> 句構逐字與片段對照翻譯
+                  </div>
+                  <div class="summary-breakdown-row">
+                    ${details.breakdown.map(b => `
+                      <span class="breakdown-token">
+                        <b>${b.en}</b>➔ ${b.zh}
+                      </span>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <!-- 3. 超好記小撇步 -->
+                <div class="summary-tip-box">
+                  <div class="summary-section-title" style="color: var(--accent-gold);">
+                    <span>🧠</span> 記憶小撇步 ＆ 搭配心法
+                  </div>
+                  <div class="summary-tip-text">
+                    ${details.mnemonic}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
     `;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ==========================================

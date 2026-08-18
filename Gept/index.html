@@ -108,17 +108,17 @@
       </div>
 
       <div class="modes-grid">
-        <!-- Mode 1: 60s Word Blitz -->
+        <!-- Mode 1: Word Blitz -->
         <div class="mode-card" data-mode="blitz">
           <div>
             <div class="mode-icon-box">⚡</div>
-            <span class="mode-tag tag-speed">60s 倒數反應</span>
-            <h3 class="mode-title">60秒詞彙狂飆</h3>
-            <p class="mode-desc">高節奏 GEPT & 多益金證單字快打！挑戰大腦單字直覺反應與連擊加成。</p>
+            <span class="mode-tag tag-speed">同詞性精準辨析 ✕ 隨心刷</span>
+            <h3 class="mode-title">詞彙特訓狂飆</h3>
+            <p class="mode-desc">嚴格同詞性選項鑑別！支援無限刷題與 60 秒競速，結束後一鍵生成例句、逐字精解與好記小撇步。</p>
           </div>
           <div class="mode-meta-footer">
-            <span>⏱️ 1 分鐘挑戰</span>
-            <span class="mode-btn-pill">開始狂飆 ➔</span>
+            <span>⚡ 無限刷題 / 總整理清單</span>
+            <span class="mode-btn-pill">開始特訓 ➔</span>
           </div>
         </div>
 
@@ -231,13 +231,23 @@
             <span>←</span> 返回主頁
           </button>
           <div class="practice-title-box">
-            <h2>⚡ 60秒詞彙狂飆 (Word Blitz)</h2>
-            <p id="blitz-level-sub">GEPT 中高級 / 多益金證詞彙反應挑戰</p>
+            <h2>⚡ 詞彙特訓狂飆 (Word Blitz)</h2>
+            <p id="blitz-level-sub">GEPT 8,365 詞庫 ✕ 嚴格同詞性鑑別</p>
           </div>
         </div>
         <div class="practice-header-right">
+          <!-- Mode Switcher: Infinite vs 60s -->
+          <div class="blitz-mode-switcher">
+            <button class="blitz-mode-pill active" id="btn-mode-infinite" onclick="app.switchBlitzTimerMode('infinite')">♾️ 無限刷題</button>
+            <button class="blitz-mode-pill" id="btn-mode-timed" onclick="app.switchBlitzTimerMode('timed')">⏱️ 60秒挑戰</button>
+          </div>
+
           <div class="combo-pill" id="blitz-combo-display" style="display: none;">🔥 連擊 x0</div>
-          <div class="timer-pill" id="blitz-timer-display">⏱️ 60s</div>
+          <div class="timer-pill" id="blitz-timer-display">♾️ 練題中</div>
+          <div class="counter-pill" id="blitz-counter-display" title="本次練習題數">📝 0 題</div>
+          <button class="btn-finish-blitz" id="btn-finish-blitz" onclick="app.endWordBlitz()" title="點擊結束並查看本次全題目總整理與例句撇步">
+            🏁 結束並查看總整理
+          </button>
         </div>
       </div>
 
