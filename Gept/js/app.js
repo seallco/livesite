@@ -4,7 +4,7 @@
 class LinguaPulseApp {
   constructor() {
     this.currentMode = null;
-    this.selectedDifficulty = '中高級'; // '中高級', '中級', 'all'
+    this.selectedDifficulty = localStorage.getItem('linguapulse_diff') || '初級'; // 預設由簡入難：'初級', '中級', '中高級', 'all'
     this.geptData = window.GEPT_DATA || [];
     this.practiceData = window.PRACTICE_DATA || {};
     
@@ -36,11 +36,22 @@ class LinguaPulseApp {
   }
 
   init() {
+    this.syncDifficultyUI();
     this.renderHeaderStats();
     this.renderJourneyRoadmap();
     this.bindEvents();
     this.updateBadges();
     console.log(`LinguaPulse Initialized with ${this.geptData.length} GEPT vocabulary entries!`);
+  }
+
+  syncDifficultyUI() {
+    document.querySelectorAll('#filter-difficulty-group .filter-pill-btn').forEach(btn => {
+      if (btn.dataset.diff === this.selectedDifficulty) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
   }
 
   // ==========================================
@@ -243,7 +254,8 @@ class LinguaPulseApp {
         document.querySelectorAll('#filter-difficulty-group .filter-pill-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.selectedDifficulty = btn.dataset.diff;
-        this.showToast(`已切換難度：${btn.innerText}`);
+        localStorage.setItem('linguapulse_diff', this.selectedDifficulty);
+        this.showToast(`已鎖定難度：${btn.innerText}`);
       });
     });
 
