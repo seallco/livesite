@@ -1638,7 +1638,7 @@ class LinguaPulseApp {
     const wrongCount = totalCount - correctCount;
     const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
 
-    const xpEarned = Math.max(10, Math.round(this.blitzScore / 2) + (correctCount * 5));
+    const xpEarned = Math.max(5, (correctCount * 2) + Math.min(20, Math.round(this.blitzScore / 10)));
     this.awardXP(xpEarned, true, `詞彙特訓完成！共答 ${totalCount} 題，獲得 ${xpEarned} XP`);
 
     this.renderBlitzSummary('all');

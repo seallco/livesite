@@ -21,16 +21,16 @@ class StorageManager {
     ];
 
     this.LEVEL_RANKS = [
-      { lvl: 1, title: "English Explorer (英語探索者)", minXp: 0, badge: "🌱", toeic: "TOEIC 400" },
-      { lvl: 2, title: "Sentence Builder (語感啟蒙)", minXp: 100, badge: "🧩", toeic: "TOEIC 550" },
-      { lvl: 3, title: "Fluent Rookie (初露鋒芒)", minXp: 250, badge: "⚡", toeic: "TOEIC 650 (GEPT初級)" },
-      { lvl: 4, title: "Workplace Communicator (職場實戰)", minXp: 500, badge: "💼", toeic: "TOEIC 750 (GEPT中級)" },
-      { lvl: 5, title: "TOEIC Blue Star (藍證菁英)", minXp: 850, badge: "🔷", toeic: "TOEIC 800" },
-      { lvl: 6, title: "TOEIC Gold Aspirant (金證獵手)", minXp: 1300, badge: "🏅", toeic: "TOEIC 860+ (金證起步)" },
-      { lvl: 7, title: "GEPT High-Intermediate (中高級達人)", minXp: 1900, badge: "💎", toeic: "TOEIC 900+ (GEPT中高)" },
-      { lvl: 8, title: "Executive Communicator (高管商務家)", minXp: 2700, badge: "👑", toeic: "TOEIC 950+" },
-      { lvl: 9, title: "Near-Native Fluency (神級語感)", minXp: 3700, badge: "🔥", toeic: "TOEIC 980+" },
-      { lvl: 10, title: "Native Master Mind (母語頂峰大師)", minXp: 5000, badge: "🌌", toeic: "TOEIC 990 滿分" }
+      { lvl: 1, title: "English Explorer (英語探索者)", minXp: 0, badge: "🌱", toeic: "TOEIC 350~450 (初級啟蒙)" },
+      { lvl: 2, title: "Sentence Builder (語感啟蒙)", minXp: 300, badge: "🧩", toeic: "TOEIC 450~550 (基礎穩固)" },
+      { lvl: 3, title: "Fluent Rookie (初露鋒芒)", minXp: 800, badge: "⚡", toeic: "TOEIC 550~650 (綠證門檻)" },
+      { lvl: 4, title: "Workplace Communicator (職場實戰)", minXp: 1800, badge: "💼", toeic: "TOEIC 650~750 (藍證門檻)" },
+      { lvl: 5, title: "Advanced Specialist (進階專家)", minXp: 3500, badge: "🔷", toeic: "TOEIC 750~850 (GEPT中級高標)" },
+      { lvl: 6, title: "TOEIC Gold Aspirant (金證獵手)", minXp: 6500, badge: "🏅", toeic: "TOEIC 860+ (金色證書起步)" },
+      { lvl: 7, title: "GEPT High-Intermediate (中高級達人)", minXp: 11000, badge: "💎", toeic: "TOEIC 900+ (GEPT中高級)" },
+      { lvl: 8, title: "Executive Communicator (高管商務家)", minXp: 17000, badge: "👑", toeic: "TOEIC 950+ (頂尖高管)" },
+      { lvl: 9, title: "Near-Native Fluency (神級語感)", minXp: 24000, badge: "🔥", toeic: "TOEIC 980+ (母語流利)" },
+      { lvl: 10, title: "Native Master Mind (母語頂峰大師)", minXp: 32000, badge: "🌌", toeic: "TOEIC 990 滿分 ✕ 全庫支配" }
     ];
 
     this.init();

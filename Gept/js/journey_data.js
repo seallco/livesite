@@ -15,7 +15,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 80,
         unitName: "題連續答對",
         introTip: "專注於名詞與動詞的直覺反應，需連續答對 80 題無失誤方可通關！",
-        rewardXP: 600
+        rewardXP: 100
       },
       {
         id: "t1_s2",
@@ -24,7 +24,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 20,
         unitName: "題連續答對",
         introTip: "看清單複數主詞與對應動詞，連續答對 20 題穩固基本句構！",
-        rewardXP: 500
+        rewardXP: 80
       },
       {
         id: "t1_s3",
@@ -33,7 +33,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 15,
         unitName: "個連續掌握",
         introTip: "連續掌握 15 個母語者生活高頻自然表達，告別生硬直翻。",
-        rewardXP: 500
+        rewardXP: 80
       }
     ]
   },
@@ -50,7 +50,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 120,
         unitName: "題連續答對",
         introTip: "連續答對 120 題，擴充生活情境、交通、餐飲高頻單字肌肉記憶！",
-        rewardXP: 800
+        rewardXP: 140
       },
       {
         id: "t2_s2",
@@ -59,7 +59,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 25,
         unitName: "題連續答對",
         introTip: "連續答對 25 題，掌握 have + p.p. 與 be + p.p. 的核心邏輯！",
-        rewardXP: 650
+        rewardXP: 100
       },
       {
         id: "t2_s3",
@@ -68,7 +68,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 10,
         unitName: "次連續高分評測",
         introTip: "大聲跟讀，連續 10 次發音達標訓練嘴部肌肉！",
-        rewardXP: 650
+        rewardXP: 100
       }
     ]
   },
@@ -85,7 +85,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 160,
         unitName: "題連續答對",
         introTip: "連續答對 160 題，掌握辦公室、會議、行政常考中級核心詞彙！",
-        rewardXP: 1000
+        rewardXP: 180
       },
       {
         id: "t3_s2",
@@ -94,7 +94,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 30,
         unitName: "題連續答對",
         introTip: "辨析 although, despite, however 的用法與詞性！",
-        rewardXP: 800
+        rewardXP: 120
       },
       {
         id: "t3_s3",
@@ -103,7 +103,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 8,
         unitName: "篇商業短文",
         introTip: "訓練快速掃讀公告與電子郵件抓取核心訊息！",
-        rewardXP: 850
+        rewardXP: 120
       }
     ]
   },
@@ -120,7 +120,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 220,
         unitName: "題連續答對",
         introTip: "強化 allocate, accommodate, negotiate 等核心商務動詞！",
-        rewardXP: 1400
+        rewardXP: 220
       },
       {
         id: "t4_s2",
@@ -129,7 +129,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 25,
         unitName: "個高階片語",
         introTip: "掌握 touch base, bite the bullet 等北美高頻俚語！",
-        rewardXP: 1000
+        rewardXP: 150
       },
       {
         id: "t4_s3",
@@ -138,7 +138,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 3,
         unitName: "場高分對決",
         introTip: "在真實咖啡點餐情境中選出最高情商母語句型！",
-        rewardXP: 1100
+        rewardXP: 150
       }
     ]
   },
@@ -155,7 +155,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 300,
         unitName: "題連續答對",
         introTip: "挑戰詞性多變與抽象商業名詞，提升反應速度！",
-        rewardXP: 1800
+        rewardXP: 260
       },
       {
         id: "t5_s2",
@@ -164,7 +164,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 40,
         unitName: "題連續答對",
         introTip: "精通 recommend that S (should) V 與倒裝句型！",
-        rewardXP: 1200
+        rewardXP: 180
       },
       {
         id: "t5_s3",
@@ -173,7 +173,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 12,
         unitName: "篇深度短文",
         introTip: "精準理解長難句與文章背後的邏輯推論文意！",
-        rewardXP: 1300
+        rewardXP: 180
       }
     ]
   },
@@ -190,7 +190,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 400,
         unitName: "題連續答對",
         introTip: "攻克 3,300 中高級學術字彙，消滅所有生疏詞！",
-        rewardXP: 2500
+        rewardXP: 320
       },
       {
         id: "t6_s2",
@@ -199,7 +199,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 50,
         unitName: "題連續答對",
         introTip: "徹底搞懂 economical vs economic、分詞主被動關係！",
-        rewardXP: 1600
+        rewardXP: 220
       },
       {
         id: "t6_s3",
@@ -208,7 +208,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 3,
         unitName: "場滿分對決",
         introTip: "展現頂級商務情商，提出建設性替代方案！",
-        rewardXP: 1800
+        rewardXP: 220
       },
       {
         id: "t6_s4",
@@ -217,7 +217,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 15,
         unitName: "次高分評測",
         introTip: "跟上 1.0x 標準母語語速，掌握連音與抑揚頓挫！",
-        rewardXP: 1800
+        rewardXP: 220
       }
     ]
   },
@@ -234,7 +234,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 500,
         unitName: "題連續答對",
         introTip: "在高壓隨機抽測下保持高精準度！",
-        rewardXP: 3200
+        rewardXP: 380
       },
       {
         id: "t7_s2",
@@ -243,7 +243,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 35,
         unitName: "個高階片語",
         introTip: "熟練掌握 see eye to eye, right up my alley 等高級表達！",
-        rewardXP: 2200
+        rewardXP: 250
       },
       {
         id: "t7_s3",
@@ -252,7 +252,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 4,
         unitName: "場完美交流",
         introTip: "自信主動建立跨國專業人脈連結與自然 Small Talk！",
-        rewardXP: 2500
+        rewardXP: 250
       }
     ]
   },
@@ -269,7 +269,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 600,
         unitName: "題連續答對",
         introTip: "挑戰全庫隨機盲測，直覺反應時間小於 1 秒！",
-        rewardXP: 5000
+        rewardXP: 500
       },
       {
         id: "t8_s2",
@@ -278,7 +278,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 25,
         unitName: "次頂尖跟讀",
         introTip: "發音契合度達 80% 以上，達到母語發音直覺！",
-        rewardXP: 3800
+        rewardXP: 300
       },
       {
         id: "t8_s3",
@@ -287,7 +287,7 @@ window.JOURNEY_TIERS = [
         targetGoal: 5,
         unitName: "場完勝對決",
         introTip: "在所有職場、社交與談判對話中取得高分評價！",
-        rewardXP: 5000
+        rewardXP: 500
       }
     ]
   }
