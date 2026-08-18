@@ -5,21 +5,21 @@ window.JOURNEY_TIERS = [
   {
     tier: 1,
     title: "🌱 段位 I：英語探索者 (English Explorer)",
-    targetRank: "TOEIC 400~550 起步",
-    desc: "打牢第一層基石！完成 100 題初級高頻核心詞彙辨析與 25 道基礎句型陷阱。",
+    targetRank: "GEPT 初級基礎 ✕ 多益 400 起步啟蒙",
+    desc: "從 2,385 個初級核心字庫中高密度隨機抽驗！完成 100 題單字精準辨析、25 道語法骨架與 20 組日常地道片語。",
     stages: [
       {
         id: "t1_s1",
-        name: "關卡 1-1：初級核心單字奠基",
+        name: "關卡 1-1：初級核心單字特訓 (2,385 詞庫抽測)",
         mode: "blitz",
         targetGoal: 100,
         unitName: "題單字辨析",
-        introTip: "專注於詞性與字義的直覺反應，累積前 100 個高頻單字肌肉記憶！",
+        introTip: "從初級 2,385 詞庫中高頻抽驗，建立『見字知義、同詞性快速辨析』的直覺反應！",
         rewardXP: 300
       },
       {
         id: "t1_s2",
-        name: "關卡 1-2：基礎句型與主動被動",
+        name: "關卡 1-2：基礎句型結構與主動被動",
         mode: "grammar",
         targetGoal: 25,
         unitName: "題文法陷阱",
@@ -40,16 +40,16 @@ window.JOURNEY_TIERS = [
   {
     tier: 2,
     title: "💼 段位 II：職場實戰菁英 (Workplace Communicator)",
-    targetRank: "TOEIC 650~750 (GEPT 中級)",
-    desc: "攻克 200 個商務高頻字彙、破解多益必考轉折詞與初階商務微閱讀！",
+    targetRank: "GEPT 中級 ✕ 多益 650 綠證實力",
+    desc: "解鎖中級 2,680+ 實用商用詞庫！攻克 200 題商務詞彙辨析、多益 Part 5 必考文法與微閱讀！",
     stages: [
       {
         id: "t2_s1",
-        name: "關卡 2-1：中級商務與日常高頻詞",
+        name: "關卡 2-1：中級商務與日常高頻詞 (2,680 詞庫抽測)",
         mode: "blitz",
         targetGoal: 200,
         unitName: "題單字辨析",
-        introTip: "中級單字是職場溝通主力，注意動詞與名詞的詞性切換！",
+        introTip: "涵蓋中級 2,680 詞庫，專注於職場常用動詞、名詞與形容詞的精準運用！",
         rewardXP: 600
       },
       {
@@ -84,12 +84,12 @@ window.JOURNEY_TIERS = [
   {
     tier: 3,
     title: "🏅 段位 III：多益金證獵手 (TOEIC Gold Aspirant)",
-    targetRank: "TOEIC 860+ 金證資格 (GEPT 中高級)",
-    desc: "深度精通 350 個學術與高階抽象詞彙、商務談判高階慣用語與科技商業長文！",
+    targetRank: "GEPT 中高級 ✕ 多益 860+ 金色證書",
+    desc: "攻入 3,300+ 中高級學術字彙庫 (AWL)！完成 350 題高難度詞彙、高情商商務談判與深度長文理解！",
     stages: [
       {
         id: "t3_s1",
-        name: "關卡 3-1：GEPT 中高級 860+ 核心衝刺",
+        name: "關卡 3-1：GEPT 中高級 860+ 核心衝刺 (3,300 詞庫)",
         mode: "blitz",
         targetGoal: 350,
         unitName: "題單字辨析",
@@ -128,8 +128,8 @@ window.JOURNEY_TIERS = [
   {
     tier: 4,
     title: "🌌 段位 IV：母語頂峰大師 (Native Master Mind)",
-    targetRank: "TOEIC 990 滿分 ✕ 母語流利語感",
-    desc: "終極硬核實戰！500 題極限盲測、高契合度影子跟讀與全情境多輪對決！",
+    targetRank: "全量 8,365 詞庫精通 ✕ 多益 990 滿分",
+    desc: "全量 8,365 GEPT 詞庫隨機大亂鬥！500 題極限盲測、母語聲學跟讀與全情境實戰對決！",
     stages: [
       {
         id: "t4_s1",
@@ -137,7 +137,7 @@ window.JOURNEY_TIERS = [
         mode: "blitz",
         targetGoal: 500,
         unitName: "題詞彙特訓",
-        introTip: "在不限時高壓下保持 90% 以上正確率，建立母語直覺！",
+        introTip: "從全量 8,365 詞庫隨機出題，在不限時高壓下保持 90% 以上正確率！",
         rewardXP: 2000
       },
       {
