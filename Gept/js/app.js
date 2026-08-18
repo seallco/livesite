@@ -164,7 +164,11 @@ class LinguaPulseApp {
     const stage = allStages.find(s => s.id === stageId);
     if (!stage) return;
 
-    this.showToast(`🚀 進入【${stage.name}】！${stage.introTip}`, 4000);
+    this.activeJourneyStageId = stageId;
+    window.storageManager.journey.currentStageId = stageId;
+    window.storageManager.saveJourney();
+
+    this.showToast(`🚀 進入正式考試【${stage.name}】！需連續答對 ${stage.targetGoal} 題！`, 4000);
     this.startMode(stage.mode);
     this.updateJourneyStreakUI(stage.mode);
   }
@@ -172,15 +176,19 @@ class LinguaPulseApp {
   updateJourneyStreakUI(mode = 'blitz') {
     const journeyState = window.storageManager.getJourneyProgress();
     const allStages = window.storageManager.getAllJourneyStagesList();
-    const currentStageId = journeyState.currentStageId || allStages[0]?.id;
-    const currentStage = allStages.find(s => s.id === currentStageId);
+    const currentStageId = this.activeJourneyStageId || journeyState.currentStageId || allStages[0]?.id;
+    const currentStage = allStages.find(s => s.id === currentStageId) || allStages[0];
     if (!currentStage) return;
 
     const banner = document.getElementById('blitz-journey-streak-banner');
     if (!banner) return;
 
-    const stageData = journeyState.stages[currentStage.id] || { progress: 0, completed: false, currentStreak: 0 };
-    const streak = stageData.currentStreak || stageData.progress || 0;
+    if (!journeyState.stages[currentStage.id]) {
+      journeyState.stages[currentStage.id] = { progress: 0, completed: false, currentStreak: 0 };
+    }
+
+    const stageData = journeyState.stages[currentStage.id];
+    const streak = stageData.currentStreak || 0;
     const goal = currentStage.targetGoal;
     const remaining = Math.max(0, goal - streak);
     const percent = Math.min(100, Math.round((streak / goal) * 100));
@@ -193,12 +201,15 @@ class LinguaPulseApp {
     if (titleEl) titleEl.textContent = `${currentStage.name.split('：')[0]}：${currentStage.name.split('：')[1] || currentStage.name}`;
     if (remainingEl) {
       if (stageData.completed) {
-        remainingEl.innerHTML = `<span style="color: #34d399;">🏆 本關已完美通關！</span>`;
+        remainingEl.innerHTML = `<span style="color: #34d399; font-weight: 800;">🏆 考試通過！本關已完美通關！</span>`;
       } else {
-        remainingEl.innerHTML = `已連續答對: <strong style="color: #fbbf24; font-size: 1rem;">${streak}</strong> / ${goal} 題 (還剩 <strong style="color: #f87171;">${remaining}</strong> 題)`;
+        remainingEl.innerHTML = `已連續答對: <strong style="color: #fbbf24; font-size: 1.05rem;">${streak}</strong> / ${goal} 題 (還差 <strong style="color: #f87171; font-size: 1.05rem;">${remaining}</strong> 題及格)`;
       }
     }
-    if (fillEl) fillEl.style.width = `${percent}%`;
+    if (fillEl) {
+      fillEl.style.width = `${percent}%`;
+      fillEl.style.background = streak === 0 ? 'rgba(239, 68, 68, 0.4)' : 'linear-gradient(90deg, #38bdf8, #818cf8, #34d399)';
+    }
     if (iconEl) iconEl.textContent = stageData.completed ? '🏆' : '🎯';
   }
 
@@ -208,12 +219,12 @@ class LinguaPulseApp {
 
     if (result.justPassed) {
       window.soundEngine.levelUp();
-      this.awardXP(result.stage.rewardXP || 200, true, `🎉 恭喜連續答對達成！通關【${result.stage.name}】！`);
-      this.showToast(`🏆 完美通關【${result.stage.name}】！已成功解鎖下一關卡！`, 5000);
+      this.awardXP(result.stage.rewardXP || 100, true, `🎉 考試及格！通關【${result.stage.name}】！`);
+      this.showToast(`🏆 考試通過！【${result.stage.name}】連續答對達標，已成功解鎖下一關！`, 5000);
       this.renderJourneyRoadmap();
     } else if (!isCorrect) {
       // 答錯連擊重置提示
-      this.showToast(`⚠️ 失誤！連對計數歸零，請重新挑戰連續 ${result.targetGoal} 題！`, 2500);
+      this.showToast(`❌ 答錯失誤！連續計數歸零，請重新挑戰連續 ${result.targetGoal} 題！`, 2500);
       this.renderJourneyRoadmap();
     } else {
       this.renderJourneyRoadmap();
