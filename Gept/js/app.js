@@ -1446,6 +1446,9 @@ class LinguaPulseApp {
 
     return `/${ipa}/`;
   }
+
+  // Generate Semantically Accurate, Natural Examples, Translations & Memory Mnemonics
+  generateWordDetails(wordObj) {
     const w = wordObj.w;
     const cleanM = this.cleanMeaning(wordObj.m);
     const firstMeaning = cleanM.split(/[、,，;；]/)[0].trim() || cleanM;
