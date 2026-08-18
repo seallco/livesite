@@ -221,8 +221,56 @@ class LinguaPulseApp {
   }
 
   // ==========================================
-  // Navigation & UI State
+  // Navigation, Sidebar & UI State
   // ==========================================
+  toggleSidebar() {
+    window.soundEngine.click();
+    const sidebar = document.getElementById('sidebar-drawer');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (sidebar && overlay) {
+      const isActive = sidebar.classList.contains('active');
+      if (isActive) {
+        this.closeSidebar();
+      } else {
+        this.openSidebar();
+      }
+    }
+  }
+
+  openSidebar() {
+    const sidebar = document.getElementById('sidebar-drawer');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (sidebar && overlay) {
+      sidebar.classList.add('active');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  closeSidebar() {
+    const sidebar = document.getElementById('sidebar-drawer');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (sidebar && overlay) {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  updateTopNavActive(activeMode = 'hub') {
+    const navItems = document.querySelectorAll('#top-mode-nav-bar .top-nav-item');
+    navItems.forEach(item => {
+      const onclickAttr = item.getAttribute('onclick') || '';
+      if (activeMode === 'hub' && onclickAttr.includes('showHub')) {
+        item.classList.add('active');
+      } else if (activeMode !== 'hub' && onclickAttr.includes(`startMode('${activeMode}')`)) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
   showHub() {
     this.stopBlitzTimer();
     window.speechEngine.stopSpeaking();
@@ -231,6 +279,7 @@ class LinguaPulseApp {
     document.querySelectorAll('.practice-container').forEach(el => el.classList.remove('active'));
     document.getElementById('hub-view').style.display = 'block';
     this.currentMode = null;
+    this.updateTopNavActive('hub');
     this.renderHeaderStats();
     this.renderJourneyRoadmap();
   }
@@ -246,6 +295,8 @@ class LinguaPulseApp {
       target.classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    const modeKey = viewId.replace('view-', '');
+    this.updateTopNavActive(modeKey);
   }
 
   bindEvents() {

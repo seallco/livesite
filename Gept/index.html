@@ -13,13 +13,51 @@
     
     <!-- Top Header & Gamification Stats -->
     <header class="header-nav">
-      <div class="brand-logo" id="btn-home-logo" title="返回主頁面">
-        <div class="logo-icon">⚡</div>
-        <div>
-          <div class="brand-title">LinguaPulse</div>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <!-- 🍔 Hamburger Drawer Toggle Button -->
+        <button class="icon-btn" id="btn-toggle-sidebar" onclick="app.toggleSidebar()" title="開啟全功能快捷側邊欄">
+          <span style="font-size: 1.25rem;">☰</span>
+        </button>
+
+        <div class="brand-logo" id="btn-home-logo" title="返回主頁面">
+          <div class="logo-icon">⚡</div>
+          <div>
+            <div class="brand-title">LinguaPulse</div>
+          </div>
+          <span class="brand-tag">TOEIC Gold & GEPT Pro</span>
         </div>
-        <span class="brand-tag">TOEIC Gold & GEPT Pro</span>
       </div>
+
+      <!-- 🚀 Top Quick Mode Tabs (頂部全域快速導覽列) -->
+      <nav class="top-mode-nav-bar" id="top-mode-nav-bar">
+        <button class="top-nav-item active" onclick="app.showHub()">
+          <span>🏠</span> 首頁總覽
+        </button>
+        <button class="top-nav-item" onclick="app.startMode('blitz')">
+          <span>⚡</span> 詞彙特訓
+        </button>
+        <button class="top-nav-item" onclick="app.startMode('story')">
+          <span>🐉</span> 龍傲天爽文
+        </button>
+        <button class="top-nav-item" onclick="app.startMode('grammar')">
+          <span>🕵️</span> 找碴偵探
+        </button>
+        <button class="top-nav-item" onclick="app.startMode('native')">
+          <span>☕</span> 地道俚語
+        </button>
+        <button class="top-nav-item" onclick="app.startMode('reading')">
+          <span>📰</span> 微閱讀
+        </button>
+        <button class="top-nav-item" onclick="app.startMode('echo')">
+          <span>🎙️</span> 語音跟讀
+        </button>
+        <button class="top-nav-item" onclick="app.startMode('dialogue')">
+          <span>🥊</span> 情境快打
+        </button>
+        <button class="top-nav-item" onclick="app.startMode('dictionary')">
+          <span>📖</span> 詞庫閃卡
+        </button>
+      </nav>
 
       <!-- Gamification Stats -->
       <div class="user-stats-bar">
@@ -91,6 +129,117 @@
         </a>
       </div>
     </header>
+
+    <!-- 🌌 Slide-Out Sidebar Drawer (全功能毛玻璃快捷側邊欄) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="app.closeSidebar()"></div>
+    <aside class="sidebar-drawer" id="sidebar-drawer">
+      <div class="sidebar-header">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <div class="logo-icon" style="width: 34px; height: 34px; font-size: 1.1rem;">⚡</div>
+          <div style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.15rem; color: #fff;">LinguaPulse 導航</div>
+        </div>
+        <button class="icon-btn" onclick="app.closeSidebar()" title="關閉側邊欄">✕</button>
+      </div>
+
+      <div class="sidebar-content">
+        <div class="sidebar-section-label">📌 核心首頁與闖關</div>
+        <div class="sidebar-nav-item" onclick="app.showHub(); app.closeSidebar();">
+          <span class="sidebar-item-icon">🏠</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">儀表板首頁</div>
+            <div class="sidebar-item-sub">段位闖關地圖與快速練習</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.startCurrentJourneyStage(); app.closeSidebar();">
+          <span class="sidebar-item-icon">🏆</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">繼續段位闖關</div>
+            <div class="sidebar-item-sub">8 大精細段位循序漸進考驗</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section-label">⚡ 8 大專項特訓模式</div>
+        <div class="sidebar-nav-item" onclick="app.startMode('blitz'); app.closeSidebar();">
+          <span class="sidebar-item-icon">⚡</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">詞彙特訓狂飆</div>
+            <div class="sidebar-item-sub">同詞性精準辨析 ✕ 80題連續連對</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.startMode('story'); app.closeSidebar();">
+          <span class="sidebar-item-icon">🐉</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">龍傲天神皇傳奇</div>
+            <div class="sidebar-item-sub">連載玄幻爽文 ✕ 沉浸式追劇記單字</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.startMode('grammar'); app.closeSidebar();">
+          <span class="sidebar-item-icon">🕵️</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">語感找碴偵探</div>
+            <div class="sidebar-item-sub">多益 Part 5 & 6 金證陷阱考點</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.startMode('native'); app.closeSidebar();">
+          <span class="sidebar-item-icon">☕</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">地道表達與俚語</div>
+            <div class="sidebar-item-sub">告別死板課本！母語高頻習慣用語</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.startMode('reading'); app.closeSidebar();">
+          <span class="sidebar-item-icon">📰</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">短篇思維微閱讀</div>
+            <div class="sidebar-item-sub">科技、商務與心理學 2分鐘微閱讀</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.startMode('echo'); app.closeSidebar();">
+          <span class="sidebar-item-icon">🎙️</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">口說回音教練</div>
+            <div class="sidebar-item-sub">母語語速跟讀 ✕ 麥克風精準評分</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.startMode('dialogue'); app.closeSidebar();">
+          <span class="sidebar-item-icon">🥊</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">情境快打對決</div>
+            <div class="sidebar-item-sub">3 回合外商會議與社交情境對抗</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.startMode('dictionary'); app.closeSidebar();">
+          <span class="sidebar-item-icon">📖</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">GEPT 詞庫與閃卡</div>
+            <div class="sidebar-item-sub">全量 8,365 詞庫 ✕ 3D 翻轉閃卡</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section-label">📊 個人化學習資產</div>
+        <div class="sidebar-nav-item" onclick="app.showMasteryView(); app.closeSidebar();">
+          <span class="sidebar-item-icon">🗺️</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">知識圖鑑 (Mastery Pokédex)</div>
+            <div class="sidebar-item-sub">雙向維度熟練度追蹤</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.showMistakesView(); app.closeSidebar();">
+          <span class="sidebar-item-icon">🛡️</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">我的錯題本</div>
+            <div class="sidebar-item-sub">靶向複習消滅盲區</div>
+          </div>
+        </div>
+        <div class="sidebar-nav-item" onclick="app.showBookmarksView(); app.closeSidebar();">
+          <span class="sidebar-item-icon">⭐</span>
+          <div class="sidebar-item-text">
+            <div class="sidebar-item-title">單字收藏庫</div>
+            <div class="sidebar-item-sub">標記核心高難單字</div>
+          </div>
+        </div>
+      </div>
+    </aside>
 
     <!-- MAIN HUB: Home Dashboard -->
     <main id="hub-view">
