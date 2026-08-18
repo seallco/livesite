@@ -796,6 +796,17 @@ class LinguaPulseApp {
       this.checkJourneyActionProgress('blitz', 1);
     }
 
+    // Track mastery progress in persistent storage
+    const masteryResult = window.storageManager.recordAnswer(
+      target.w,
+      isCorrect,
+      { word: target.w, meaning: target.m, pos: target.p, level: target.l, type: 'blitz' }
+    );
+
+    // 清除先前的定時器
+    if (this.blitzCountdownInterval) clearInterval(this.blitzCountdownInterval);
+    if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
+
     // Render immediate confirmation banner (中英文對照確認卡片)
     const optionsContainer = document.getElementById('blitz-options-container');
     if (optionsContainer) {
@@ -804,24 +815,30 @@ class LinguaPulseApp {
       confirmBox.className = `feedback-box ${isCorrect ? 'correct' : 'wrong'}`;
       confirmBox.style.cssText = 'margin-top: 1.25rem; animation: fadeIn 0.2s ease-out;';
       confirmBox.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
           <div class="feedback-title" style="margin-bottom: 0;">
             ${isCorrect ? '🎉 答對了！' : '⚠️ 答錯了！正確釋義如下：'}
           </div>
-          <span style="font-size: 0.8rem; color: #a5b4fc; font-family: monospace;" id="blitz-countdown-timer">⏱️ 3 秒後進入下一題...</span>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; font-family: 'JetBrains Mono', monospace; background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 4px;" id="blitz-countdown-timer">
+            ⏱️ 3 秒後自動下一題...
+          </span>
         </div>
-        <div style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">
+        <div style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">
           ${target.w} <span style="font-size: 0.9rem; color: #38bdf8; font-weight: normal;">[${target.p}]</span> ➔ <span style="color: #fbbf24;">${target.m}</span>
+          <button class="tool-mini-btn" style="display: inline-flex; vertical-align: middle; margin-left: 6px; width: 24px; height: 24px; font-size: 0.75rem;" onclick="window.speechEngine.speak('${target.w.replace(/'/g, "\\'")}')" title="朗讀">🔊</button>
         </div>
         <div style="font-size: 0.9rem; color: #e2e8f0; line-height: 1.5; margin-top: 0.4rem;">
           📖 <strong>例句：</strong> ${details.enEx}
         </div>
-        <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 0.2rem;">
+        <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">
           🇨🇳 <strong>翻譯：</strong> ${details.zhEx}
         </div>
-        <div style="margin-top: 0.75rem; text-align: right;">
-          <button class="btn-secondary" style="padding: 3px 10px; font-size: 0.78rem;" onclick="if (app.blitzAdvanceTimer) clearTimeout(app.blitzAdvanceTimer); app.nextBlitzQuestion();">
-            ⚡ 點擊直接跳過 ➔
+        <div style="margin-top: 0.9rem; display: flex; justify-content: flex-end; gap: 0.6rem;">
+          <button class="btn-secondary" id="btn-blitz-pause-stay" style="padding: 4px 12px; font-size: 0.82rem;" onclick="app.pauseBlitzAutoAdvance(this)">
+            ⏸️ 停留此題慢慢看
+          </button>
+          <button class="btn-primary" style="padding: 4px 14px; font-size: 0.82rem;" onclick="app.advanceBlitzImmediately()">
+            ⚡ 立即下一題 ➔
           </button>
         </div>
       `;
@@ -869,23 +886,51 @@ class LinguaPulseApp {
       this.updateBadges();
     }
 
-    // 停等 3 秒 (3000ms)，並即時倒數
+    // 啟動 3 秒倒數計時器
     let timeLeft = 3;
     const countdownEl = document.getElementById('blitz-countdown-timer');
-    const countdownInterval = setInterval(() => {
+    this.blitzCountdownInterval = setInterval(() => {
       timeLeft--;
       if (countdownEl && timeLeft > 0) {
-        countdownEl.textContent = `⏱️ ${timeLeft} 秒後進入下一題...`;
-      } else {
-        clearInterval(countdownInterval);
+        countdownEl.textContent = `⏱️ ${timeLeft} 秒後自動下一題...`;
+      } else if (countdownEl && timeLeft <= 0) {
+        countdownEl.textContent = `⏱️ 跳轉中...`;
+        clearInterval(this.blitzCountdownInterval);
       }
     }, 1000);
 
-    if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
     this.blitzAdvanceTimer = setTimeout(() => {
-      clearInterval(countdownInterval);
+      clearInterval(this.blitzCountdownInterval);
       this.nextBlitzQuestion();
     }, 3000);
+  }
+
+  pauseBlitzAutoAdvance(btnElement) {
+    if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
+    if (this.blitzCountdownInterval) clearInterval(this.blitzCountdownInterval);
+    this.blitzAdvanceTimer = null;
+    this.blitzCountdownInterval = null;
+
+    const timerEl = document.getElementById('blitz-countdown-timer');
+    if (timerEl) {
+      timerEl.textContent = '⏸️ 已暫停自動跳轉（想看多久就看多久）';
+      timerEl.style.color = '#fbbf24';
+      timerEl.style.background = 'rgba(245, 158, 11, 0.15)';
+    }
+
+    if (btnElement) {
+      btnElement.textContent = '✅ 已停留';
+      btnElement.disabled = true;
+    }
+    this.showToast('已暫停計時，確認完畢請點擊「立即下一題」');
+  }
+
+  advanceBlitzImmediately() {
+    if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
+    if (this.blitzCountdownInterval) clearInterval(this.blitzCountdownInterval);
+    this.blitzAdvanceTimer = null;
+    this.blitzCountdownInterval = null;
+    this.nextBlitzQuestion();
   }
 
   // Generate Semantically Accurate, Natural Examples, Translations & Memory Mnemonics
