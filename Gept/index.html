@@ -67,6 +67,25 @@
           <span id="icon-sound">🔊</span>
         </button>
 
+        <!-- 口音切換選單 -->
+        <div style="position: relative;">
+          <button class="icon-btn" id="btn-accent-selector" title="切換發音口音 (美音/英音/澳音/自然人聲)">
+            <span id="current-accent-flag">🇺🇸</span>
+          </button>
+          <div id="accent-dropdown" class="accent-dropdown-menu" style="display: none;">
+            <div class="accent-dropdown-title">發音口音設定</div>
+            <div class="accent-option-item active" data-accent="en-US" onclick="app.changeVoiceAccent('en-US')">
+              <span>🇺🇸 標準美式發音 (US)</span>
+            </div>
+            <div class="accent-option-item" data-accent="en-GB" onclick="app.changeVoiceAccent('en-GB')">
+              <span>🇬🇧 優雅英式發音 (UK)</span>
+            </div>
+            <div class="accent-option-item" data-accent="en-AU" onclick="app.changeVoiceAccent('en-AU')">
+              <span>🇦🇺 澳洲英語發音 (AU)</span>
+            </div>
+          </div>
+        </div>
+
         <a href="../index.html" class="icon-btn" title="返回網站目錄首頁" style="text-decoration: none;">
           <span>🏠</span>
         </a>

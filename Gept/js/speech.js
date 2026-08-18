@@ -9,6 +9,7 @@ class SpeechEngine {
     this.selectedVoice = null;
     this.recognition = null;
     this.isListening = false;
+    this.preferredAccent = 'en-US'; // 'en-US' | 'en-GB' | 'en-AU'
     this.initVoices();
 
     if ('speechSynthesis' in window) {
@@ -21,17 +22,48 @@ class SpeechEngine {
   initVoices() {
     if (!this.synth) return;
     const voices = this.synth.getVoices();
-    // Prioritize natural US/UK English voices
-    const enVoices = voices.filter(v => v.lang.startsWith('en'));
-    const preferred = enVoices.find(v => 
-      v.name.includes('Natural') || 
-      v.name.includes('Samantha') || 
-      v.name.includes('Google US English') ||
-      v.name.includes('Karen') ||
-      v.name.includes('Daniel')
-    ) || enVoices[0] || voices[0];
+    if (!voices || voices.length === 0) return;
 
-    this.selectedVoice = preferred;
+    this.allVoices = voices;
+    this.updateSelectedVoice();
+  }
+
+  setAccent(accentLang = 'en-US') {
+    this.preferredAccent = accentLang;
+    this.updateSelectedVoice();
+  }
+
+  updateSelectedVoice() {
+    if (!this.allVoices || this.allVoices.length === 0) {
+      if (this.synth) this.allVoices = this.synth.getVoices();
+    }
+    const voices = this.allVoices || [];
+    const accent = this.preferredAccent || 'en-US';
+
+    // 1. 優先精確符合目前選擇口音（例如 en-US / en-GB / en-AU）
+    const matchedAccentVoices = voices.filter(v => 
+      v.lang.toLowerCase().replace('_', '-').startsWith(accent.toLowerCase())
+    );
+
+    // 2. 針對各作業系統（macOS / iOS / Windows / ChromeOS）選擇最自然的真人語音
+    const premiumKeywords = ['Natural', 'Siri', 'Premium', 'Google', 'Samantha', 'Karen', 'Daniel', 'Ava', 'Allison', 'Zira', 'George'];
+    
+    let bestVoice = null;
+
+    if (matchedAccentVoices.length > 0) {
+      for (const kw of premiumKeywords) {
+        bestVoice = matchedAccentVoices.find(v => v.name.includes(kw));
+        if (bestVoice) break;
+      }
+      if (!bestVoice) bestVoice = matchedAccentVoices[0];
+    } else {
+      // 若該口音無專屬庫，退回任何英文語音
+      const anyEn = voices.filter(v => v.lang.startsWith('en'));
+      bestVoice = anyEn[0] || voices[0];
+    }
+
+    this.selectedVoice = bestVoice;
+    console.log(`[SpeechEngine] Active voice: ${this.selectedVoice?.name} (${this.selectedVoice?.lang})`);
   }
 
   speak(text, options = {}) {

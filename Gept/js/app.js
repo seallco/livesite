@@ -83,6 +83,20 @@ class LinguaPulseApp {
       this.showToast(isMuted ? '音效已靜音' : '音效已開啟');
     });
 
+    // Voice Accent Selector Dropdown
+    const accentBtn = document.getElementById('btn-accent-selector');
+    const accentDropdown = document.getElementById('accent-dropdown');
+    accentBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.soundEngine.click();
+      const isVisible = accentDropdown.style.display === 'block';
+      accentDropdown.style.display = isVisible ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', () => {
+      if (accentDropdown) accentDropdown.style.display = 'none';
+    });
+
     // Vault & Bookmarks
     document.getElementById('btn-open-mistakes').addEventListener('click', () => {
       window.soundEngine.click();
@@ -227,6 +241,40 @@ class LinguaPulseApp {
       toast.style.transition = 'all 0.3s ease';
       setTimeout(() => toast.remove(), 300);
     }, duration);
+  }
+
+  changeVoiceAccent(accent) {
+    window.soundEngine.click();
+    window.speechEngine.setAccent(accent);
+
+    const flags = {
+      'en-US': '🇺🇸',
+      'en-GB': '🇬🇧',
+      'en-AU': '🇦🇺'
+    };
+    const names = {
+      'en-US': '標準美式口音 (US)',
+      'en-GB': '優雅英式口音 (UK)',
+      'en-AU': '澳洲英語口音 (AU)'
+    };
+
+    const flagEl = document.getElementById('current-accent-flag');
+    if (flagEl) flagEl.textContent = flags[accent] || '🌐';
+
+    document.querySelectorAll('.accent-option-item').forEach(item => {
+      if (item.dataset.accent === accent) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+
+    const dropdown = document.getElementById('accent-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    this.showToast(`已切換發音：${names[accent] || accent}`);
+    // 試聽一聲
+    window.speechEngine.speak(`Accent set to ${names[accent] ? names[accent].split(' ')[0] : 'English'}`);
   }
 
   // ==========================================
