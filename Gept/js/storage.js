@@ -88,19 +88,30 @@ class StorageManager {
     return list;
   }
 
-  recordJourneyAction(stageMode, isCorrect = true) {
+  recordJourneyAction(stageMode, isCorrect = true, explicitStageId = null) {
     const allStages = this.getAllJourneyStagesList();
-    if (!allStages || allStages.length === 0) return { passed: false };
+    if (!allStages || allStages.length === 0) return { passed: false, targetGoal: 80 };
 
-    const currentStageId = this.journey.currentStageId || allStages[0].id;
-    const currentStage = allStages.find(s => s.id === currentStageId);
-    if (!currentStage || currentStage.mode !== stageMode) return { passed: false };
+    // 優先使用指定關卡或當前挑戰關卡
+    let targetStage = null;
+    if (explicitStageId) {
+      targetStage = allStages.find(s => s.id === explicitStageId);
+    }
+    if (!targetStage) {
+      const currentStageId = this.journey.currentStageId || allStages[0].id;
+      targetStage = allStages.find(s => s.id === currentStageId);
+    }
+    // 若當前關卡模式不符，則自動尋找最接近該模式的未完成關卡
+    if (!targetStage || (stageMode && targetStage.mode !== stageMode)) {
+      targetStage = allStages.find(s => s.mode === stageMode && !this.journey.stages[s.id]?.completed) || allStages.find(s => s.mode === stageMode) || allStages[0];
+    }
+    if (!targetStage) return { passed: false, targetGoal: 80 };
 
-    if (!this.journey.stages[currentStage.id]) {
-      this.journey.stages[currentStage.id] = { progress: 0, completed: false, currentStreak: 0, maxStreak: 0 };
+    if (!this.journey.stages[targetStage.id]) {
+      this.journey.stages[targetStage.id] = { progress: 0, completed: false, currentStreak: 0, maxStreak: 0 };
     }
 
-    const stageData = this.journey.stages[currentStage.id];
+    const stageData = this.journey.stages[targetStage.id];
     
     if (isCorrect) {
       stageData.currentStreak = (stageData.currentStreak || 0) + 1;
@@ -115,11 +126,11 @@ class StorageManager {
     }
 
     let justPassed = false;
-    if (stageData.progress >= currentStage.targetGoal && !stageData.completed) {
+    if (stageData.progress >= targetStage.targetGoal && !stageData.completed) {
       stageData.completed = true;
       justPassed = true;
       // Unlock next stage in sequence
-      const currentIndex = allStages.findIndex(s => s.id === currentStage.id);
+      const currentIndex = allStages.findIndex(s => s.id === targetStage.id);
       if (currentIndex !== -1 && currentIndex + 1 < allStages.length) {
         this.journey.currentStageId = allStages[currentIndex + 1].id;
       }
@@ -129,11 +140,11 @@ class StorageManager {
     return {
       justPassed,
       isCorrect,
-      stage: currentStage,
+      stage: targetStage,
       currentStreak: stageData.currentStreak || 0,
       currentProgress: stageData.progress,
-      targetGoal: currentStage.targetGoal,
-      remaining: Math.max(0, currentStage.targetGoal - stageData.progress),
+      targetGoal: targetStage.targetGoal,
+      remaining: Math.max(0, targetStage.targetGoal - stageData.progress),
       nextStageId: this.journey.currentStageId
     };
   }

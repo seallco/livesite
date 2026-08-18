@@ -180,9 +180,6 @@ class LinguaPulseApp {
     const currentStage = allStages.find(s => s.id === currentStageId) || allStages[0];
     if (!currentStage) return;
 
-    const banner = document.getElementById('blitz-journey-streak-banner');
-    if (!banner) return;
-
     if (!journeyState.stages[currentStage.id]) {
       journeyState.stages[currentStage.id] = { progress: 0, completed: false, currentStreak: 0 };
     }
@@ -193,6 +190,7 @@ class LinguaPulseApp {
     const remaining = Math.max(0, goal - streak);
     const percent = Math.min(100, Math.round((streak / goal) * 100));
 
+    // Update Banner in Blitz
     const titleEl = document.getElementById('journey-stage-title-text');
     const remainingEl = document.getElementById('journey-streak-remaining-text');
     const fillEl = document.getElementById('journey-streak-progress-fill');
@@ -203,7 +201,7 @@ class LinguaPulseApp {
       if (stageData.completed) {
         remainingEl.innerHTML = `<span style="color: #34d399; font-weight: 800;">🏆 考試通過！本關已完美通關！</span>`;
       } else {
-        remainingEl.innerHTML = `已連續答對: <strong style="color: #fbbf24; font-size: 1.05rem;">${streak}</strong> / ${goal} 題 (還差 <strong style="color: #f87171; font-size: 1.05rem;">${remaining}</strong> 題及格)`;
+        remainingEl.innerHTML = `已連續答對: <strong style="color: #fbbf24; font-size: 1.1rem; text-shadow: 0 0 10px rgba(251,191,36,0.5);">${streak}</strong> / ${goal} 題 (還差 <strong style="color: #f87171; font-size: 1.1rem;">${remaining}</strong> 題及格 · ${percent}%)`;
       }
     }
     if (fillEl) {
@@ -211,10 +209,13 @@ class LinguaPulseApp {
       fillEl.style.background = streak === 0 ? 'rgba(239, 68, 68, 0.4)' : 'linear-gradient(90deg, #38bdf8, #818cf8, #34d399)';
     }
     if (iconEl) iconEl.textContent = stageData.completed ? '🏆' : '🎯';
+
+    // 同步更新首頁關卡卡片進度文字與進度條
+    this.renderJourneyRoadmap();
   }
 
   checkJourneyActionProgress(mode, isCorrect = true) {
-    const result = window.storageManager.recordJourneyAction(mode, isCorrect);
+    const result = window.storageManager.recordJourneyAction(mode, isCorrect, this.activeJourneyStageId);
     this.updateJourneyStreakUI(mode);
 
     if (result.justPassed) {
@@ -225,8 +226,6 @@ class LinguaPulseApp {
     } else if (!isCorrect) {
       // 答錯連擊重置提示
       this.showToast(`❌ 答錯失誤！連續計數歸零，請重新挑戰連續 ${result.targetGoal} 題！`, 2500);
-      this.renderJourneyRoadmap();
-    } else {
       this.renderJourneyRoadmap();
     }
   }
