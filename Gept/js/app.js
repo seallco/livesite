@@ -1228,7 +1228,7 @@ class LinguaPulseApp {
     if (this.blitzCountdownInterval) clearInterval(this.blitzCountdownInterval);
     if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
 
-    // Render immediate confirmation banner (中英文對照確認卡片)
+    // Render immediate confirmation banner (中英文對照確認卡片 - 純手動控制)
     const optionsContainer = document.getElementById('blitz-options-container');
     if (optionsContainer) {
       const details = this.generateWordDetails(target);
@@ -1240,8 +1240,8 @@ class LinguaPulseApp {
           <div class="feedback-title" style="margin-bottom: 0;">
             ${isCorrect ? '🎉 答對了！' : '⚠️ 答錯了！正確釋義如下：'}
           </div>
-          <span style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; font-family: 'JetBrains Mono', monospace; background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 4px;" id="blitz-countdown-timer">
-            ⏱️ 3 秒後自動下一題...
+          <span style="font-size: 0.82rem; font-weight: 700; color: #94a3b8; font-family: 'JetBrains Mono', monospace; background: rgba(255, 255, 255, 0.08); padding: 2px 10px; border-radius: 4px;">
+            🖐️ 手動模式 · 隨心複習
           </span>
         </div>
         <div style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">
@@ -1254,12 +1254,9 @@ class LinguaPulseApp {
         <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">
           🇨🇳 <strong>翻譯：</strong> ${details.zhEx}
         </div>
-        <div style="margin-top: 0.9rem; display: flex; justify-content: flex-end; gap: 0.6rem;">
-          <button class="btn-secondary" id="btn-blitz-pause-stay" style="padding: 4px 12px; font-size: 0.82rem;" onclick="app.pauseBlitzAutoAdvance(this)">
-            ⏸️ 停留此題慢慢看
-          </button>
-          <button class="btn-primary" style="padding: 4px 14px; font-size: 0.82rem;" onclick="app.advanceBlitzImmediately()">
-            ⚡ 立即下一題 ➔
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
+          <button class="btn-primary" style="padding: 8px 24px; font-size: 0.95rem; font-weight: 700; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);" onclick="app.advanceBlitzImmediately()">
+            ⚡ 進入下一題 ➔
           </button>
         </div>
       `;
@@ -1308,51 +1305,9 @@ class LinguaPulseApp {
       });
       this.updateBadges();
     }
-
-    // 啟動 3 秒倒數計時器
-    let timeLeft = 3;
-    const countdownEl = document.getElementById('blitz-countdown-timer');
-    this.blitzCountdownInterval = setInterval(() => {
-      timeLeft--;
-      if (countdownEl && timeLeft > 0) {
-        countdownEl.textContent = `⏱️ ${timeLeft} 秒後自動下一題...`;
-      } else if (countdownEl && timeLeft <= 0) {
-        countdownEl.textContent = `⏱️ 跳轉中...`;
-        clearInterval(this.blitzCountdownInterval);
-      }
-    }, 1000);
-
-    this.blitzAdvanceTimer = setTimeout(() => {
-      clearInterval(this.blitzCountdownInterval);
-      this.nextBlitzQuestion();
-    }, 3000);
-  }
-
-  pauseBlitzAutoAdvance(btnElement) {
-    if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
-    if (this.blitzCountdownInterval) clearInterval(this.blitzCountdownInterval);
-    this.blitzAdvanceTimer = null;
-    this.blitzCountdownInterval = null;
-
-    const timerEl = document.getElementById('blitz-countdown-timer');
-    if (timerEl) {
-      timerEl.textContent = '⏸️ 已暫停自動跳轉（想看多久就看多久）';
-      timerEl.style.color = '#fbbf24';
-      timerEl.style.background = 'rgba(245, 158, 11, 0.15)';
-    }
-
-    if (btnElement) {
-      btnElement.textContent = '✅ 已停留';
-      btnElement.disabled = true;
-    }
-    this.showToast('已暫停計時，確認完畢請點擊「立即下一題」');
   }
 
   advanceBlitzImmediately() {
-    if (this.blitzAdvanceTimer) clearTimeout(this.blitzAdvanceTimer);
-    if (this.blitzCountdownInterval) clearInterval(this.blitzCountdownInterval);
-    this.blitzAdvanceTimer = null;
-    this.blitzCountdownInterval = null;
     this.nextBlitzQuestion();
   }
 
