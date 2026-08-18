@@ -1,135 +1,137 @@
-// Dragon Sovereign / OP Protagonist English Story Adventure (龍傲天異界與科幻弒神背單字傳奇)
-// 包含雙語對照、精準高頻 GEPT / 多益單字標記、點擊即時發音、逐段翻譯與生詞重點解析
+// Dragon Sovereign Chronicles: The Immortal Omnipotence (龍傲天連載長篇小說：神皇萬古第一帝)
+// 包含雙語對照、高頻考點生詞標記、點擊即時發音、逐段翻譯、單字註解與章節專屬小測驗
+// 【本期連載：第一卷・諸神禁忌・前三集】
 
 window.STORY_CHAPTERS = [
   {
     id: "ch_1",
-    tier: "異世界轉生 ✕ 開局神級覺醒",
-    title: "Chapter 1: The Sovereign Awakens (神皇覺醒：至高維度降臨)",
+    volume: "第一卷：諸神禁忌",
+    tier: "第 1 集・神脈復甦",
+    title: "Episode 1: The Broken Vessel and The Primordial Core (第一集：丹田重鑄・神格覺醒)",
     coverEmoji: "⚡",
-    subtitle: "在被家族廢黜並打落深淵之際，主角林夜覺醒了吞噬星空的終極神格！",
-    summary: "林夜穿越到以魔法與神力為尊的泰坦大陸，原本被視為毫無修煉天賦的廢柴。然而在絕境中，他體內的遠古支配者血脈徹底甦醒，直接碾壓神殿長老。",
+    subtitle: "「既然凡人容不下我的仁慈，那我便重登至高神座，俯瞰這諸天萬界！」",
+    summary: "林夜原本是天凰聖宗百年難遇的絕世天驕，卻在突破聖境時遭宗門聖主與大長老暗中下毒，抽乾靈根並打碎丹田，淪為宗門棄子。被扔進萬丈魔淵絕地之際，他體內沉睡了億萬年的混沌至尊神格被生死之氣徹底引爆！",
     paragraphs: [
       {
-        en: "For centuries, the noble house deemed Lin Ye an {insignificant} outcast with zero magical {affinity}. They believed he was {destined} to live in total {obscurity}.",
-        zh: "數百年來，貴族世家一直認為林夜是個毫無魔法親和力的微不足道棄子。他們深信他注定要在一生默默無聞中度過。",
+        en: "For three agonizing years, the noble elders of the Sacred Sect treated Lin Ye as an {insignificant} cripple. They believed he was {destined} to spend the remainder of his days in cold, solitary {obscurity}.",
+        zh: "在痛苦難熬的三年裡，聖宗高高在上的長老們將林夜視為微不足道的廢人。他們深信他注定要在寒冷、孤獨且默默無聞的幽暗中苟延殘喘度過餘生。",
         focusVocab: [
           { word: "insignificant", pos: "adj.", meaning: "微不足道的、無關緊要的", note: "字首 in- (否定) + significant (重要的)" },
-          { word: "affinity", pos: "noun", meaning: "親和力、喜愛、吸引力", note: "常搭配 have an affinity for..." },
-          { word: "destined", pos: "adj.", meaning: "注定的、命中注定的", note: "be destined to + V" },
-          { word: "obscurity", pos: "noun", meaning: "默默無聞、晦暗、無名狀態", note: "來自 obscure (晦澀無名的)" }
+          { word: "destined", pos: "adj.", meaning: "注定的、命中注定的", note: "be destined to + V (注定會...)" },
+          { word: "obscurity", pos: "noun", meaning: "默默無聞、無名狀態", note: "形容詞為 obscure" }
         ]
       },
       {
-        en: "However, when the high elders attempted to {confiscate} his ancestral relic at the sacred altar, an {overwhelming} surge of cosmic energy {erupted} from his core, shattering the marble pillars into dust.",
-        zh: "然而，當神殿長老們試圖在神聖祭壇上強行沒收他的祖傳聖物時，一股毀天滅地的浩瀚宇宙能量從他體內轟然爆發，將整座大理石巨柱震成齏粉！",
+        en: "Standing upon the edge of the Bottomless Abyss, Grand Elder Zhao sneered with deep {malice}. 'Hand over your ancestral jade, Lin Ye. A useless mortal has no right to {possess} divine treasures!'",
+        zh: "站在萬丈深淵邊緣，大長老趙無極露出陰毒殘忍的冷笑：「林夜，交出你的祖傳古玉！一個毫無修為的廢物螻蟻，根本不配佔有這等神級至寶！」",
         focusVocab: [
-          { word: "confiscate", pos: "verb", meaning: "沒收、充公、徵收", note: "多益法律與財經高頻詞" },
-          { word: "overwhelming", pos: "adj.", meaning: "壓倒性的、勢不可擋的、巨大的", note: "overwhelm (淹沒/壓倒)" },
-          { word: "erupt", pos: "verb", meaning: "爆發、噴發", note: "名詞為 eruption" }
+          { word: "malice", pos: "noun", meaning: "惡意、怨恨、陰險", note: "形容詞 malicious (懷有惡意的)" },
+          { word: "possess", pos: "verb", meaning: "擁有、持有、具備", note: "名詞 possession (所有物/財產)" }
         ]
       },
       {
-        en: "Lin Ye hovered in midair, his eyes radiating an {unprecedented} golden brilliance. 'You dare speak of hierarchy in front of a true sovereign?' he whispered with {unrivaled} authority.",
-        zh: "林夜傲立於半空中，雙眸散發出史無前例的威嚴金光。「在真正的至高神皇面前，你們這群螻蟻也配談階級地位？」他帶著無可匹敵的帝王威壓冷冷低語。",
+        en: "When the executioners attempted to {confiscate} the relic by force, a blinding golden vortex {erupted} from Lin Ye's shattered dantian, creating an {overwhelming} shockwave that pulverized the surrounding cliffs into dust.",
+        zh: "當執法者試圖強行沒收那枚古玉時，一道刺目的璀璨金光漩渦從林夜破碎的丹田中轟然爆發！那股毀天滅地的浩瀚威壓化作無可匹敵的衝擊波，直接將周圍萬仞懸崖震成漫天齏粉！",
         focusVocab: [
-          { word: "unprecedented", pos: "adj.", meaning: "史無前例的、空前的", note: "un- + precedent (先例)" },
-          { word: "brilliance", pos: "noun", meaning: "光輝、璀璨、卓越才華", note: "形容詞 brilliant" },
-          { word: "unrivaled", pos: "adj.", meaning: "無可匹敵的、舉世無雙的", note: "rival (對手) -> un-rivaled (無對手的)" }
+          { word: "confiscate", pos: "verb", meaning: "沒收、充公、強制徵收", note: "多益法律與財經考點" },
+          { word: "erupt", pos: "verb", meaning: "爆發、噴發、突然發生", note: "名詞 eruption" },
+          { word: "overwhelming", pos: "adj.", meaning: "壓倒性的、勢不可擋的、巨大的", note: "overwhelm (壓倒/淹沒)" }
         ]
       },
       {
-        en: "In a single breath, the ancient seal that bound the entire realm was {obliterated}. Those who had mocked him were instantly paralyzed by {sheer} terror.",
-        zh: "僅在彈指一瞬之間，束縛整座大陸千萬年的遠古神級封印被徹底湮滅。先前那些嘲笑他的長老與強者，瞬間被純粹的恐懼徹底震懾癱軟！",
+        en: "Lin Ye hovered in midair as nine celestial dragon phantoms swirled behind him. 'You took my spirit root, yet awakened my supreme Primordial Sovereign Core,' he declared with {unrivaled} calm. 'Your entire sect will soon {tremble} under my footsteps.'",
+        zh: "林夜周身九道上古神龍虛影盤旋咆哮，傲立於萬丈虛空之中。「你們奪我凡俗靈根，卻不知反而解開了我封印億萬年的鴻蒙至尊神格！」他以無可匹敵的帝王從容冷冷宣告：「你們整座聖宗，很快都將在我的腳下顫抖哀鳴！」",
         focusVocab: [
-          { word: "obliterate", pos: "verb", meaning: "徹底毀滅、抹殺、消滅", note: "GEPT 中高級 / 多益 900+ 核心詞" },
-          { word: "sheer", pos: "adj.", meaning: "純粹的、完全的、陡峭的", note: "如 sheer luck (純粹運氣), sheer terror" }
+          { word: "unrivaled", pos: "adj.", meaning: "無可匹敵的、舉世無雙的", note: "rival (競爭對手) ➔ un-rival-ed (沒有對手的)" },
+          { word: "tremble", pos: "verb", meaning: "顫抖、戰慄、發抖", note: "tremble with fear (因恐懼而發抖)" }
         ]
       }
     ]
   },
   {
     id: "ch_2",
-    tier: "星際科幻 ✕ 降維打擊萬艦齊喑",
-    title: "Chapter 2: Galactic Annihilation (星海霸主：一念寂滅泰坦艦隊)",
-    coverEmoji: "🌌",
-    subtitle: "面對橫跨三千光年的天頂帝國無敵艦隊，林夜隻身一人漫步於虛空真空之中。",
-    summary: "天頂帝國動用二向箔與行星湮滅炮試圖抹殺地球防線。林夜從蟲洞中漫步走出，徒手捏碎維度坍縮彈，神級靈識覆蓋整片星系。",
+    volume: "第一卷：諸神禁忌",
+    tier: "第 2 集・帝國退婚",
+    title: "Episode 2: The Banquet of Humiliation and Retribution (第二集：帝國退婚・宴席打臉)",
+    coverEmoji: "🍷",
+    subtitle: "「今日你以帝國明珠自居要退婚，明日你皇族老祖跪地求饒也換不回我一瞥！」",
+    summary: "林夜重塑至尊神體後，悄然回到帝國皇城。正逢紫霜帝國長公主在百官壽宴上當眾宣佈解除婚約，並夥同隔壁天劍宗少主對林家極盡羞辱。林夜推開殿門，一念震碎全場強者佩劍！",
     paragraphs: [
       {
-        en: "The zenith armada comprised ten thousand dreadnoughts, boasting {formidable} firepower capable of {decimating} entire solar systems in seconds.",
-        zh: "天頂帝國艦隊由上萬艘殲星無畏艦組成，擁有極其令人敬畏的恐怖火力，足以在數秒內徹底毀滅整座太陽系。",
+        en: "Inside the grand imperial banquet hall, Princess Yunxi announced her {arrogant} decision to terminate the betrothal contract. She openly {ridiculed} the Lin clan, claiming a fallen genius was no longer {compatible} with her glorious future.",
+        zh: "在金碧輝煌的帝國皇宮壽宴大廳中，雲曦公主傲慢地宣佈單方面撕毀婚約。她當著文武百官的面肆意嘲諷林家，宣稱一個淪為廢人的過氣天才，根本不配與她輝煌璀璨的未來相提並論。",
         focusVocab: [
-          { word: "formidable", pos: "adj.", meaning: "令人敬畏的、難以對付的、強大的", note: "GEPT 中高級必考字" },
-          { word: "decimate", pos: "verb", meaning: "大批殺死、毀滅、大幅削弱", note: "字根 deci- (十分之一)" }
+          { word: "arrogant", pos: "adj.", meaning: "傲慢的、自大的", note: "名詞 arrogance" },
+          { word: "ridicule", pos: "verb/noun", meaning: "嘲笑、奚落、嗤之以鼻", note: "ridiculous (荒謬可笑的)" },
+          { word: "compatible", pos: "adj.", meaning: "相容的、匹配的、適合的", note: "be compatible with... (與...相符/相配)" }
         ]
       },
       {
-        en: "Their supreme commander issued an ultimatum demanding {unconditional} surrender, claiming resistance was {futile} against their {technological} supremacy.",
-        zh: "敵軍最高總司令發布了最後通牒，狂妄要求無條件投降，並宣稱在帝國的至高科技優勢面前，任何抵抗都是徒勞無功的笑話。",
+        en: "The young master of the Heavenly Sword Sect stood up with a {condescending} smirk. 'A crippled dog should hide in the sewers. If Lin Ye dares to {object}, I will {dismantle} his limbs piece by piece.'",
+        zh: "天劍宗少主帶著居高臨下的輕蔑冷笑站起身來：「廢物野狗就該縮在臭水溝裡茍活。要是林夜那小子敢有半句異議，本少主親手將他的四肢一寸寸拆碎拆卸！」",
         focusVocab: [
-          { word: "unconditional", pos: "adj.", meaning: "無條件的、絕對的", note: "un- + condition (條件)" },
-          { word: "futile", pos: "adj.", meaning: "徒勞的、無用的、無效的", note: "名詞 futility" },
-          { word: "supremacy", pos: "noun", meaning: "霸權、至高無上的地位", note: "supreme (至高無上的)" }
+          { word: "condescending", pos: "adj.", meaning: "居高臨下的、居尊自傲的", note: "來自 condescend (俯就/屈尊)" },
+          { word: "object", pos: "verb", meaning: "反對、抗議", note: "object to + V-ing / N" },
+          { word: "dismantle", pos: "verb", meaning: "拆卸、廢除、瓦解", note: "多益工業與法律高頻詞" }
         ]
       },
       {
-        en: "Lin Ye stepped through the vacuum without any life-support apparatus. With a subtle flick of his fingers, he {manipulated} space-time curvature and {neutralized} their particle beams {effortlessly}.",
-        zh: "林夜毫無任何維生設備地漫步在太空真空中。他僅僅輕描淡寫地彈了彈手指，便隨心所欲地操控了時空曲率，輕而易舉地將所有反物質粒子光束瞬間中和消解！",
+        en: "Suddenly, the heavy obsidian doors shattered into fragments. Lin Ye strolled in wearing casual robes, yet his aura was so {formidable} that the emperor's royal guards collapsed to their knees, unable to {withstand} the pressure.",
+        zh: "突然間，數噸重的黑曜石宮殿大門轟然粉碎成渣！林夜身著一襲素雅青衫閒庭信步走入，周身散發出的恐怖威壓卻令人窒息，皇宮禁衛軍瞬間雙膝跪地，根本無法承受這等實質般的帝威！",
         focusVocab: [
-          { word: "manipulate", pos: "verb", meaning: "操縱、控制、巧妙處理", note: "多益職場與科技高頻動詞" },
-          { word: "neutralize", pos: "verb", meaning: "使中和、使失效、消除", note: "neutral (中立的) + -ize" },
-          { word: "effortlessly", pos: "adv.", meaning: "毫不費力地、輕鬆地", note: "effort + -less + -ly" }
+          { word: "formidable", pos: "adj.", meaning: "令人敬畏的、強大可怕的、難以對付的", note: "GEPT 中高級必備核心詞" },
+          { word: "withstand", pos: "verb", meaning: "經受住、承受、抵擋", note: "withstand pressure/attacks" }
         ]
       },
       {
-        en: "'Your civilization is merely playing with pebbles,' Lin Ye declared as his spiritual domain {engulfed} the flagship, rewriting the fundamental laws of physics.",
-        zh: "「你們引以為傲的文明，在我眼中不過是孩童玩石子的把戲。」林夜話音未落，浩瀚的神級靈域瞬間吞噬了整艘旗艦，直接重寫了宇宙的物理底層法則！",
+        en: "'You think your sword dao is supreme?' Lin Ye snapped his fingers, and every sacred blade in the palace disintegrated {simultaneously}. 'In my eyes, your whole empire is merely an {illusion}.'",
+        zh: "「你自以為你的劍道天下無雙？」林夜隨意打了個響指，剎那間整座皇宮內包括宗門少主在內的所有神兵利刃同時崩解化為鐵屑！「在我眼中，你們整座帝國不過是一場隨手可滅的幻影。」",
         focusVocab: [
-          { word: "engulf", pos: "verb", meaning: "吞沒、包圍、淹沒", note: "en- + gulf (深淵/海灣)" },
-          { word: "fundamental", pos: "adj.", meaning: "基礎的、根本的、根本法則", note: "多益基礎高頻字" }
+          { word: "simultaneously", pos: "adv.", meaning: "同時地、同步地", note: "形容詞 simultaneous" },
+          { word: "illusion", pos: "noun", meaning: "幻覺、假象、幻想", note: "optical illusion (視錯覺)" }
         ]
       }
     ]
   },
   {
     id: "ch_3",
-    tier: "古代修仙 ✕ 一劍斷萬古乾坤",
-    title: "Chapter 3: Sword Over the Heavens (天帝斬道：萬古劍道獨斷乾坤)",
+    volume: "第一卷：諸神禁忌",
+    tier: "第 3 集・踏平神殿",
+    title: "Episode 3: The Obliteration of the Sacred Sect (第三集：踏平神殿・星域伏首)",
     coverEmoji: "⚔️",
-    subtitle: "九大上古仙宗聯手布下誅仙殺陣，林夜一柄凡鐵木劍，橫掃三千聖境老祖！",
-    summary: "九大仙門聖主聯手，動用上古帝兵欲圍剿林夜。林夜只出一劍，劍意直接貫穿九天十地，諸聖匍匐叩拜稱臣。",
+    subtitle: "「十萬長老布陣誅我？那我便斬斷天道輪迴，讓萬界諸神皆尊我令！」",
+    summary: "天凰聖宗集結九大護宗太上長老，啟動耗費三千年打造的上古九階誅仙神陣，企圖將林夜徹底煉化。林夜一指點破陣眼，九天雷劫化作他的掌中玩物，直接踏滅聖宗傳承，威震浩瀚星域！",
     paragraphs: [
       {
-        en: "The nine ancient patriarchs assembled their most {lethal} formations, confident that no mortal could {withstand} their combined spiritual pressure.",
-        zh: "九大上古宗門老祖集結了最致命的誅仙絕陣，自信滿滿地認為世間絕無任何凡人能承受得住他們合力散發的滔天威壓。",
+        en: "The Patriarch of the Sacred Sect gathered ten thousand elite disciples and activated the ancient killing formation, creating a {catastrophic} thunderstorm that covered the entire mountain range in purple lightning.",
+        zh: "聖宗宗主號令萬名精英弟子與太上長老，悍然啟動了護宗絕殺大陣。漫天紫霄神雷瞬間引發了一場災難性的毀滅雷暴，將整座百萬里山脈徹底籠罩封鎖！",
         focusVocab: [
-          { word: "lethal", pos: "adj.", meaning: "致命的、極其危險的", note: "同義詞 fatal, deadly" },
-          { word: "withstand", pos: "verb", meaning: "經受、承受、頂住", note: "過去式 withstood" }
+          { word: "catastrophic", pos: "adj.", meaning: "災難性的、毀滅性的、悲慘的", note: "名詞 catastrophe (大災難)" }
         ]
       },
       {
-        en: "They demanded that Lin Ye hand over the Primordial Scripture and {relinquish} all claims to the imperial throne, threatening {catastrophic} consequences.",
-        zh: "他們趾高氣昂地勒令林夜交出鴻蒙太初神訣，並主動放棄對天帝神座的一切繼承權，否則將讓他嚐到萬劫不復的毀滅性後果。",
+        en: "The elders mocked Lin Ye, believing their divine barrier was {impenetrable}. They assumed it was {futile} for a solitary cultivator to challenge millennia of accumulated {heritage}.",
+        zh: "長老們猖狂大笑，深信這座神級結界無懈可擊、堅不可摧。他們認定區區一人想要挑戰聖宗傳承數千年的深厚底蘊，根本就是以卵擊石的徒勞笑話。",
         focusVocab: [
-          { word: "relinquish", pos: "verb", meaning: "放棄、讓出(權力/財產)", note: "GEPT 中高級 / 多益 860+ 高分動詞" },
-          { word: "catastrophic", pos: "adj.", meaning: "災難性的、毀滅性的", note: "名詞 catastrophe (大災難)" }
+          { word: "impenetrable", pos: "adj.", meaning: "無法穿透的、堅不可摧的", note: "im- (不) + penetrate (穿透) + -able" },
+          { word: "futile", pos: "adj.", meaning: "徒勞的、無效的、無用的", note: "futility (徒勞/白費力氣)" },
+          { word: "heritage", pos: "noun", meaning: "遺產、傳統、文化傳承", note: "cultural heritage" }
         ]
       },
       {
-        en: "Lin Ye merely smiled with serene {indifference}. Unsheathing a simple wooden sword, a blinding beam of sword Qi {transcended} the dimensional barrier and split the horizon in two.",
-        zh: "林夜只是冷淡淡然一笑。只見他拔出一柄再普通不過的木劍，一道刺破天穹的億萬丈劍氣瞬間超越了維度壁壘，將整片天地地平線一分為二！",
+        en: "Lin Ye didn't even draw a weapon. He simply raised his left palm, and an ancient divine glyph materialized above the clouds, absorbing and {neutralizing} the lightning bolts {effortlessly}.",
+        zh: "林夜甚至未曾拔出任何兵刃。他只是神色淡漠地抬起左手，一道來自遠古洪荒的金色神紋在雲端凝聚顯化，輕而易舉地將漫天雷劫全部吞噬並瞬間中和化解！",
         focusVocab: [
-          { word: "indifference", pos: "noun", meaning: "冷漠、不在乎、漠不關心", note: "形容詞 indifferent" },
-          { word: "transcend", pos: "verb", meaning: "超越、凌駕、超出...的界限", note: "形容詞 transcendent (卓越超凡的)" }
+          { word: "neutralize", pos: "verb", meaning: "使中和、抵消、使失效", note: "neutral (中立的) + -ize" },
+          { word: "effortlessly", pos: "adv.", meaning: "毫不費力地、輕而易舉地", note: "effort + less + ly" }
         ]
       },
       {
-        en: "The so-called invincible grand array was {dismantled} within a fraction of a second. The patriarchs knelt in the dust, trembling before his {supreme} mastery.",
-        zh: "那座號稱萬古不破的無敵殺陣，在百分之一秒內被瞬間瓦解崩潰。九大老祖全部雙膝跪倒在塵土之中，在他至高無上的大道主宰面前瑟瑟發抖！",
+        en: "With a single downward press of his hand, the legendary mountain was {obliterated}, and the sect's reign was completely {terminated}. From that day onward, the name of the Primordial Sovereign reigned supreme across all starry domains.",
+        zh: "隨著他手掌輕輕向下一按，傳承萬古的聖宗仙山瞬間被徹底湮滅抹殺，這座統治大陸數千年的霸主勢力被完全終結終止！自此之後，鴻蒙神皇之名響徹諸天萬界，星域億萬生靈盡皆俯首稱臣！",
         focusVocab: [
-          { word: "dismantle", pos: "verb", meaning: "拆卸、廢除、逐漸解散/瓦解", note: "多益科技與管理高頻字" },
-          { word: "supreme", pos: "adj.", meaning: "至高無上的、絕頂的", note: "supreme court (最高法院)" }
+          { word: "obliterate", pos: "verb", meaning: "抹殺、徹底毀滅、消除", note: "GEPT 中高級 / 多益 950+ 頂級詞彙" },
+          { word: "terminate", pos: "verb", meaning: "終止、結束、終結", note: "多益商務合約與科技高頻詞" }
         ]
       }
     ]
