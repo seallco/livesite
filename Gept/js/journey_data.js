@@ -1,95 +1,163 @@
-// LinguaPulse Learning Journey: 6-Stage Progressive Roadmap
-// 依據語言習得理論設計：核心詞彙 -> 句構語法 -> 地道習慣用語 -> 微閱讀理解 -> 影子跟讀發音 -> 實戰對話破冰
+// LinguaPulse 10-Tier Grand English Mastery Campaign (頂峰大師段位闖關體系)
+// 涵蓋多益 400 ~ 990 滿分、GEPT 初級至中高級之完整段位晉級考驗
 
-window.JOURNEY_STAGES = [
+window.JOURNEY_TIERS = [
   {
-    id: 1,
-    key: "stage_vocab",
-    title: "第一關：核心單字辨析 (Vocabulary Foundation)",
-    subtitle: "單字是一切語言的基石！掌握 GEPT 初級與高頻核心字，透過同詞性嚴格選項，建立精準字義直覺。",
-    icon: "🌱",
-    color: "#10b981",
-    mode: "blitz",
-    targetGoal: 10,
-    unitName: "題單字辨析",
-    skills: ["詞性直覺", "核心字義", "記憶聯想"],
-    introTip: "【學習心法】不要死背中文，注意題目與選項的詞性，透過同詞性對比加深大腦記憶痕跡！",
-    passRewardXP: 100,
-    bossChallenge: "完成 10 題核心單字特訓"
+    tier: 1,
+    title: "🌱 段位 I：英語探索者 (English Explorer)",
+    targetRank: "TOEIC 400~550 起步",
+    desc: "踏出實力建立的第一步！打穩 30 個核心詞彙直覺與 10 組基礎句型。",
+    stages: [
+      {
+        id: "t1_s1",
+        name: "關卡 1-1：初級核心單字奠基",
+        mode: "blitz",
+        targetGoal: 30,
+        unitName: "題單字辨析",
+        introTip: "專注於詞性與字義的直覺反應，不要死背中文！",
+        rewardXP: 150
+      },
+      {
+        id: "t1_s2",
+        name: "關卡 1-2：基礎句型與主動被動",
+        mode: "grammar",
+        targetGoal: 10,
+        unitName: "題文法陷阱",
+        introTip: "看清句子的主要主詞與動詞，拆解基本句子架構。",
+        rewardXP: 200
+      },
+      {
+        id: "t1_s3",
+        name: "關卡 1-3：生活高頻習慣表達",
+        mode: "native",
+        targetGoal: 10,
+        unitName: "個地道片語",
+        introTip: "學習母語者生活中的高頻自然表達，告別生硬直翻。",
+        rewardXP: 250
+      }
+    ]
   },
   {
-    id: 2,
-    key: "stage_grammar",
-    title: "第二關：句構語法偵探 (Grammar & Sentence Structure)",
-    subtitle: "有了單字就要組裝成句！擊破多益 Part 5 高頻文法陷阱（易混淆字、假設語氣、倒裝句、主從子句）。",
-    icon: "🧩",
-    color: "#6366f1",
-    mode: "grammar",
-    targetGoal: 5,
-    unitName: "道句型陷阱",
-    skills: ["動詞時態", "主被動關係", "連接詞辨析"],
-    introTip: "【學習心法】抓出句子的主要主詞與動詞，看懂修飾關係，文法就是句子的骨架！",
-    passRewardXP: 150,
-    bossChallenge: "破解 5 道多益 860+ 語法陷阱"
+    tier: 2,
+    title: "💼 段位 II：職場實戰菁英 (Workplace Communicator)",
+    targetRank: "TOEIC 650~750 (GEPT 中級)",
+    desc: "進入商務與職場語境！擴充 50 個商用詞彙、破解多益必考陷阱與初階商務短文。",
+    stages: [
+      {
+        id: "t2_s1",
+        name: "關卡 2-1：中級商務與日常高頻詞",
+        mode: "blitz",
+        targetGoal: 50,
+        unitName: "題單字辨析",
+        introTip: "中級單字是職場溝通主力，注意動詞與名詞的詞性切換！",
+        rewardXP: 300
+      },
+      {
+        id: "t2_s2",
+        name: "關卡 2-2：多益常考連接詞與假設語氣",
+        mode: "grammar",
+        targetGoal: 15,
+        unitName: "題文法陷阱",
+        introTip: "擊破多益 Part 5 最容易失分的轉折詞與假設倒裝陷阱。",
+        rewardXP: 350
+      },
+      {
+        id: "t2_s3",
+        name: "關卡 2-3：2分鐘短篇商業微閱讀",
+        mode: "reading",
+        targetGoal: 5,
+        unitName: "篇商業短文",
+        introTip: "訓練快速掃讀首尾句抓取主旨與數據細節的能力！",
+        rewardXP: 400
+      },
+      {
+        id: "t2_s4",
+        name: "關卡 2-4：職場標準語音連音跟讀",
+        mode: "echo",
+        targetGoal: 5,
+        unitName: "次發音跟讀 (80%+)",
+        introTip: "聽清楚連音（Linking Words）與重音，大聲自信跟讀！",
+        rewardXP: 400
+      }
+    ]
   },
   {
-    id: 3,
-    key: "stage_native",
-    title: "第三關：母語地道慣用語 (Native Expressions & Idioms)",
-    subtitle: "告別死板課本英語！掌握老外每天在說的 'on the fence', 'wiped out', 'play it by ear' 等高頻俚語與商務慣用表達。",
-    icon: "☕",
-    color: "#f59e0b",
-    mode: "native",
-    targetGoal: 5,
-    unitName: "個地道表達",
-    skills: ["職場口語", "母語語境", "課本與地道對比"],
-    introTip: "【學習心法】想像母語者的具體生活場景，用整個片語（Chunk）來記憶，不要逐字硬翻！",
-    passRewardXP: 200,
-    bossChallenge: "探索 5 個母語者必備習慣用語"
+    tier: 3,
+    title: "🏅 段位 III：多益金證獵手 (TOEIC Gold Aspirant)",
+    targetRank: "TOEIC 860+ 金證資格 (GEPT 中高級)",
+    desc: "攻克 100 個高難度考點字、高情商商務談判慣用語與科技商業長文深度理解！",
+    stages: [
+      {
+        id: "t3_s1",
+        name: "關卡 3-1：GEPT 中高級 860+ 核心衝刺",
+        mode: "blitz",
+        targetGoal: 80,
+        unitName: "題單字辨析",
+        introTip: "直擊學術字彙（AWL）與高階抽象詞彙，強化大腦敏銳度！",
+        rewardXP: 500
+      },
+      {
+        id: "t3_s2",
+        name: "關卡 3-2：金證專屬高難度語法攻堅",
+        mode: "grammar",
+        targetGoal: 20,
+        unitName: "題語法考點",
+        introTip: "分詞構句、倒裝句與易混淆形容詞的最後驗收！",
+        rewardXP: 550
+      },
+      {
+        id: "t3_s3",
+        name: "關卡 3-3：商務談判與高情商習慣用語",
+        mode: "native",
+        targetGoal: 15,
+        unitName: "個高階片語",
+        introTip: "掌握外商主管常用俚語與委婉表達技巧。",
+        rewardXP: 600
+      },
+      {
+        id: "t3_s4",
+        name: "關卡 3-4：科技趨勢與商業深度微閱讀",
+        mode: "reading",
+        targetGoal: 8,
+        unitName: "篇深度短文",
+        introTip: "精準理解複雜長難句與邏輯推論題型。",
+        rewardXP: 650
+      }
+    ]
   },
   {
-    id: 4,
-    key: "stage_reading",
-    title: "第四關：短篇微閱讀理解 (Micro-Reading Comprehension)",
-    subtitle: "將單字、文法與片語融會貫通！閱讀科技、商業談判與心理學短文，鍛鍊快速抓取關鍵訊息的長文閱讀思維。",
-    icon: "📰",
-    color: "#06b6d4",
-    mode: "reading",
-    targetGoal: 2,
-    unitName: "篇微閱讀",
-    skills: ["段落主旨", "細節推論", "長句理解"],
-    introTip: "【學習心法】先掃視段落首尾句掌握大意，遇到生詞點擊即可發音查意，無痛累積語感！",
-    passRewardXP: 250,
-    bossChallenge: "完成 2 篇多益金證深度短文理解"
-  },
-  {
-    id: 5,
-    key: "stage_speech",
-    title: "第五關：影子跟讀發音教練 (Echo & Pronunciation Coach)",
-    subtitle: "看得懂還要說得準！透過語音辨識與聲學評分，模仿母語者的抑揚頓挫、連音（Linking）與重音節奏。",
-    icon: "🎙️",
-    color: "#ec4899",
-    mode: "echo",
-    targetGoal: 3,
-    unitName: "次發音跟讀",
-    skills: ["連音弱化", "重音節奏", "口腔肌肉記憶"],
-    introTip: "【學習心法】先按 🐢 0.8x 慢速聽清楚連音，再開啟麥克風跟讀，目標達到 80% 以上契合度！",
-    passRewardXP: 300,
-    bossChallenge: "完成 3 次高分發音評測"
-  },
-  {
-    id: 6,
-    key: "stage_dialogue",
-    title: "第六關：實戰情境快打對決 (Real-world Scenario Simulation)",
-    subtitle: "頂峰實戰！身歷其境紐約咖啡店客製點餐、國際會議高情商異議與科技酒會破冰社交，完成 3 回合多輪對話抉擇！",
-    icon: "🥊",
-    color: "#ef4444",
-    mode: "dialogue",
-    targetGoal: 1,
-    unitName: "場完整對決",
-    skills: ["即時應變", "高情商溝通", "多輪實戰"],
-    introTip: "【學習心法】根據對話對象的身分與當前語境，挑選最得體、最自然的表達方式！",
-    passRewardXP: 500,
-    bossChallenge: "通關一場 3 回合情境對決"
+    tier: 4,
+    title: "🌌 段位 IV：母語頂峰大師 (Native Master Mind)",
+    targetRank: "TOEIC 990 滿分 ✕ 母語流利語感",
+    desc: "終極實戰！完成 100 題極限盲測、高契合度影子跟讀與多輪情境快打對抗！",
+    stages: [
+      {
+        id: "t4_s1",
+        name: "關卡 4-1：全量 8,365 詞庫極限特訓",
+        mode: "blitz",
+        targetGoal: 100,
+        unitName: "題詞彙特訓",
+        introTip: "在不限時高壓下保持 90% 以上正確率，建立母語直覺！",
+        rewardXP: 800
+      },
+      {
+        id: "t4_s2",
+        name: "關卡 4-2：母語者語調抑揚頓挫影子跟讀",
+        mode: "echo",
+        targetGoal: 10,
+        unitName: "次高分評測",
+        introTip: "挑戰 85% 以上契合度，將口腔肌肉記憶推向極致！",
+        rewardXP: 850
+      },
+      {
+        id: "t4_s3",
+        name: "關卡 4-3：全情境多輪對決大師終局之戰",
+        mode: "dialogue",
+        targetGoal: 3,
+        unitName: "場完勝對決",
+        introTip: "在複雜談判、破冰社交與高情商應對中取得大師滿分評價！",
+        rewardXP: 1200
+      }
+    ]
   }
 ];

@@ -60,17 +60,10 @@ class StorageManager {
     });
     // mastery: { [wordKey]: { stars, streak, totalSeen, totalCorrect, totalWrong, masteredAt, lastSeen } }
     this.mastery = this.loadJSON(this.KEY_MASTERY, {});
-    // journey: { currentStageId: 1, stages: { 1: { progress: 0, completed: false, stars: 0 }, ... } }
+    // journey: { currentStageId: 't1_s1', stages: { 't1_s1': { progress: 0, completed: false }, ... } }
     this.journey = this.loadJSON(this.KEY_JOURNEY, {
-      currentStageId: 1,
-      stages: {
-        1: { progress: 0, completed: false },
-        2: { progress: 0, completed: false },
-        3: { progress: 0, completed: false },
-        4: { progress: 0, completed: false },
-        5: { progress: 0, completed: false },
-        6: { progress: 0, completed: false }
-      }
+      currentStageId: 't1_s1',
+      stages: {}
     });
 
     this.checkAndUpdateStreak();
@@ -84,9 +77,23 @@ class StorageManager {
     return this.journey;
   }
 
+  getAllJourneyStagesList() {
+    if (!window.JOURNEY_TIERS) return [];
+    const list = [];
+    window.JOURNEY_TIERS.forEach(t => {
+      t.stages.forEach(s => {
+        list.push({ ...s, tierTitle: t.title, tierRank: t.targetRank });
+      });
+    });
+    return list;
+  }
+
   recordJourneyAction(stageMode, amount = 1) {
-    if (!window.JOURNEY_STAGES) return { passed: false };
-    const currentStage = window.JOURNEY_STAGES.find(s => s.id === this.journey.currentStageId);
+    const allStages = this.getAllJourneyStagesList();
+    if (!allStages || allStages.length === 0) return { passed: false };
+
+    const currentStageId = this.journey.currentStageId || allStages[0].id;
+    const currentStage = allStages.find(s => s.id === currentStageId);
     if (!currentStage || currentStage.mode !== stageMode) return { passed: false };
 
     if (!this.journey.stages[currentStage.id]) {
@@ -100,9 +107,10 @@ class StorageManager {
     if (stageData.progress >= currentStage.targetGoal && !stageData.completed) {
       stageData.completed = true;
       justPassed = true;
-      // Unlock next stage
-      if (this.journey.currentStageId < window.JOURNEY_STAGES.length) {
-        this.journey.currentStageId += 1;
+      // Unlock next stage in sequence
+      const currentIndex = allStages.findIndex(s => s.id === currentStage.id);
+      if (currentIndex !== -1 && currentIndex + 1 < allStages.length) {
+        this.journey.currentStageId = allStages[currentIndex + 1].id;
       }
     }
 

@@ -44,74 +44,97 @@ class LinguaPulseApp {
   }
 
   // ==========================================
-  // 🏆 Progressive Learning Journey Manager
+  // 🏆 Progressive Learning Journey Manager (4 Tiers & 14 Stages)
   // ==========================================
   renderJourneyRoadmap() {
     const container = document.getElementById('journey-stages-container');
-    if (!container || !window.JOURNEY_STAGES) return;
+    if (!container || !window.JOURNEY_TIERS) return;
 
     const journeyState = window.storageManager.getJourneyProgress();
-    const currentStageId = journeyState.currentStageId || 1;
-    const stages = window.JOURNEY_STAGES;
+    const allStages = window.storageManager.getAllJourneyStagesList();
+    const currentStageId = journeyState.currentStageId || allStages[0]?.id;
 
-    const completedCount = stages.filter(s => journeyState.stages[s.id]?.completed).length;
+    const completedCount = allStages.filter(s => journeyState.stages[s.id]?.completed).length;
     const progressText = document.getElementById('journey-total-progress-text');
     if (progressText) {
-      progressText.textContent = `已通關 ${completedCount} / ${stages.length} 階`;
+      progressText.textContent = `已通關 ${completedCount} / ${allStages.length} 關卡`;
     }
 
-    container.innerHTML = stages.map(stage => {
-      const stageData = journeyState.stages[stage.id] || { progress: 0, completed: false };
-      const isCompleted = stageData.completed;
-      const isActive = stage.id === currentStageId && !isCompleted;
-      const isLocked = stage.id > currentStageId;
+    const currentIndex = allStages.findIndex(s => s.id === currentStageId);
 
-      const progressPercent = Math.min(100, Math.round((stageData.progress / stage.targetGoal) * 100));
+    container.innerHTML = window.JOURNEY_TIERS.map(tier => {
+      const tierStagesHtml = tier.stages.map(stage => {
+        const stageData = journeyState.stages[stage.id] || { progress: 0, completed: false };
+        const isCompleted = stageData.completed;
+        const stageIndex = allStages.findIndex(s => s.id === stage.id);
+        const isActive = stage.id === currentStageId && !isCompleted;
+        const isLocked = stageIndex > (currentIndex === -1 ? 0 : currentIndex) && !isCompleted;
 
-      let statusBadgeHtml = '';
-      let actionBtnText = '';
-      let btnDisabled = '';
+        const progressPercent = Math.min(100, Math.round((stageData.progress / stage.targetGoal) * 100));
 
-      if (isCompleted) {
-        statusBadgeHtml = `<span class="stage-status-badge status-completed">✅ 已通關</span>`;
-        actionBtnText = `🔁 再次挑戰 (${stageData.progress}/${stage.targetGoal})`;
-      } else if (isActive) {
-        statusBadgeHtml = `<span class="stage-status-badge status-active">🔥 當前挑戰中</span>`;
-        actionBtnText = `⚡ 立即闖關 (${stageData.progress}/${stage.targetGoal})`;
-      } else {
-        statusBadgeHtml = `<span class="stage-status-badge status-locked">🔒 尚未解鎖</span>`;
-        actionBtnText = `🔒 通關第 ${stage.id - 1} 關解鎖`;
-        btnDisabled = 'disabled';
-      }
+        let statusBadgeHtml = '';
+        let actionBtnText = '';
+        let btnDisabled = '';
+
+        if (isCompleted) {
+          statusBadgeHtml = `<span class="stage-status-badge status-completed">✅ 已通關</span>`;
+          actionBtnText = `🔁 再次挑戰 (${stageData.progress}/${stage.targetGoal})`;
+        } else if (isActive) {
+          statusBadgeHtml = `<span class="stage-status-badge status-active">🔥 當前挑戰中</span>`;
+          actionBtnText = `⚡ 立即闖關 (${stageData.progress}/${stage.targetGoal})`;
+        } else if (isLocked) {
+          statusBadgeHtml = `<span class="stage-status-badge status-locked">🔒 尚未解鎖</span>`;
+          actionBtnText = `🔒 依序解鎖`;
+          btnDisabled = 'disabled';
+        } else {
+          statusBadgeHtml = `<span class="stage-status-badge">⏳ 隨時挑戰</span>`;
+          actionBtnText = `⚡ 進入挑戰 (${stageData.progress}/${stage.targetGoal})`;
+        }
+
+        const modeIcons = { blitz: '⚡', grammar: '🧩', native: '☕', reading: '📰', echo: '🎙️', dialogue: '🥊' };
+
+        return `
+          <div class="stage-step-card ${isActive ? 'is-active' : ''} ${isCompleted ? 'is-completed' : ''} ${isLocked ? 'is-locked' : ''}">
+            <div class="stage-top-row">
+              <div class="stage-icon-num">
+                <span class="stage-icon">${modeIcons[stage.mode] || '🎯'}</span>
+                <span style="font-size: 0.8rem; font-weight: 700; color: #a5b4fc;">${stage.name.split('：')[0]}</span>
+              </div>
+              ${statusBadgeHtml}
+            </div>
+
+            <div class="stage-card-title" style="font-size: 1.05rem;">${stage.name.split('：')[1] || stage.name}</div>
+            <div class="stage-card-desc" style="font-size: 0.82rem; margin-bottom: 0.6rem;">${stage.introTip}</div>
+
+            <div class="stage-progress-box">
+              <div class="stage-progress-text-row">
+                <span>目標: ${stage.targetGoal} ${stage.unitName}</span>
+                <span>${stageData.progress} / ${stage.targetGoal}</span>
+              </div>
+              <div class="stage-progress-bar-bg">
+                <div class="stage-progress-bar-fill" style="width: ${progressPercent}%;"></div>
+              </div>
+              <button class="stage-action-btn" ${btnDisabled} onclick="app.startJourneyStage('${stage.id}')">
+                ${actionBtnText}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
 
       return `
-        <div class="stage-step-card ${isActive ? 'is-active' : ''} ${isCompleted ? 'is-completed' : ''} ${isLocked ? 'is-locked' : ''}">
-          <div class="stage-top-row">
-            <div class="stage-icon-num">
-              <div class="stage-num-badge">${stage.id}</div>
-              <span class="stage-icon">${stage.icon}</span>
+        <div class="journey-tier-block" style="grid-column: 1 / -1; margin-bottom: 1rem;">
+          <div class="journey-tier-header" style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+            <div>
+              <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 0.2rem;">${tier.title}</h3>
+              <p style="font-size: 0.85rem; color: var(--text-secondary);">${tier.desc}</p>
             </div>
-            ${statusBadgeHtml}
+            <span class="level-tag-pill" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-gold); border-color: var(--border-gold); font-size: 0.8rem;">
+              🎯 目標水準：${tier.targetRank}
+            </span>
           </div>
-
-          <div class="stage-card-title">${stage.title}</div>
-          <div class="stage-card-desc">${stage.subtitle}</div>
-
-          <div class="stage-skills-list">
-            ${stage.skills.map(s => `<span class="stage-skill-pill">✦ ${s}</span>`).join('')}
-          </div>
-
-          <div class="stage-progress-box">
-            <div class="stage-progress-text-row">
-              <span>通關目標: ${stage.bossChallenge}</span>
-              <span>${stageData.progress} / ${stage.targetGoal}</span>
-            </div>
-            <div class="stage-progress-bar-bg">
-              <div class="stage-progress-bar-fill" style="width: ${progressPercent}%; background: ${stage.color};"></div>
-            </div>
-            <button class="stage-action-btn" ${btnDisabled} onclick="app.startJourneyStage(${stage.id})">
-              ${actionBtnText}
-            </button>
+          <div class="journey-stepper-grid">
+            ${tierStagesHtml}
           </div>
         </div>
       `;
@@ -120,15 +143,17 @@ class LinguaPulseApp {
 
   startCurrentJourneyStage() {
     const journeyState = window.storageManager.getJourneyProgress();
-    this.startJourneyStage(journeyState.currentStageId || 1);
+    const allStages = window.storageManager.getAllJourneyStagesList();
+    this.startJourneyStage(journeyState.currentStageId || allStages[0]?.id);
   }
 
   startJourneyStage(stageId) {
     window.soundEngine.click();
-    const stage = window.JOURNEY_STAGES.find(s => s.id === stageId);
+    const allStages = window.storageManager.getAllJourneyStagesList();
+    const stage = allStages.find(s => s.id === stageId);
     if (!stage) return;
 
-    this.showToast(`🚀 進入【${stage.title.split('：')[1] || stage.title}】！${stage.introTip}`, 4000);
+    this.showToast(`🚀 進入【${stage.name}】！${stage.introTip}`, 4000);
     this.startMode(stage.mode);
   }
 
@@ -136,8 +161,8 @@ class LinguaPulseApp {
     const result = window.storageManager.recordJourneyAction(mode, amount);
     if (result.justPassed) {
       window.soundEngine.levelUp();
-      this.awardXP(result.stage.passRewardXP, true, `🎉 恭喜通關【${result.stage.title}】！`);
-      this.showToast(`🏆 恭喜通關【${result.stage.title}】！已解鎖下一階段挑戰！`, 5000);
+      this.awardXP(result.stage.rewardXP || 200, true, `🎉 恭喜通關【${result.stage.name}】！`);
+      this.showToast(`🏆 恭喜通關【${result.stage.name}】！已解鎖下一階段挑戰！`, 5000);
       this.renderJourneyRoadmap();
     } else {
       this.renderJourneyRoadmap();
