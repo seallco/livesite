@@ -1015,10 +1015,13 @@ class LinguaPulseApp {
             </div>
           </div>
 
-          <div class="drill-prompt-text" style="font-size: 2.4rem; text-align: center; color: #fff; margin: 1.25rem 0; font-family: 'Outfit', sans-serif;">
+          <div class="drill-prompt-text" style="font-size: 2.4rem; text-align: center; color: #fff; margin: 1rem 0 0.2rem 0; font-family: 'Outfit', sans-serif;">
             ${target.w}
           </div>
-          <div class="drill-sub-prompt" style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #38bdf8; font-size: 1rem;">
+          <div style="text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: #fbbf24; margin-bottom: 0.8rem; letter-spacing: 0.5px;">
+            ${this.getPhoneticIPA(target.w)}
+          </div>
+          <div class="drill-sub-prompt" style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #38bdf8; font-size: 0.95rem;">
             [詞性: ${target.p}] · 請選出最精確的中文釋義
           </div>
 
@@ -1060,7 +1063,10 @@ class LinguaPulseApp {
           <div class="options-stack two-cols" id="blitz-options-container">
             ${options.map((opt, idx) => `
               <button class="option-btn" onclick="app.handleBlitzAnswer(${idx}, '${opt.w.replace(/'/g, "\\'")}', this)">
-                <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; font-weight: 700;">${opt.w}</span>
+                <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700;">${opt.w}</span>
+                  <span style="font-size: 0.75rem; color: #fbbf24; font-family: 'JetBrains Mono', monospace;">${app.getPhoneticIPA(opt.w)}</span>
+                </div>
                 <span style="font-size: 0.8rem; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">[${opt.p}]</span>
               </button>
             `).join('')}
@@ -1246,8 +1252,200 @@ class LinguaPulseApp {
     this.nextBlitzQuestion();
   }
 
-  // Generate Semantically Accurate, Natural Examples, Translations & Memory Mnemonics
-  generateWordDetails(wordObj) {
+  // ==========================================
+  // 🗣️ Smart Phonetic (IPA / KK 音標) Generator
+  // ==========================================
+  getPhoneticIPA(word) {
+    if (!word) return "";
+    const w = word.trim().toLowerCase();
+
+    // 1. 高頻常用字典直查表 (Common Overrides)
+    const dict = {
+      "a": "/ə/", "abandon": "/əˈbændən/", "ability": "/əˈbɪləti/", "able": "/ˈeɪbl/",
+      "about": "/əˈbaʊt/", "above": "/əˈbʌv/", "abroad": "/əˈbrɔːd/", "absence": "/ˈæbsəns/",
+      "absorb": "/əbˈzɔːrb/", "abstract": "/ˈæbstrækt/", "academic": "/ˌækəˈdemɪk/",
+      "accept": "/əkˈsept/", "access": "/ˈækses/", "accommodate": "/əˈkɑːmədeɪt/",
+      "accomplish": "/əˈkɑːmplɪʃ/", "accurate": "/ˈækjərət/", "achieve": "/əˈtʃiːv/",
+      "acquire": "/əˈkwaɪər/", "action": "/ˈækʃn/", "adapt": "/əˈdæpt/", "addition": "/əˈdɪʃn/",
+      "address": "/ˈædres/", "adequate": "/ˈædɪkwət/", "adjust": "/əˈdʒʌst/", "admire": "/ədˈmaɪər/",
+      "advance": "/ədˈvæns/", "advantage": "/ədˈvæntɪdʒ/", "advice": "/ədˈvaɪs/", "advise": "/ədˈvaɪz/",
+      "affect": "/əˈfekt/", "affinity": "/əˈfɪnəti/", "afford": "/əˈfɔːrd/", "agenda": "/əˈdʒendə/",
+      "allocate": "/ˈæləkeɪt/", "allow": "/əˈlaʊ/", "alter": "/ˈɔːltər/", "alternative": "/ɔːlˈtɜːrnətɪv/",
+      "ambition": "/æmˈbɪʃn/", "analyze": "/ˈænəlaɪz/", "annual": "/ˈænjuəl/", "anticipate": "/ænˈtɪsɪpeɪt/",
+      "apparent": "/əˈpærənt/", "appeal": "/əˈpiːl/", "apply": "/əˈplaɪ/", "appreciate": "/əˈpriːʃieɪt/",
+      "approach": "/əˈproʊtʃ/", "appropriate": "/əˈproʊpriət/", "approve": "/əˈpruːv/",
+      "attribute": "/əˈtrɪbjuːt/", "audience": "/ˈɔːdiəns/", "authority": "/əˈθɔːrəti/",
+      "available": "/əˈveɪləbl/", "aware": "/əˈwer/", "barrier": "/ˈbæriər/", "benefit": "/ˈbenɪfɪt/",
+      "brilliance": "/ˈbrɪliəns/", "capacity": "/kəˈpæsəti/", "catastrophic": "/ˌkætəˈstrɑːfɪk/",
+      "closure": "/ˈkloʊʒər/", "cognitive": "/ˈkɑːɡnətɪv/", "collaborate": "/kəˈlæbəreɪt/",
+      "community": "/kəˈmjuːnəti/", "compatible": "/kəmˈpætəbl/", "compensate": "/ˈkɑːmpənseɪt/",
+      "compete": "/kəmˈpiːt/", "complex": "/ˈkɑːmpleks/", "comply": "/kəmˈplaɪ/",
+      "comprehend": "/ˌkɑːmprɪˈhend/", "comprise": "/kəmˈpraɪz/", "compromise": "/ˈkɑːmprəmaɪz/",
+      "concept": "/ˈkɑːnsept/", "conclude": "/kənˈkluːd/", "conduct": "/kənˈdʌkt/",
+      "confidence": "/ˈkɑːnfɪdəns/", "confiscate": "/ˈkɑːnfɪskeɪt/", "conflict": "/ˈkɑːnflɪkt/",
+      "consent": "/kənˈsent/", "consequence": "/ˈkɑːnsəkwens/", "considerable": "/kənˈsɪdərəbl/",
+      "consistent": "/kənˈsɪstənt/", "constant": "/ˈkɑːnstənt/", "constitute": "/ˈkɑːnstətuːt/",
+      "construct": "/kənˈstrʌkt/", "consult": "/kənˈsʌlt/", "consume": "/kənˈsuːm/",
+      "contribute": "/kənˈtrɪbjuːt/", "convenient": "/kənˈviːniənt/", "convince": "/kənˈvɪns/",
+      "coordinate": "/koʊˈɔːrdɪneɪt/", "corporate": "/ˈkɔːrpərət/", "correspond": "/ˌkɔːrəˈspɑːnd/",
+      "crucial": "/ˈkruːʃl/", "culture": "/ˈkʌltʃər/", "curiosity": "/ˌkjʊriˈɑːsəti/",
+      "decade": "/ˈdekeɪd/", "decimate": "/ˈdesɪmeɪt/", "declare": "/dɪˈkler/",
+      "decline": "/dɪˈklaɪn/", "dedicate": "/ˈdedɪkeɪt/", "definite": "/ˈdefɪnət/",
+      "demonstrate": "/ˈdemənstreɪt/", "deny": "/dɪˈnaɪ/", "derive": "/dɪˈraɪv/",
+      "destined": "/ˈdestɪnd/", "dismantle": "/dɪsˈmæntl/", "distinct": "/dɪˈstɪŋkt/",
+      "distinguish": "/dɪˈstɪŋɡwɪʃ/", "distribute": "/dɪˈstrɪbjuːt/", "diverse": "/daɪˈvɜːrs/",
+      "document": "/ˈdɑːkjumənt/", "domestic": "/dəˈmestɪk/", "dominate": "/ˈdɑːmɪneɪt/",
+      "draft": "/dræft/", "dramatic": "/drəˈmætɪk/", "duration": "/duˈreɪʃn/",
+      "dynamic": "/daɪˈnæmɪk/", "economic": "/ˌiːkəˈnɑːmɪk/", "economical": "/ˌiːkəˈnɑːmɪkl/",
+      "effective": "/ɪˈfektɪv/", "efficiency": "/ɪˈfɪʃnsi/", "effortlessly": "/ˈefərtləsli/",
+      "eliminate": "/ɪˈlɪmɪneɪt/", "emerge": "/ɪˈmɜːrdʒ/", "emphasis": "/ˈemfəsɪs/",
+      "enable": "/ɪˈneɪbl/", "encounter": "/ɪnˈkaʊntər/", "engage": "/ɪnˈɡeɪdʒ/",
+      "engulf": "/ɪnˈɡʌlf/", "enhance": "/ɪnˈhæns/", "enormous": "/ɪˈnɔːrməs/",
+      "ensure": "/ɪnˈʃʊr/", "enterprise": "/ˈentərpraɪz/", "entity": "/ˈentəti/",
+      "environment": "/ɪnˈvaɪrənmənt/", "equation": "/ɪˈkweɪʒn/", "equip": "/ɪˈkwɪp/",
+      "equivalent": "/ɪˈkwɪvələnt/", "erupt": "/ɪˈrʌpt/", "essential": "/ɪˈsenʃl/",
+      "establish": "/ɪˈstæblɪʃ/", "estimate": "/ˈestɪmeɪt/", "evaluate": "/ɪˈvæljueɪt/",
+      "eventual": "/ɪˈventʃuəl/", "evident": "/ˈevɪdənt/", "evolve": "/ɪˈvɑːlv/",
+      "exceed": "/ɪkˈsiːd/", "exclude": "/ɪkˈskluːd/", "execute": "/ˈeksɪkjuːt/",
+      "exhibit": "/ɪɡˈzɪbɪt/", "expand": "/ɪkˈspænd/", "expert": "/ˈekspɜːrt/",
+      "explicit": "/ɪkˈsplɪsɪt/", "exploit": "/ɪkˈsplɔɪt/", "export": "/ˈekspɔːrt/",
+      "expose": "/ɪkˈspoʊz/", "express": "/ɪkˈspres/", "extend": "/ɪkˈstend/",
+      "external": "/ɪkˈstɜːrnl/", "extract": "/ˈekstrækt/", "facilitate": "/fəˈsɪlɪteɪt/",
+      "factor": "/ˈfæktər/", "feature": "/ˈfiːtʃər/", "federal": "/ˈfedərəl/",
+      "financial": "/faɪˈnænʃl/", "flexible": "/ˈfleksəbl/", "fluctuate": "/ˈflʌktʃueɪt/",
+      "focus": "/ˈfoʊkəs/", "formidable": "/ˈfɔːrmɪdəbl/", "framework": "/ˈfreɪmwɜːrk/",
+      "fundamental": "/ˌfʌndəˈmentl/", "futile": "/ˈfjuːtl/", "generate": "/ˈdʒenəreɪt/",
+      "generation": "/ˌdʒenəˈreɪʃn/", "global": "/ˈɡloʊbl/", "goal": "/ɡoʊl/",
+      "guarantee": "/ˌɡærənˈtiː/", "guideline": "/ˈɡaɪdlaɪn/", "hierarchy": "/ˈhaɪərɑːrki/",
+      "highlight": "/ˈhaɪlaɪt/", "hypothesis": "/haɪˈpɑːθəsɪs/", "identify": "/aɪˈdentɪfaɪ/",
+      "illustrate": "/ˈɪləstreɪt/", "image": "/ˈɪmɪdʒ/", "impact": "/ˈɪmpækt/",
+      "implement": "/ˈɪmplɪment/", "implication": "/ˌɪmplɪˈkeɪʃn/", "implicit": "/ɪmˈplɪsɪt/",
+      "imply": "/ɪmˈplaɪ/", "impose": "/ɪmˈpoʊz/", "incentive": "/ɪnˈsentɪv/",
+      "incidence": "/ˈɪnsɪdəns/", "incline": "/ɪnˈklaɪn/", "income": "/ˈɪnkʌm/",
+      "incorporate": "/ɪnˈkɔːrpəreɪt/", "index": "/ˈɪndeks/", "indicate": "/ˈɪndɪkeɪt/",
+      "indifference": "/ɪnˈdɪfrəns/", "individual": "/ˌɪndɪˈvɪdʒuəl/", "infinite": "/ˈɪnfɪnət/",
+      "infrastructure": "/ˈɪnfrəstrʌktʃər/", "inherent": "/ɪnˈhɪrənt/", "initial": "/ɪˈnɪʃl/",
+      "initiative": "/ɪˈnɪʃətɪv/", "injure": "/ˈɪndʒər/", "innovate": "/ˈɪnəveɪt/",
+      "insight": "/ˈɪnsaɪt/", "insignificant": "/ˌɪnsɪɡˈnɪfɪkənt/", "inspect": "/ɪnˈspekt/",
+      "instance": "/ˈɪnstəns/", "institute": "/ˈɪnstɪtuːt/", "integral": "/ˈɪntɪɡrəl/",
+      "integrate": "/ˈɪntɪɡreɪt/", "integrity": "/ɪnˈteɡrəti/", "intelligence": "/ɪnˈtelɪdʒəns/",
+      "intense": "/ɪnˈtens/", "interact": "/ˌɪntərˈækt/", "intermediate": "/ˌɪntərˈmiːdiət/",
+      "internal": "/ɪnˈtɜːrnl/", "interpret": "/ɪnˈtɜːrprət/", "interval": "/ˈɪntərvl/",
+      "intervene": "/ˌɪntərˈviːn/", "intrinsic": "/ɪnˈtrɪnzɪk/", "invest": "/ɪnˈvest/",
+      "investigate": "/ɪnˈvestɪɡeɪt/", "invoke": "/ɪnˈvoʊk/", "involve": "/ɪnˈvɑːlv/",
+      "isolate": "/ˈaɪsəleɪt/", "issue": "/ˈɪʃuː/", "item": "/ˈaɪtəm/",
+      "journey": "/ˈdʒɜːrni/", "justify": "/ˈdʒʌstɪfaɪ/", "label": "/ˈleɪbl/",
+      "labor": "/ˈleɪbər/", "layer": "/ˈleɪər/", "lecture": "/ˈlektʃər/",
+      "legal": "/ˈliːɡl/", "legislate": "/ˈledʒɪsleɪt/", "lethal": "/ˈliːθl/",
+      "liberal": "/ˈlɪbərəl/", "license": "/ˈlaɪsns/", "likewise": "/ˈlaɪkwaɪz/",
+      "link": "/lɪŋk/", "locate": "/ˈloʊkeɪt/", "logic": "/ˈlɑːdʒɪk/",
+      "maintain": "/meɪnˈteɪn/", "major": "/ˈmeɪdʒər/", "manipulate": "/məˈnɪpjuleɪt/",
+      "manual": "/ˈmænjuəl/", "margin": "/ˈmɑːrdʒɪn/", "mature": "/məˈtʃʊr/",
+      "maximize": "/ˈmæksɪmaɪz/", "mechanism": "/ˈmekənɪzəm/", "media": "/ˈmiːdiə/",
+      "mediate": "/ˈmiːdieɪt/", "medical": "/ˈmedɪkl/", "medium": "/ˈmiːdiəm/",
+      "mental": "/ˈmentl/", "method": "/ˈmeθəd/", "migrate": "/ˈmaɪɡreɪt/",
+      "military": "/ˈmɪləteri/", "minimize": "/ˈmɪnɪmaɪz/", "minimum": "/ˈmɪnɪməm/",
+      "minister": "/ˈmɪnɪstər/", "minor": "/ˈmaɪnər/", "mode": "/moʊd/",
+      "modify": "/ˈmɑːdɪfaɪ/", "monitor": "/ˈmɑːnɪtər/", "motive": "/ˈmoʊtɪv/",
+      "mutual": "/ˈmjuːtʃuəl/", "negate": "/nɪˈɡeɪt/", "network": "/ˈnetwɜːrk/",
+      "neutral": "/ˈnuːtrəl/", "neutralize": "/ˈnuːtrəlaɪz/", "nevertheless": "/ˌnevərðəˈles/",
+      "norm": "/nɔːrm/", "normal": "/ˈnɔːrml/", "notion": "/ˈnoʊʃn/",
+      "nuclear": "/ˈnuːkliər/", "objective": "/əbˈdʒektɪv/", "obliterate": "/əˈblɪtəreɪt/",
+      "obscurity": "/əbˈskjʊrəti/", "obtain": "/əbˈteɪn/", "obvious": "/ˈɑːbviəs/",
+      "occupy": "/ˈɑːkjupaɪ/", "occur": "/əˈkɜːr/", "odd": "/ɑːd/",
+      "offset": "/ˈɔːfset/", "ongoing": "/ˈɑːnɡoʊɪŋ/", "option": "/ˈɑːpʃn/",
+      "orient": "/ˈɔːrient/", "outcome": "/ˈaʊtkʌm/", "output": "/ˈaʊtpʊt/",
+      "overall": "/ˌoʊvərˈɔːl/", "overlap": "/ˌoʊvərˈlæp/", "oversee": "/ˌoʊvərˈsiː/",
+      "overwhelming": "/ˌoʊvərˈwelmɪŋ/", "panel": "/ˈpænl/", "paradigm": "/ˈpærədaɪm/",
+      "paragraph": "/ˈpærəɡræf/", "parallel": "/ˈpærəlel/", "parameter": "/pəˈræmɪtər/",
+      "participate": "/pɑːrˈtɪsɪpeɪt/", "partner": "/ˈpɑːrtnər/", "passive": "/ˈpæsɪv/",
+      "perceive": "/pərˈsiːv/", "percent": "/pərˈsent/", "period": "/ˈpɪriəd/",
+      "persist": "/pərˈsɪst/", "perspective": "/pərˈspektɪv/", "phase": "/feɪz/",
+      "phenomenon": "/fəˈnɑːmɪnən/", "philosophy": "/fəˈlɑːsəfi/", "physical": "/ˈfɪzɪkl/",
+      "plus": "/plʌs/", "policy": "/ˈpɑːləsi/", "portion": "/ˈpɔːrʃn/",
+      "pose": "/poʊz/", "positive": "/ˈpɑːzətɪv/", "potential": "/pəˈtenʃl/",
+      "practitioner": "/prækˈtɪʃənər/", "precede": "/prɪˈsiːd/", "precise": "/prɪˈsaɪs/",
+      "predict": "/prɪˈdɪkt/", "predominant": "/prɪˈdɑːmɪnənt/", "preliminary": "/prɪˈlɪmɪneri/",
+      "presume": "/prɪˈzuːm/", "previous": "/ˈpriːviəs/", "primary": "/ˈpraɪmeri/",
+      "prime": "/praɪm/", "principal": "/ˈprɪnsəpl/", "principle": "/ˈprɪnsəpl/",
+      "prior": "/ˈpraɪər/", "priority": "/praɪˈɔːrəti/", "proceed": "/proʊˈsiːd/",
+      "process": "/ˈprɑːses/", "professional": "/prəˈfeʃənl/", "prohibit": "/prəˈhɪbɪt/",
+      "project": "/ˈprɑːdʒekt/", "promote": "/prəˈmoʊt/", "proportion": "/prəˈpɔːrʃn/",
+      "prospect": "/ˈprɑːspekt/", "protocol": "/ˈproʊtəkɑːl/", "psychology": "/saɪˈkɑːlədʒi/",
+      "publish": "/ˈpʌblɪʃ/", "purchase": "/ˈpɜːrtʃəs/", "pursue": "/pərˈsuː/",
+      "qualitative": "/ˈkwɑːlɪteɪtɪv/", "quote": "/kwoʊt/", "radical": "/ˈrædɪkl/",
+      "random": "/ˈrændəm/", "range": "/reɪndʒ/", "ratio": "/ˈreɪʃioʊ/",
+      "rational": "/ˈræʃnəl/", "react": "/riˈækt/", "recover": "/rɪˈkʌvər/",
+      "refine": "/rɪˈfaɪn/", "regime": "/reɪˈʒiːm/", "region": "/ˈriːdʒən/",
+      "register": "/ˈredʒɪstər/", "regulate": "/ˈreɡjuleɪt/", "reinforce": "/ˌriːɪnˈfɔːrs/",
+      "reject": "/rɪˈdʒekt/", "relax": "/rɪˈlæks/", "release": "/rɪˈliːs/",
+      "relevant": "/ˈreləvənt/", "reliance": "/rɪˈlaɪəns/", "relinquish": "/rɪˈlɪŋkwɪʃ/",
+      "reluctant": "/rɪˈlʌktənt/", "rely": "/rɪˈlaɪ/", "remove": "/rɪˈmuːv/",
+      "require": "/rɪˈkwaɪər/", "research": "/ˈriːsɜːrtʃ/", "reside": "/rɪˈzaɪd/",
+      "resolve": "/rɪˈzɑːlv/", "resource": "/ˈriːsɔːrs/", "respond": "/rɪˈspɑːnd/",
+      "restore": "/rɪˈstɔːr/", "restrain": "/rɪˈstreɪn/", "restrict": "/rɪˈstrɪkt/",
+      "retain": "/rɪˈteɪn/", "reveal": "/rɪˈviːl/", "revenue": "/ˈrevənuː/",
+      "reverse": "/rɪˈvɜːrs/", "revise": "/rɪˈvaɪz/", "revolution": "/ˌrevəˈluːʃn/",
+      "rigid": "/ˈrɪdʒɪd/", "role": "/roʊl/", "route": "/ruːt/",
+      "scenario": "/səˈnærioʊ/", "schedule": "/ˈskedʒuːl/", "scheme": "/skiːm/",
+      "scope": "/skoʊp/", "section": "/ˈsekʃn/", "sector": "/ˈsektər/",
+      "secure": "/səˈkjʊr/", "seek": "/siːk/", "select": "/sɪˈlekt/",
+      "sequence": "/ˈsiːkwəns/", "series": "/ˈsɪriːz/", "shift": "/ʃɪft/",
+      "significant": "/sɪɡˈnɪfɪkənt/", "similar": "/ˈsɪmələr/", "simulate": "/ˈsɪmjuleɪt/",
+      "site": "/saɪt/", "so-called": "/ˌsoʊ ˈkɔːld/", "sole": "/soʊl/",
+      "somewhat": "/ˈsʌmwʌt/", "source": "/sɔːrs/", "specific": "/spəˈsɪfɪk/",
+      "specify": "/ˈspesɪfaɪ/", "sphere": "/sfɪr/", "stable": "/ˈsteɪbl/",
+      "statistic": "/stəˈtɪstɪk/", "status": "/ˈsteɪtəs/", "straightforward": "/ˌstreɪtˈfɔːrwərd/",
+      "strategy": "/ˈstrætədʒi/", "stress": "/stres/", "structure": "/ˈstrʌktʃər/",
+      "style": "/staɪl/", "submit": "/səbˈmɪt/", "subordinate": "/səˈbɔːrdɪnət/",
+      "subsequent": "/ˈsʌbsɪkwənt/", "subsidy": "/ˈsʌbsədi/", "substitute": "/ˈsʌbstɪtuːt/",
+      "successor": "/səkˈsesər/", "sufficient": "/səˈfɪʃnt/", "sum": "/sʌm/",
+      "summary": "/ˈsʌməri/", "supplement": "/ˈsʌplɪmənt/", "supreme": "/suːˈpriːm/",
+      "survey": "/ˈsɜːrveɪ/", "survive": "/sərˈvaɪv/", "suspend": "/səˈspend/",
+      "sustain": "/səˈsteɪn/", "symbol": "/ˈsɪmbl/", "target": "/ˈtɑːrɡɪt/",
+      "task": "/tæsk/", "team": "/tiːm/", "technical": "/ˈteknɪkl/",
+      "technique": "/tekˈniːk/", "technology": "/tekˈnɑːlədʒi/", "temporary": "/ˈtempəreri/",
+      "tense": "/tens/", "terminate": "/ˈtɜːrmɪneɪt/", "text": "/tekst/",
+      "theme": "/θiːm/", "theory": "/ˈθiːəri/", "thereby": "/ˌðerˈbaɪ/",
+      "thesis": "/ˈθiːsɪs/", "topic": "/ˈtɑːpɪk/", "trace": "/treɪs/",
+      "tradition": "/trəˈdɪʃn/", "transfer": "/trænsˈfɜːr/", "transform": "/trænsˈfɔːrm/",
+      "transit": "/ˈtrænzɪt/", "transmit": "/trænsˈmɪt/", "transport": "/ˈtrænspɔːrt/",
+      "trend": "/trend/", "trigger": "/ˈtrɪɡər/", "ultimate": "/ˈʌltɪmət/",
+      "undergo": "/ˌʌndərˈɡoʊ/", "underlie": "/ˌʌndərˈlaɪ/", "undertake": "/ˌʌndərˈteɪk/",
+      "uniform": "/ˈjuːnɪfɔːrm/", "unify": "/ˈjuːnɪfaɪ/", "unique": "/juˈniːk/",
+      "unprecedented": "/ʌnˈpresɪdentɪd/", "unrivaled": "/ʌnˈraɪvəld/", "utilize": "/ˈjuːtəlaɪz/",
+      "valid": "/ˈvælɪd/", "vary": "/ˈveri/", "vehicle": "/ˈviːəkl/",
+      "version": "/ˈvɜːrʒn/", "via": "/ˈvaɪə/", "violate": "/ˈvaɪəleɪt/",
+      "virtual": "/ˈvɜːrtʃuəl/", "visible": "/ˈvɪzəbl/", "vision": "/ˈvɪʒn/",
+      "visual": "/ˈvɪʒuəl/", "volume": "/ˈvɑːljuːm/", "voluntary": "/ˈvɑːlənteri/",
+      "welfare": "/ˈwelfer/", "whereas": "/ˌwerˈæz/", "whereby": "/werˈbaɪ/",
+      "widespread": "/ˈwaɪdspred/", "withstand": "/wɪðˈstænd/"
+    };
+
+    if (dict[w]) return dict[w];
+
+    // 2. 啟發式自然拼讀與音標推導算法 (Phonics Heuristics)
+    let ipa = w;
+    ipa = ipa.replace(/tion$/g, 'ʃn')
+             .replace(/sion$/g, 'ʒn')
+             .replace(/ment$/g, 'mənt')
+             .replace(/able$/g, 'əbl')
+             .replace(/ible$/g, 'əbl')
+             .replace(/ness$/g, 'nəs')
+             .replace(/ful$/g, 'fl')
+             .replace(/less$/g, 'ləs')
+             .replace(/ous$/g, 'əs')
+             .replace(/ology$/g, 'ələdʒi')
+             .replace(/ph/g, 'f')
+             .replace(/ch/g, 'tʃ')
+             .replace(/sh/g, 'ʃ')
+             .replace(/th/g, 'θ')
+             .replace(/ee/g, 'iː')
+             .replace(/oo/g, 'uː')
+             .replace(/qu/g, 'kw');
+
+    return `/${ipa}/`;
+  }
     const w = wordObj.w;
     const cleanM = this.cleanMeaning(wordObj.m);
     const firstMeaning = cleanM.split(/[、,，;；]/)[0].trim() || cleanM;
@@ -1502,6 +1700,7 @@ class LinguaPulseApp {
                 <div class="summary-word-header">
                   <div class="summary-word-main">
                     <span class="summary-target-word">${wordData.w}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: #fbbf24; margin-right: 0.5rem;">${app.getPhoneticIPA(wordData.w)}</span>
                     <span class="summary-pos-tag">${wordData.p}</span>
                     <span class="summary-level-tag">${wordData.l}</span>
                   </div>
@@ -2199,8 +2398,9 @@ class LinguaPulseApp {
 
     document.getElementById('flashcard-front-content').innerHTML = `
       <span class="level-tag-pill" style="margin-bottom: 1rem;">GEPT ${card.l}</span>
-      <div style="font-size: 2.4rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">${card.w}</div>
-      <div style="font-family: monospace; color: #38bdf8; font-size: 1.1rem;">[${card.p}]</div>
+      <div style="font-size: 2.4rem; font-weight: 800; color: #fff; margin-bottom: 0.3rem;">${card.w}</div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: #fbbf24; margin-bottom: 0.5rem;">${this.getPhoneticIPA(card.w)}</div>
+      <div style="font-family: monospace; color: #38bdf8; font-size: 1.05rem;">[${card.p}]</div>
     `;
 
     document.getElementById('flashcard-back-content').innerHTML = `
@@ -2758,8 +2958,9 @@ class LinguaPulseApp {
           ${starInfo.emoji}
         </div>
 
-        <!-- Word -->
+        <!-- Word & Phonetic -->
         <div class="mastery-card-word">${entry.word || entry.key}</div>
+        <div style="font-size: 0.75rem; color: #fbbf24; font-family: 'JetBrains Mono', monospace;">${this.getPhoneticIPA(entry.word || entry.key)}</div>
 
         <!-- Stars row -->
         <div class="mastery-card-stars">${starsHtml}</div>
