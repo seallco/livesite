@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="card-metrics-grid">
             <div class="metric-box">
               <span class="metric-label">生產總數</span>
-              <span class="metric-val">${(item.totalProduction || 1000).toLocaleString()}</span>
+              <span class="metric-val">${(item.totalProduction !== undefined ? item.totalProduction : 0).toLocaleString()}</span>
             </div>
             <div class="metric-box">
               <span class="metric-label">不良數量</span>
@@ -548,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td><span class="meta-tag tag-code">${escapeHtml(item.lineCode || '1')} 號線</span></td>
           <td><strong>${escapeHtml(item.handoverPerson || '-')}</strong></td>
           <td><span class="meta-tag tag-engineer">${escapeHtml(item.receiverEngineer || '-')}</span></td>
-          <td><strong>${(item.totalProduction || 1000).toLocaleString()}</strong></td>
+          <td><strong>${(item.totalProduction !== undefined ? item.totalProduction : 0).toLocaleString()}</strong></td>
           <td><strong style="color: var(--color-danger); font-size: 16px;">${item.count || 0}</strong></td>
           <td><strong style="${yieldColorStyle} font-size: 16px;">${yieldStr}</strong></td>
           <td>${columnIBadge}</td>
@@ -1267,7 +1267,7 @@ document.addEventListener('DOMContentLoaded', () => {
       DOM.inputItemLineCode.value = item.lineCode || '1';
       DOM.inputItemHandoverPerson.value = item.handoverPerson || '';
       DOM.inputItemReceiverEngineer.value = item.receiverEngineer || '';
-      DOM.inputItemTotalProduction.value = item.totalProduction || 1000;
+      DOM.inputItemTotalProduction.value = item.totalProduction !== undefined ? item.totalProduction : 1000;
       DOM.inputItemDefectCount.value = item.count || 0;
       DOM.inputUnmodifiedItems.value = item.unmodifiedItems || (item.unmodifiedColumnI ? '未改 I 欄位' : '');
       DOM.inputItemNotes.value = item.notes || '';
@@ -1523,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       ctx.fillStyle = '#e2e8f0';
       ctx.font = '15px sans-serif';
-      ctx.fillText(`${(item.totalProduction || 1000).toLocaleString()}`, 540, y);
+      ctx.fillText(`${(item.totalProduction !== undefined ? item.totalProduction : 0).toLocaleString()}`, 540, y);
 
       ctx.fillStyle = '#f87171';
       ctx.font = 'bold 16px sans-serif';

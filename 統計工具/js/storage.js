@@ -68,7 +68,9 @@ const TallyStorage = {
   calculateYieldRate(totalProd, defectCount) {
     const total = Math.max(0, parseInt(totalProd, 10) || 0);
     const def = Math.max(0, parseInt(defectCount, 10) || 0);
-    if (total === 0) return '100.00%';
+    if (total === 0) {
+      return def === 0 ? '100.00%' : '0.00%';
+    }
     const rate = Math.max(0, ((total - def) / total) * 100);
     return rate.toFixed(2) + '%';
   },
@@ -99,7 +101,7 @@ const TallyStorage = {
           lineCode: itemData.lineCode !== undefined ? String(itemData.lineCode).trim() : (all[index].lineCode || '1'),
           handoverPerson: itemData.handoverPerson !== undefined ? itemData.handoverPerson.trim() : (all[index].handoverPerson || ''),
           receiverEngineer: itemData.receiverEngineer !== undefined ? itemData.receiverEngineer.trim() : (all[index].receiverEngineer || ''),
-          totalProduction: itemData.totalProduction !== undefined ? Math.max(0, parseInt(itemData.totalProduction, 10) || 0) : (all[index].totalProduction || 0),
+          totalProduction: itemData.totalProduction !== undefined ? Math.max(0, parseInt(itemData.totalProduction, 10) || 0) : (all[index].totalProduction !== undefined ? all[index].totalProduction : 0),
           count: itemData.count !== undefined ? Math.max(0, parseInt(itemData.count, 10) || 0) : (all[index].count || 0),
           unmodifiedItems: unmodifiedText,
           unmodifiedColumnI: hasUnmodified,
@@ -123,7 +125,7 @@ const TallyStorage = {
       lineCode: String(itemData.lineCode || '1').trim(),
       handoverPerson: (itemData.handoverPerson || '').trim(),
       receiverEngineer: (itemData.receiverEngineer || '').trim(),
-      totalProduction: itemData.totalProduction !== undefined ? Math.max(0, parseInt(itemData.totalProduction, 10) || 0) : 1000,
+      totalProduction: itemData.totalProduction !== undefined ? Math.max(0, parseInt(itemData.totalProduction, 10) || 0) : 0,
       count: itemData.count !== undefined ? Math.max(0, parseInt(itemData.count, 10) || 0) : 0, // 代表不良數量
       unmodifiedItems: unmodifiedText,
       unmodifiedColumnI: hasUnmodified,
