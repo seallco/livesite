@@ -1998,3 +1998,87 @@ input:focus, textarea:focus {
     page-break-inside: avoid;
   }
 }
+
+/* ==========================================================================
+   Toast Notification & Realtime Highlight Effects
+   ========================================================================== */
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card-solid);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg), 0 0 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toast-item.toast-show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.toast-item.toast-success {
+  border-left: 5px solid var(--color-emerald);
+}
+
+.toast-item.toast-danger {
+  border-left: 5px solid var(--color-danger);
+}
+
+.toast-item.toast-info {
+  border-left: 5px solid var(--color-primary);
+}
+
+.toast-icon {
+  font-size: 18px;
+}
+.toast-success .toast-icon { color: var(--color-emerald); }
+.toast-danger .toast-icon { color: var(--color-danger); }
+.toast-info .toast-icon { color: var(--color-primary); }
+
+@keyframes itemPulseHighlight {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+    transform: scale(0.97);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: none;
+    transform: scale(1);
+  }
+}
+
+.item-highlight-pulse {
+  animation: itemPulseHighlight 1.2s ease-out forwards;
+}
+
+tr.item-highlight-pulse {
+  background-color: rgba(37, 99, 235, 0.15) !important;
+  transition: background-color 1.5s ease;
+}
+

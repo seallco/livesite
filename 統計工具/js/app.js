@@ -290,16 +290,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * 渲染主區域（依據當前視圖）
+   * 渲染主區域（同步刷新所有視圖）
    */
   function renderMainContent() {
     const items = getFilteredItems();
 
-    if (AppState.currentView === 'cards') {
-      renderCardsView(items);
-    } else if (AppState.currentView === 'table') {
-      renderTableView(items);
-    } else if (AppState.currentView === 'analytics') {
+    // 同步渲染卡片與表格檢視，確保切換時已是最新狀態，並能即時看到增刪結果
+    renderCardsView(items);
+    renderTableView(items);
+
+    if (AppState.currentView === 'analytics') {
       renderAnalyticsView(items);
     }
   }
@@ -513,12 +513,19 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<span class="meta-tag tag-unmodified-i"><i class="fa-solid fa-triangle-exclamation"></i> 未改: ${escapeHtml(unmodifiedText)}</span>`
         : '<span class="meta-tag tag-modified-i"><i class="fa-solid fa-check"></i> 已全改</span>';
 
-      const photoCountBadge = (item.images && item.images.length > 0)
-        ? `<button type="button" class="btn-chip btn-view-photo" data-src="${escapeHtml(item.images[0])}" data-title="${escapeHtml(item.lineName)} 產線照片" style="color: #0284c7; border-color: rgba(14,165,233,0.4);"><i class="fa-solid fa-image"></i> ${item.images.length} 張</button>`
-        : '<span class="text-muted" style="font-size: 12px;">無</span>';
+      let notesAndPhotosHtml = '';
+      if (item.notes) {
+        notesAndPhotosHtml += `<div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;"><i class="fa-regular fa-note-sticky"></i> ${escapeHtml(item.notes)}</div>`;
+      }
+      if (item.images && item.images.length > 0) {
+        notesAndPhotosHtml += `<button type="button" class="btn-chip btn-view-photo" data-src="${escapeHtml(item.images[0])}" data-title="${escapeHtml(item.lineName)} 產線照片" style="color: #0284c7; border-color: rgba(14,165,233,0.4);"><i class="fa-solid fa-camera"></i> ${item.images.length} 張照片</button>`;
+      }
+      if (!notesAndPhotosHtml) {
+        notesAndPhotosHtml = '<span class="text-muted" style="font-size: 12px;">-</span>';
+      }
 
       html += `
-        <tr>
+        <tr data-id="${item.id}">
           <td><span class="badge">${index + 1}</span></td>
           <td><span class="meta-tag tag-shift">${escapeHtml(item.shift || '早班')}</span></td>
           <td><span class="meta-tag tag-time-slot">${escapeHtml(item.timeSlot || '08:00 - 10:00')}</span></td>
@@ -530,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td><strong style="color: var(--color-danger); font-size: 16px;">${item.count || 0}</strong></td>
           <td><strong style="${yieldColorStyle} font-size: 16px;">${yieldStr}</strong></td>
           <td>${columnIBadge}</td>
-          <td>${photoCountBadge}</td>
+          <td>${notesAndPhotosHtml}</td>
           <td>
             <div class="table-actions-cell">
               <button type="button" class="btn-primary btn-table-stroke" data-id="${item.id}" style="padding: 5px 10px; font-size: 12px;">
@@ -539,10 +546,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <button type="button" class="btn-secondary btn-table-minus" data-id="${item.id}" style="padding: 5px 8px; font-size: 12px;">
                 <i class="fa-solid fa-minus"></i>
               </button>
-              <button type="button" class="btn-icon btn-card-action btn-edit-item" data-id="${item.id}">
+              <button type="button" class="btn-icon btn-card-action btn-edit-item" data-id="${item.id}" title="編輯紀錄">
                 <i class="fa-solid fa-pen"></i>
               </button>
-              <button type="button" class="btn-icon btn-card-action btn-delete-item" data-id="${item.id}">
+              <button type="button" class="btn-icon btn-card-action btn-delete-item" data-id="${item.id}" title="刪除紀錄">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
             </div>
@@ -1119,10 +1126,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function confirmDeleteAction() {
     if (!activeDeletingItemId) return;
-    TallyStorage.deleteItem(activeDeletingItemId);
+    const deletedId = activeDeletingItemId;
+    TallyStorage.deleteItem(deletedId);
     closeDeleteConfirmModal();
     closeItemModal();
+    
+    // 即時重新計算並渲染全部視圖
     refreshAll();
+    showToast('🗑️ 產線紀錄已成功刪除！', 'danger');
+  }
+
+  /**
+   * 即時 Toast 浮動通知元件
+   */
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast-item toast-${type}`;
+    
+    let icon = 'fa-circle-check';
+    if (type === 'danger') icon = 'fa-trash-can';
+    if (type === 'info') icon = 'fa-circle-info';
+
+    toast.innerHTML = `
+      <i class="fa-solid ${icon} toast-icon"></i>
+      <span>${escapeHtml(message)}</span>
+    `;
+
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.classList.add('toast-show');
+    });
+
+    setTimeout(() => {
+      toast.classList.remove('toast-show');
+      setTimeout(() => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 300);
+    }, 3000);
   }
 
   function handleAddStroke(itemId, delta = 1) {
@@ -1273,6 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const isEditMode = Boolean(DOM.modalItemId.value);
     const selectedColor = (DOM.itemForm.querySelector('input[name="item-color"]:checked') || {}).value || '#3b82f6';
     const unmodifiedText = DOM.inputUnmodifiedItems.value.trim();
 
@@ -1294,16 +1339,41 @@ document.addEventListener('DOMContentLoaded', () => {
       notes: DOM.inputItemNotes.value.trim()
     };
 
-    TallyStorage.upsertItem(itemData);
+    const savedItem = TallyStorage.upsertItem(itemData);
     closeItemModal();
     
-    if (itemData.date !== AppState.currentDate) {
-      AppState.currentDate = itemData.date;
-      DOM.currentDateInput.value = AppState.currentDate;
-      updateDateDisplay();
-    }
+    // 同步當前日期
+    AppState.currentDate = itemData.date;
+    DOM.currentDateInput.value = AppState.currentDate;
+    updateDateDisplay();
 
+    // 重置篩選條件，確保新增或修改後的紀錄能 100% 即時顯示在下方！
+    AppState.selectedShift = 'ALL';
+    AppState.selectedLine = 'ALL';
+    AppState.selectedCode = 'ALL';
+    AppState.selectedColumnI = 'ALL';
+    AppState.searchQuery = '';
+
+    if (DOM.filterShiftSelect) DOM.filterShiftSelect.value = 'ALL';
+    if (DOM.filterLineSelect) DOM.filterLineSelect.value = 'ALL';
+    if (DOM.filterCodeSelect) DOM.filterCodeSelect.value = 'ALL';
+    if (DOM.filterColumnISelect) DOM.filterColumnISelect.value = 'ALL';
+    if (DOM.searchInput) DOM.searchInput.value = '';
+
+    // 即時刷新所有視圖與指標
     refreshAll();
+
+    // 捲動至該筆紀錄並觸發高亮提示動畫
+    setTimeout(() => {
+      const targetElement = document.querySelector(`.item-card[data-id="${savedItem.id}"], tr[data-id="${savedItem.id}"]`);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetElement.classList.add('item-highlight-pulse');
+        setTimeout(() => targetElement.classList.remove('item-highlight-pulse'), 1500);
+      }
+    }, 100);
+
+    showToast(isEditMode ? '✅ 產線紀錄已成功更新！' : '✅ 產線紀錄已成功新增並顯示於下方！', 'success');
   }
 
   // Direct Count Modal

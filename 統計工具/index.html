@@ -18,6 +18,9 @@
     <!-- Top Header -->
     <header class="app-header">
       <div class="header-left">
+        <a href="../index.html" class="btn-ghost" title="返回學習歷程首頁" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: 13px; font-weight: 600; border: 1px solid var(--border-color); background: var(--bg-card); transition: all var(--transition-fast);">
+          <i class="fa-solid fa-arrow-left"></i> 回首頁
+        </a>
         <div class="logo-box">
           <i class="fa-solid fa-industry logo-icon"></i>
         </div>
@@ -208,7 +211,7 @@
                   <th width="85">不良數量</th>
                   <th width="85">當班良率</th>
                   <th width="105">I 欄位標記</th>
-                  <th>備註說明</th>
+                  <th>備註與照片</th>
                   <th width="140">快捷操作</th>
                 </tr>
               </thead>
@@ -516,6 +519,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Toast Notifications Container -->
+  <div id="toast-container" class="toast-container"></div>
 
   <!-- Scripts -->
   <script src="js/storage.js"></script>
