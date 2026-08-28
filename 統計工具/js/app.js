@@ -80,8 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
     kpiTotalProduction: document.getElementById('kpi-total-production'),
     kpiTotalDefectsSub: document.getElementById('kpi-total-defects-sub'),
     kpiAvgYield: document.getElementById('kpi-avg-yield'),
-    kpiItemCount: document.getElementById('kpi-item-count'),
+    kpiActiveItems: document.getElementById('kpi-active-items'),
     kpiUnmodifiedICount: document.getElementById('kpi-unmodified-i-count'),
+    kpiTopItemCount: document.getElementById('kpi-top-item-count'),
 
     // Views
     btnViewCards: document.getElementById('btn-view-cards'),
@@ -270,23 +271,37 @@ document.addEventListener('DOMContentLoaded', () => {
    * 渲染 KPI 指標數據
    */
   function renderKPIs() {
-    const dayItems = TallyStorage.getItemsByDate(AppState.currentDate);
-    const totalProd = dayItems.reduce((sum, i) => sum + (parseInt(i.totalProduction, 10) || 0), 0);
-    const totalDefects = dayItems.reduce((sum, i) => sum + (parseInt(i.count, 10) || 0), 0);
+    try {
+      const dayItems = TallyStorage.getItemsByDate(AppState.currentDate);
+      const totalProd = dayItems.reduce((sum, i) => sum + (parseInt(i.totalProduction, 10) || 0), 0);
+      const totalDefects = dayItems.reduce((sum, i) => sum + (parseInt(i.count, 10) || 0), 0);
 
-    DOM.kpiTotalProduction.textContent = totalProd.toLocaleString();
-    DOM.kpiTotalDefectsSub.textContent = `不良數總計：${totalDefects.toLocaleString()} 件`;
-    DOM.kpiItemCount.textContent = dayItems.length;
+      if (DOM.kpiTotalProduction) {
+        DOM.kpiTotalProduction.textContent = totalProd.toLocaleString();
+      }
+      if (DOM.kpiTotalDefectsSub) {
+        DOM.kpiTotalDefectsSub.textContent = `不良總計：${totalDefects.toLocaleString()} 件`;
+      }
 
-    if (totalProd > 0) {
-      const avgRate = Math.max(0, ((totalProd - totalDefects) / totalProd) * 100).toFixed(2);
-      DOM.kpiAvgYield.textContent = avgRate;
-    } else {
-      DOM.kpiAvgYield.textContent = '100.00';
+      if (DOM.kpiAvgYield) {
+        if (totalProd > 0) {
+          const avgRate = Math.max(0, ((totalProd - totalDefects) / totalProd) * 100).toFixed(2);
+          DOM.kpiAvgYield.textContent = avgRate;
+        } else {
+          DOM.kpiAvgYield.textContent = '100.00';
+        }
+      }
+
+      const unmodifiedICount = dayItems.filter(i => Boolean(i.unmodifiedColumnI || (i.unmodifiedItems && i.unmodifiedItems.trim()))).length;
+      if (DOM.kpiUnmodifiedICount) {
+        DOM.kpiUnmodifiedICount.textContent = String(unmodifiedICount);
+      }
+      if (DOM.kpiActiveItems) {
+        DOM.kpiActiveItems.textContent = `產線品質監控 (${dayItems.length} 項)`;
+      }
+    } catch (err) {
+      console.error('renderKPIs 執行異常:', err);
     }
-
-    const unmodifiedICount = dayItems.filter(i => Boolean(i.unmodifiedColumnI || (i.unmodifiedItems && i.unmodifiedItems.trim()))).length;
-    DOM.kpiUnmodifiedICount.textContent = unmodifiedICount;
   }
 
   /**
