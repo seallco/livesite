@@ -48,9 +48,15 @@ const TallyStorage = {
    * @param {string} id
    * @returns {Object|null}
    */
+  /**
+   * 依 ID 取得單一項目
+   * @param {string} id
+   * @returns {Object|null}
+   */
   getItemById(id) {
+    if (!id) return null;
     const all = this.getAllItems();
-    return all.find(item => item.id === id) || null;
+    return all.find(item => String(item.id).trim() === String(id).trim()) || null;
   },
 
   /**
@@ -80,25 +86,26 @@ const TallyStorage = {
     const hasUnmodified = unmodifiedText !== '';
 
     if (itemData.id) {
+      const targetId = String(itemData.id).trim();
       // 更新現有項目
-      const index = all.findIndex(i => i.id === itemData.id);
+      const index = all.findIndex(i => String(i.id).trim() === targetId);
       if (index !== -1) {
         all[index] = {
           ...all[index],
-          date: itemData.date || all[index].date,
-          timeSlot: (itemData.timeSlot || all[index].timeSlot || '08:00 - 10:00').trim(),
-          shift: (itemData.shift || all[index].shift || '早班').trim(),
-          lineName: (itemData.lineName || all[index].lineName || 'module').trim(),
-          lineCode: (itemData.lineCode || all[index].lineCode || '1').trim(),
-          handoverPerson: (itemData.handoverPerson !== undefined ? itemData.handoverPerson : all[index].handoverPerson || '').trim(),
-          receiverEngineer: (itemData.receiverEngineer !== undefined ? itemData.receiverEngineer : all[index].receiverEngineer || '').trim(),
+          date: itemData.date ? itemData.date.trim() : all[index].date,
+          timeSlot: itemData.timeSlot !== undefined ? itemData.timeSlot.trim() : (all[index].timeSlot || '08:00 - 10:00'),
+          shift: itemData.shift !== undefined ? itemData.shift.trim() : (all[index].shift || '早班'),
+          lineName: itemData.lineName !== undefined ? itemData.lineName.trim() : (all[index].lineName || 'module'),
+          lineCode: itemData.lineCode !== undefined ? String(itemData.lineCode).trim() : (all[index].lineCode || '1'),
+          handoverPerson: itemData.handoverPerson !== undefined ? itemData.handoverPerson.trim() : (all[index].handoverPerson || ''),
+          receiverEngineer: itemData.receiverEngineer !== undefined ? itemData.receiverEngineer.trim() : (all[index].receiverEngineer || ''),
           totalProduction: itemData.totalProduction !== undefined ? Math.max(0, parseInt(itemData.totalProduction, 10) || 0) : (all[index].totalProduction || 0),
           count: itemData.count !== undefined ? Math.max(0, parseInt(itemData.count, 10) || 0) : (all[index].count || 0),
           unmodifiedItems: unmodifiedText,
           unmodifiedColumnI: hasUnmodified,
           images: Array.isArray(itemData.images) ? itemData.images : (all[index].images || []),
           color: itemData.color || all[index].color || '#3b82f6',
-          notes: (itemData.notes !== undefined ? itemData.notes : all[index].notes || '').trim(),
+          notes: itemData.notes !== undefined ? itemData.notes.trim() : (all[index].notes || ''),
           updatedAt: now
         };
         this.saveAllItems(all);
@@ -109,15 +116,15 @@ const TallyStorage = {
     // 新增產線紀錄
     const newItem = {
       id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-      date: itemData.date || this.getTodayDateString(),
+      date: itemData.date ? itemData.date.trim() : this.getTodayDateString(),
       timeSlot: (itemData.timeSlot || '08:00 - 10:00').trim(),
       shift: (itemData.shift || '早班').trim(),
       lineName: (itemData.lineName || 'module').trim(),
-      lineCode: (itemData.lineCode || '1').trim(),
+      lineCode: String(itemData.lineCode || '1').trim(),
       handoverPerson: (itemData.handoverPerson || '').trim(),
       receiverEngineer: (itemData.receiverEngineer || '').trim(),
-      totalProduction: Math.max(0, parseInt(itemData.totalProduction, 10) || 0),
-      count: Math.max(0, parseInt(itemData.count, 10) || 0), // 代表不良數量
+      totalProduction: itemData.totalProduction !== undefined ? Math.max(0, parseInt(itemData.totalProduction, 10) || 0) : 1000,
+      count: itemData.count !== undefined ? Math.max(0, parseInt(itemData.count, 10) || 0) : 0, // 代表不良數量
       unmodifiedItems: unmodifiedText,
       unmodifiedColumnI: hasUnmodified,
       images: Array.isArray(itemData.images) ? itemData.images : [],
@@ -139,8 +146,9 @@ const TallyStorage = {
    * @returns {Object|null} 更新後的項目
    */
   adjustCount(id, delta) {
+    if (!id) return null;
     const all = this.getAllItems();
-    const index = all.findIndex(i => i.id === id);
+    const index = all.findIndex(i => String(i.id).trim() === String(id).trim());
     if (index === -1) return null;
 
     const current = all[index].count || 0;
@@ -159,8 +167,9 @@ const TallyStorage = {
    * @returns {Object|null}
    */
   setExactCount(id, exactCount) {
+    if (!id) return null;
     const all = this.getAllItems();
-    const index = all.findIndex(i => i.id === id);
+    const index = all.findIndex(i => String(i.id).trim() === String(id).trim());
     if (index === -1) return null;
 
     all[index].count = Math.max(0, parseInt(exactCount, 10) || 0);
@@ -175,8 +184,9 @@ const TallyStorage = {
    * @param {string} id
    */
   deleteItem(id) {
+    if (!id) return;
     const all = this.getAllItems();
-    const filtered = all.filter(i => i.id !== id);
+    const filtered = all.filter(i => String(i.id).trim() !== String(id).trim());
     this.saveAllItems(filtered);
   },
 
