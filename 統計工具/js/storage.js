@@ -363,114 +363,158 @@ const TallyStorage = {
   },
 
   /**
-   * 匯出當日或全量資料至 Excel (.xls 含內嵌縮圖照片)
+   * 匯出當日或全量資料至標準 Excel (.xlsx 含真正內嵌二進制照片)
+   * 採用 ExcelJS OpenXML 生成原生 .xlsx，在 Microsoft Excel、WPS、金山文檔中均可直接顯示完整照片！
    * @param {string|null} dateStr
    */
-  exportToExcel(dateStr = null) {
+  async exportToExcel(dateStr = null) {
     const items = dateStr ? this.getItemsByDate(dateStr) : this.getAllItems();
     if (items.length === 0) {
       alert('目前無可匯出的項目資料！');
       return;
     }
 
-    let rowsHtml = '';
-    items.forEach((item, idx) => {
-      const yieldRateStr = this.calculateYieldRate(item.totalProduction, item.count);
-      const columnIStatus = item.unmodifiedItems || (item.unmodifiedColumnI ? '未改 I 欄位' : '已改 I 欄位');
-      
-      let photosHtml = '<span style="color: #94a3b8;">無照片</span>';
-      if (item.images && item.images.length > 0) {
-        photosHtml = item.images.map((img, i) => `
-          <div style="display:inline-block; margin:2px; text-align:center;">
-            <img src="${img}" width="90" height="70" style="object-fit:cover; border:1px solid #e2e8f0; border-radius:4px;" />
-            <div style="font-size:10px; color:#64748b;">照片 ${i + 1}</div>
-          </div>
-        `).join('');
+    if (typeof ExcelJS === 'undefined') {
+      alert('Excel 匯出元件載入中，請稍候重試！');
+      return;
+    }
+
+    try {
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = 'Livesite 產線良率統計系統';
+      workbook.created = new Date();
+
+      const sheet = workbook.addWorksheet('產線交接良率報表', {
+        views: [{ showGridLines: true }]
+      });
+
+      // 設定欄位寬度與表頭
+      sheet.columns = [
+        { header: '項次', key: 'idx', width: 8 },
+        { header: '日期', key: 'date', width: 14 },
+        { header: '班別', key: 'shift', width: 10 },
+        { header: '生產時間段', key: 'timeSlot', width: 16 },
+        { header: '生產線體', key: 'lineName', width: 14 },
+        { header: '線別', key: 'lineCode', width: 10 },
+        { header: '交班人員', key: 'handoverPerson', width: 14 },
+        { header: '接班工程師', key: 'receiverEngineer', width: 14 },
+        { header: '生產總數', key: 'totalProduction', width: 13 },
+        { header: '不良數量', key: 'count', width: 12 },
+        { header: '當班良率', key: 'yieldRate', width: 12 },
+        { header: 'I 欄位標記', key: 'columnI', width: 16 },
+        { header: '備註說明', key: 'notes', width: 28 },
+        { header: '現場照片 (內嵌預覽)', key: 'photos', width: 36 },
+        { header: '最後更新時間', key: 'updatedAt', width: 22 }
+      ];
+
+      // 表頭樣式
+      const headerRow = sheet.getRow(1);
+      headerRow.height = 32;
+      headerRow.font = { name: 'Microsoft JhengHei', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+      headerRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF1E293B' }
+      };
+      headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const rowIndex = i + 2;
+        const yieldRateStr = this.calculateYieldRate(item.totalProduction, item.count);
+        const columnIStatus = item.unmodifiedItems || (item.unmodifiedColumnI ? '未改 I 欄位' : '已改 I 欄位');
+        const hasPhotos = Array.isArray(item.images) && item.images.length > 0;
+
+        const row = sheet.addRow({
+          idx: i + 1,
+          date: item.date,
+          shift: item.shift || '早班',
+          timeSlot: item.timeSlot || '08:00 - 10:00',
+          lineName: item.lineName || 'module',
+          lineCode: (item.lineCode || '1') + ' 號線',
+          handoverPerson: item.handoverPerson || '-',
+          receiverEngineer: item.receiverEngineer || '-',
+          totalProduction: item.totalProduction !== undefined ? item.totalProduction : 0,
+          count: item.count || 0,
+          yieldRate: yieldRateStr,
+          columnI: columnIStatus,
+          notes: item.notes || '-',
+          photos: hasPhotos ? '' : '無照片',
+          updatedAt: item.updatedAt || item.createdAt || ''
+        });
+
+        // 調整列高以容納圖片
+        row.height = hasPhotos ? 75 : 28;
+        row.font = { name: 'Microsoft JhengHei', size: 10 };
+        row.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+        // 數字與良率顏色
+        const prodCell = row.getCell('totalProduction');
+        prodCell.numFmt = '#,##0';
+        prodCell.font = { name: 'Microsoft JhengHei', size: 10, bold: true };
+
+        const countCell = row.getCell('count');
+        countCell.numFmt = '#,##0';
+        countCell.font = { name: 'Microsoft JhengHei', size: 11, bold: true, color: { argb: 'FFDC2626' } };
+
+        const yieldCell = row.getCell('yieldRate');
+        yieldCell.font = { name: 'Microsoft JhengHei', size: 11, bold: true, color: { argb: 'FF059669' } };
+
+        const notesCell = row.getCell('notes');
+        notesCell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+
+        // 斑馬紋底色
+        if (i % 2 === 1) {
+          row.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFF8FAFC' }
+          };
+        }
+
+        // 內嵌真正的二進制圖片 (Native Drawing Objects)
+        if (hasPhotos) {
+          for (let imgIdx = 0; imgIdx < Math.min(item.images.length, 3); imgIdx++) {
+            const base64Data = item.images[imgIdx];
+            if (typeof base64Data === 'string' && base64Data.startsWith('data:image/')) {
+              try {
+                let ext = 'png';
+                if (base64Data.includes('image/jpeg') || base64Data.includes('image/jpg')) {
+                  ext = 'jpeg';
+                }
+                const imageId = workbook.addImage({
+                  base64: base64Data,
+                  extension: ext
+                });
+
+                sheet.addImage(imageId, {
+                  tl: { col: 13 + imgIdx * 0.45, row: rowIndex - 1 + 0.08 },
+                  ext: { width: 75, height: 60 },
+                  editAs: 'oneCell'
+                });
+              } catch (imgErr) {
+                console.warn('圖片嵌入失敗:', imgErr);
+              }
+            }
+          }
+        }
       }
 
-      rowsHtml += `
-        <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'}; text-align: center; vertical-align: middle;">
-          <td style="padding: 10px; border: 1px solid #cbd5e1; mso-number-format:'\\@';">${item.date}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1;">${item.shift || '早班'}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1;">${item.timeSlot || '08:00 - 10:00'}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1; font-weight: bold; color: #1e293b;">${item.lineName || 'module'}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1; font-weight: bold;">${item.lineCode || '1'} 號線</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1;">${item.handoverPerson || '-'}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1;">${item.receiverEngineer || '-'}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1; font-weight: bold; mso-number-format:'\\#\\,\\#\\#0';">${item.totalProduction !== undefined ? item.totalProduction : 0}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1; color: #ef4444; font-weight: bold;">${item.count || 0}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1; color: #10b981; font-weight: bold;">${yieldRateStr}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1;">${columnIStatus}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1; text-align: left;">${item.notes || '-'}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1; text-align: center;">${photosHtml}</td>
-          <td style="padding: 10px; border: 1px solid #cbd5e1; font-size: 11px; color: #64748b;">${item.updatedAt || item.createdAt || ''}</td>
-        </tr>
-      `;
-    });
-
-    const excelTemplate = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <!--[if gte mso 9]>
-        <xml>
-          <x:ExcelWorkbook>
-            <x:ExcelWorksheets>
-              <x:ExcelWorksheet>
-                <x:Name>產線交接良率報表</x:Name>
-                <x:WorksheetOptions>
-                  <x:DisplayGridlines/>
-                </x:WorksheetOptions>
-              </x:ExcelWorksheet>
-            </x:ExcelWorksheets>
-          </x:ExcelWorkbook>
-        </xml>
-        <![endif]-->
-        <style>
-          table { border-collapse: collapse; width: 100%; font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif; }
-          th { background-color: #1e293b; color: #ffffff; padding: 12px; border: 1px solid #94a3b8; font-size: 13px; font-weight: bold; }
-          td { border: 1px solid #cbd5e1; font-size: 12px; }
-        </style>
-      </head>
-      <body>
-        <h2 style="font-family: 'Microsoft JhengHei', sans-serif; color: #1e293b; margin-bottom: 12px;">產線數量與良率統計交接日報表（含照片檢視）</h2>
-        <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">匯出日期範圍：${dateStr || '全部歷史紀錄'} ｜ 總筆數：${items.length} 筆</p>
-        <table>
-          <thead>
-            <tr>
-              <th>日期</th>
-              <th>班別</th>
-              <th>生產時間段</th>
-              <th>生產線體</th>
-              <th>線別編號</th>
-              <th>交班人員</th>
-              <th>接班工程師</th>
-              <th>生產總數</th>
-              <th>不良數量</th>
-              <th>當班良率</th>
-              <th>I 欄位標記</th>
-              <th>備註說明</th>
-              <th>現場照片 (縮圖)</th>
-              <th>更新時間</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml}
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
-
-    const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `產線良率交接報表_含照片_${dateStr || '全部'}_${Date.now()}.xls`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      // 產出真正的 .xlsx 檔案
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `產線交接良率日報表_含照片_${dateStr || '全部'}_${Date.now()}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Excel 匯出失敗:', err);
+      alert('匯出 Excel 失敗：' + err.message);
+    }
   },
 
   /**
