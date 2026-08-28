@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 應用狀態
   const AppState = {
     currentDate: TallyStorage.getTodayDateString(),
+    selectedHandover: 'ALL', // 'ALL' | 'MISSING' | 'RECORDED'
     selectedShift: 'ALL',
     selectedLine: 'ALL',
     selectedCode: 'ALL',
@@ -71,12 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput: document.getElementById('search-input'),
 
     // 篩選選單
+    filterHandoverSelect: document.getElementById('filter-handover-select'),
     filterShiftSelect: document.getElementById('filter-shift-select'),
     filterLineSelect: document.getElementById('filter-line-select'),
     filterCodeSelect: document.getElementById('filter-code-select'),
     filterColumnISelect: document.getElementById('filter-column-i-select'),
 
+    // 12 線看板 Container
+    handoverTrackerContainer: document.getElementById('handover-tracker-container'),
+
     // KPI
+    kpiCardHandover: document.getElementById('kpi-card-handover'),
+    kpiHandoverCount: document.getElementById('kpi-handover-count'),
+    kpiHandoverPercent: document.getElementById('kpi-handover-percent'),
+    kpiHandoverSub: document.getElementById('kpi-handover-sub'),
     kpiTotalProduction: document.getElementById('kpi-total-production'),
     kpiTotalDefectsSub: document.getElementById('kpi-total-defects-sub'),
     kpiAvgYield: document.getElementById('kpi-avg-yield'),
@@ -101,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Actions & Tools
     btnSoundToggle: document.getElementById('btn-sound-toggle'),
     btnThemeToggle: document.getElementById('btn-theme-toggle'),
+    btnExportExcel: document.getElementById('btn-export-excel'),
     btnExportCsv: document.getElementById('btn-export-csv'),
     btnExportImage: document.getElementById('btn-export-image'),
     btnPrintReport: document.getElementById('btn-print-report'),
@@ -191,6 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function getFilteredItems() {
     let items = TallyStorage.getItemsByDate(AppState.currentDate);
 
+    // 12 條標準線交班狀態篩選 (ALL / RECORDED / MISSING)
+    if (AppState.selectedHandover === 'RECORDED') {
+      // 僅看已交班
+    }
+
     // 班別篩選 (早班 / 夜班)
     if (AppState.selectedShift !== 'ALL') {
       items = items.filter(i => (i.shift || '早班') === AppState.selectedShift);
@@ -228,6 +243,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     return items;
+  }
+
+  /**
+   * 取得當前條件下尚未交班的缺漏線體清單 (6*2=12 條標準線檢核)
+   */
+  function getFilteredMissingSlots() {
+    const inspection = TallyStorage.getHandoverInspection(AppState.currentDate, AppState.selectedShift);
+    let slots = inspection.missingSlots;
+
+    if (AppState.selectedLine !== 'ALL') {
+      slots = slots.filter(s => s.lineName === AppState.selectedLine);
+    }
+    if (AppState.selectedCode !== 'ALL') {
+      slots = slots.filter(s => s.lineCode === AppState.selectedCode);
+    }
+    return slots;
   }
 
   /**
@@ -276,6 +307,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const totalProd = dayItems.reduce((sum, i) => sum + (parseInt(i.totalProduction, 10) || 0), 0);
       const totalDefects = dayItems.reduce((sum, i) => sum + (parseInt(i.count, 10) || 0), 0);
 
+      // 12 條標準產線交班達成檢核
+      const inspection = TallyStorage.getHandoverInspection(AppState.currentDate, AppState.selectedShift);
+      if (DOM.kpiHandoverCount) {
+        DOM.kpiHandoverCount.textContent = `${inspection.recordedCount} / ${inspection.totalStandard}`;
+      }
+      if (DOM.kpiHandoverPercent) {
+        DOM.kpiHandoverPercent.textContent = `(${inspection.completionRate}%)`;
+        DOM.kpiHandoverPercent.style.color = inspection.missingCount === 0 ? '#10b981' : '#f43f5e';
+      }
+      if (DOM.kpiHandoverSub) {
+        if (inspection.missingCount === 0) {
+          DOM.kpiHandoverSub.textContent = '🎉 12 條標準線全數完成交班！';
+          DOM.kpiHandoverSub.style.color = '#10b981';
+        } else {
+          DOM.kpiHandoverSub.textContent = `🚨 尚缺 ${inspection.missingCount} 條線未交班 (點擊篩選)`;
+          DOM.kpiHandoverSub.style.color = '#f43f5e';
+        }
+      }
+
       if (DOM.kpiTotalProduction) {
         DOM.kpiTotalProduction.textContent = totalProd.toLocaleString();
       }
@@ -305,9 +355,97 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
+   * 渲染 12 條標準產線即時交班進度看板
+   */
+  function renderHandoverTrackerBar() {
+    if (!DOM.handoverTrackerContainer) return;
+    const inspection = TallyStorage.getHandoverInspection(AppState.currentDate, AppState.selectedShift);
+    const { totalStandard, recordedCount, missingCount, completionRate, allSlots } = inspection;
+    const isComplete = missingCount === 0;
+
+    let slotsHtml = '';
+    allSlots.forEach(slot => {
+      if (slot.isRecorded) {
+        slotsHtml += `
+          <div class="tracker-slot-pill recorded" title="✅ 已完成交班：${slot.lineName} ${slot.lineCode} 號線">
+            <span class="tracker-slot-name">
+              <i class="fa-solid fa-circle-check"></i> ${escapeHtml(slot.lineName)} ${escapeHtml(slot.lineCode)} 線
+            </span>
+            <span class="badge" style="background: rgba(16,185,129,0.2); color: #059669; font-size: 11px; font-weight: 700;">已交班</span>
+          </div>
+        `;
+      } else {
+        slotsHtml += `
+          <div class="tracker-slot-pill missing" title="🚨 缺漏未記錄交班：${slot.lineName} ${slot.lineCode} 號線">
+            <span class="tracker-slot-name">
+              <i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(slot.lineName)} ${escapeHtml(slot.lineCode)} 線
+            </span>
+            <button type="button" class="tracker-slot-action btn-tracker-fill" data-line="${escapeHtml(slot.lineName)}" data-code="${escapeHtml(slot.lineCode)}" title="立即補登此線交班">
+              ➕ 補登
+            </button>
+          </div>
+        `;
+      }
+    });
+
+    DOM.handoverTrackerContainer.innerHTML = `
+      <div class="tracker-header">
+        <div class="tracker-title">
+          <i class="fa-solid fa-clipboard-check" style="color: var(--color-primary);"></i>
+          <span>每日 12 條標準產線交班檢核看板 (6 線體 × 2 線號 = 12 條)</span>
+        </div>
+        <div class="tracker-progress-wrapper">
+          <span style="font-size: 13px; font-weight: 700; color: ${isComplete ? '#10b981' : '#f43f5e'};">
+            交班進度：${recordedCount} / ${totalStandard} (${completionRate}%)
+          </span>
+          <div class="tracker-progress-bar">
+            <div class="tracker-progress-fill ${isComplete ? '' : 'incomplete'}" style="width: ${completionRate}%;"></div>
+          </div>
+          ${missingCount > 0 ? `
+            <button type="button" class="btn-chip" id="btn-quick-toggle-missing" style="background: rgba(244,63,94,0.15); color: #f43f5e; border-color: rgba(244,63,94,0.3); font-weight: 700;">
+              ${AppState.selectedHandover === 'MISSING' ? '👀 顯示全部產線' : `🚨 篩選未交班 (${missingCount})`}
+            </button>
+          ` : `
+            <span class="badge" style="background: rgba(16,185,129,0.15); color: #10b981; font-weight: 700;">
+              🎉 今日已全數交班
+            </span>
+          `}
+        </div>
+      </div>
+      <div class="tracker-badge-grid">
+        ${slotsHtml}
+      </div>
+    `;
+
+    // 綁定看板上的快速補登按鈕
+    DOM.handoverTrackerContainer.querySelectorAll('.btn-tracker-fill').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openItemModalWithPreset({
+          lineName: btn.dataset.line,
+          lineCode: btn.dataset.code,
+          date: AppState.currentDate,
+          shift: AppState.selectedShift !== 'ALL' ? AppState.selectedShift : '早班'
+        });
+      });
+    });
+
+    // 綁定快速切換篩選未交班按鈕
+    const btnQuickToggle = DOM.handoverTrackerContainer.querySelector('#btn-quick-toggle-missing');
+    if (btnQuickToggle) {
+      btnQuickToggle.addEventListener('click', () => {
+        AppState.selectedHandover = AppState.selectedHandover === 'MISSING' ? 'ALL' : 'MISSING';
+        if (DOM.filterHandoverSelect) DOM.filterHandoverSelect.value = AppState.selectedHandover;
+        renderMainContent();
+      });
+    }
+  }
+
+  /**
    * 渲染主區域（同步刷新所有視圖）
    */
   function renderMainContent() {
+    renderHandoverTrackerBar();
     const items = getFilteredItems();
 
     // 同步渲染卡片與表格檢視，確保切換時已是最新狀態，並能即時看到增刪結果
@@ -320,9 +458,64 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * 渲染卡片式檢視 (大數字顯示 + 良率 + 照片縮圖列)
+   * 渲染卡片式檢視 (大數字顯示 + 良率 + 照片縮圖列 + 缺漏交班提示卡)
    */
   function renderCardsView(items) {
+    if (AppState.selectedHandover === 'MISSING') {
+      const missingSlots = getFilteredMissingSlots();
+      if (missingSlots.length === 0) {
+        DOM.itemsGridContainer.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: 48px 20px; text-align: center;">
+            <div style="font-size: 52px; color: #10b981; margin-bottom: 16px;"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 style="font-size: 20px; font-weight: 800; color: var(--text-primary);">太棒了！無任何缺漏產線</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">當前條件下的 12 條標準產線均已全數完成交班填報！</p>
+          </div>
+        `;
+        DOM.emptyState.classList.add('hidden');
+        return;
+      }
+
+      DOM.emptyState.classList.add('hidden');
+      let html = '';
+      missingSlots.forEach(slot => {
+        html += `
+          <div class="item-card missing-slot-card">
+            <div class="missing-card-content">
+              <div class="missing-alert-badge">
+                <i class="fa-solid fa-triangle-exclamation"></i> 尚未填報交班紀錄 (缺漏)
+              </div>
+              <h3 style="font-size: 20px; font-weight: 800; color: var(--text-primary); margin: 6px 0;">
+                <i class="fa-solid fa-industry" style="color: #f43f5e;"></i> ${escapeHtml(slot.lineName)} - ${escapeHtml(slot.lineCode)} 號線
+              </h3>
+              <p style="font-size: 13px; color: var(--text-secondary);">
+                日期：<strong>${AppState.currentDate}</strong> ｜ 班別：<strong>${AppState.selectedShift !== 'ALL' ? AppState.selectedShift : '全天'}</strong>
+              </p>
+              <div style="font-size: 12px; color: #e11d48; background: rgba(244,63,94,0.08); padding: 8px 12px; border-radius: 6px; width: 100%;">
+                ⚠️ 系統檢核到此產線在 12 條標準交接線中<strong>尚未有交接紀錄</strong>
+              </div>
+              <button type="button" class="btn-fill-missing btn-fill-preset" data-line="${escapeHtml(slot.lineName)}" data-code="${escapeHtml(slot.lineCode)}" style="margin-top: 4px;">
+                <i class="fa-solid fa-plus"></i> 立即補登此線交班
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      DOM.itemsGridContainer.innerHTML = html;
+
+      DOM.itemsGridContainer.querySelectorAll('.btn-fill-preset').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openItemModalWithPreset({
+            lineName: btn.dataset.line,
+            lineCode: btn.dataset.code,
+            date: AppState.currentDate,
+            shift: AppState.selectedShift !== 'ALL' ? AppState.selectedShift : '早班'
+          });
+        });
+      });
+      return;
+    }
+
     if (items.length === 0) {
       DOM.itemsGridContainer.innerHTML = '';
       DOM.emptyState.classList.remove('hidden');
@@ -499,9 +692,65 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * 渲染表格檢視
+   * 渲染表格檢視 (含缺漏線體警示列)
    */
   function renderTableView(items) {
+    if (AppState.selectedHandover === 'MISSING') {
+      const missingSlots = getFilteredMissingSlots();
+      DOM.tableRecordCount.textContent = `共缺漏 ${missingSlots.length} 條未交班線體`;
+      if (missingSlots.length === 0) {
+        DOM.tableBodyContainer.innerHTML = `
+          <tr>
+            <td colspan="13" style="text-align: center; padding: 40px; color: #10b981; font-weight: bold; font-size: 16px;">
+              <i class="fa-solid fa-circle-check"></i> 太棒了！所有 12 條標準線體均已完成交班！
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      let html = '';
+      missingSlots.forEach((slot, idx) => {
+        html += `
+          <tr class="missing-table-row">
+            <td><span class="badge" style="background: rgba(244,63,94,0.2); color: #f43f5e; font-weight: 700;">${idx + 1}</span></td>
+            <td><span class="meta-tag tag-shift">${AppState.selectedShift !== 'ALL' ? AppState.selectedShift : '全天'}</span></td>
+            <td><span class="meta-tag tag-time-slot">-</span></td>
+            <td><span class="meta-tag tag-line" style="background: rgba(244,63,94,0.15); color: #e11d48; font-weight: 700;"><i class="fa-solid fa-industry"></i> ${escapeHtml(slot.lineName)}</span></td>
+            <td><span class="meta-tag tag-code" style="background: rgba(244,63,94,0.15); color: #e11d48; font-weight: 700;">${escapeHtml(slot.lineCode)} 號線</span></td>
+            <td><span style="color: #f43f5e; font-weight: 700;"><i class="fa-solid fa-triangle-exclamation"></i> 尚未填報交班</span></td>
+            <td><span style="color: #f43f5e; font-weight: 700;">-</span></td>
+            <td>0</td>
+            <td>0</td>
+            <td>-</td>
+            <td><span class="meta-tag" style="background: rgba(244,63,94,0.15); color: #f43f5e; font-weight: 700;">🚨 缺漏未填</span></td>
+            <td><span style="color: #f43f5e; font-size: 12px;">待組長或交班人員補登</span></td>
+            <td>
+              <div class="table-actions-cell">
+                <button type="button" class="btn-primary btn-fill-preset" data-line="${escapeHtml(slot.lineName)}" data-code="${escapeHtml(slot.lineCode)}" style="background: linear-gradient(135deg, #f43f5e, #e11d48); padding: 5px 12px; font-size: 12px;">
+                  <i class="fa-solid fa-plus"></i> 立即補登
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+      DOM.tableBodyContainer.innerHTML = html;
+
+      DOM.tableBodyContainer.querySelectorAll('.btn-fill-preset').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openItemModalWithPreset({
+            lineName: btn.dataset.line,
+            lineCode: btn.dataset.code,
+            date: AppState.currentDate,
+            shift: AppState.selectedShift !== 'ALL' ? AppState.selectedShift : '早班'
+          });
+        });
+      });
+      return;
+    }
+
     DOM.tableRecordCount.textContent = `共 ${items.length} 筆紀錄`;
     if (items.length === 0) {
       DOM.tableBodyContainer.innerHTML = `
@@ -865,7 +1114,27 @@ document.addEventListener('DOMContentLoaded', () => {
       DOM.btnSoundToggle.title = AppState.soundEnabled ? '音效已開啟' : '音效已靜音';
     });
 
-    // 匯出 CSV / 圖片 / 列印
+    // 12 條標準線交班狀態篩選 (ALL / MISSING / RECORDED)
+    if (DOM.filterHandoverSelect) {
+      DOM.filterHandoverSelect.addEventListener('change', (e) => {
+        AppState.selectedHandover = e.target.value;
+        renderMainContent();
+      });
+    }
+
+    // 點擊 KPI 12 線交班卡片快速切換篩選未交班
+    if (DOM.kpiCardHandover) {
+      DOM.kpiCardHandover.addEventListener('click', () => {
+        AppState.selectedHandover = AppState.selectedHandover === 'MISSING' ? 'ALL' : 'MISSING';
+        if (DOM.filterHandoverSelect) DOM.filterHandoverSelect.value = AppState.selectedHandover;
+        renderMainContent();
+      });
+    }
+
+    // 匯出 Excel (含縮圖照片) / CSV / 圖片 / 列印
+    if (DOM.btnExportExcel) {
+      DOM.btnExportExcel.addEventListener('click', () => TallyStorage.exportToExcel(AppState.currentDate));
+    }
     DOM.btnExportCsv.addEventListener('click', () => TallyStorage.exportToCSV(AppState.currentDate));
     DOM.btnExportImage.addEventListener('click', generateImageReport);
     DOM.btnPrintReport.addEventListener('click', () => window.print());
@@ -1308,6 +1577,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateModalYieldPreview();
     DOM.itemModal.classList.add('active');
+  }
+
+  /**
+   * 以預設產線資料開啟新增視窗 (針對 12 線缺漏快速補登)
+   */
+  function openItemModalWithPreset(preset = {}) {
+    openItemModal(null);
+    if (preset.lineName) {
+      DOM.inputItemLineName.value = preset.lineName;
+    }
+    if (preset.lineCode) {
+      DOM.inputItemLineCode.value = preset.lineCode;
+    }
+    if (preset.date) {
+      DOM.inputItemDate.value = preset.date;
+    }
+    if (preset.shift) {
+      DOM.inputItemShift.value = preset.shift;
+    }
+    DOM.modalTitle.innerHTML = `<i class="fa-solid fa-circle-plus"></i> 補登「${escapeHtml(preset.lineName || '')} ${escapeHtml(preset.lineCode || '')}號線」交班紀錄`;
   }
 
   function closeItemModal() {

@@ -38,7 +38,10 @@
         <button id="btn-theme-toggle" class="btn-icon" title="切換深色/淺色主題" aria-label="切換主題">
           <i class="fa-solid fa-moon"></i>
         </button>
-        <button id="btn-export-csv" class="btn-secondary" title="匯出 Excel / CSV">
+        <button id="btn-export-excel" class="btn-secondary" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border-color: rgba(16, 185, 129, 0.3);" title="匯出 Excel 報表 (包含現場縮圖照片)">
+          <i class="fa-solid fa-file-excel"></i> 匯出 Excel (含照片)
+        </button>
+        <button id="btn-export-csv" class="btn-secondary" title="匯出 CSV 資料檔">
           <i class="fa-solid fa-file-csv"></i> 匯出 CSV
         </button>
         <button id="btn-export-image" class="btn-secondary" title="匯出統計圖卡">
@@ -78,6 +81,12 @@
           <input type="text" id="search-input" placeholder="搜尋交班人員、接班工程師、時間段、備註...">
         </div>
         <div class="select-filter-group">
+          <!-- 12 條標準線交班紀錄篩選 (6線體 × 2線號 = 12 條) -->
+          <select id="filter-handover-select" class="filter-select" title="依 12 條標準線交班紀錄篩選" style="border-color: rgba(244, 63, 94, 0.4); background: rgba(244, 63, 94, 0.04); font-weight: 600;">
+            <option value="ALL">全部交班狀態 (12 線)</option>
+            <option value="MISSING">🚨 僅看未記錄 / 缺漏交班線體</option>
+            <option value="RECORDED">✅ 僅看已記錄線體</option>
+          </select>
           <!-- 班別篩選 -->
           <select id="filter-shift-select" class="filter-select" title="依班別篩選">
             <option value="ALL">全部班別</option>
@@ -123,8 +132,24 @@
       </div>
     </section>
 
-    <!-- KPI Summary Section -->
+    <!-- KPI Summary Section (4 大指標面板) -->
     <section class="kpi-grid">
+      <!-- KPI 1: 12 條標準線交班達成檢核 (點擊可快速篩選未交班) -->
+      <div class="kpi-card clickable-kpi" id="kpi-card-handover" title="點擊切換篩選未記錄交班產線">
+        <div class="kpi-icon icon-rose" id="kpi-handover-icon">
+          <i class="fa-solid fa-clipboard-check"></i>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">12 條標準線交班達成</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-handover-count">0 / 12</span>
+            <span class="kpi-unit" id="kpi-handover-percent" style="font-size: 14px; font-weight: 700; color: #f43f5e;">(0%)</span>
+          </div>
+          <span class="kpi-sub" id="kpi-handover-sub" style="color: #f43f5e; font-weight: 600;">尚缺 12 條未交班 (點擊查看)</span>
+        </div>
+      </div>
+
+      <!-- KPI 2: 當日生產總數 -->
       <div class="kpi-card">
         <div class="kpi-icon icon-blue">
           <i class="fa-solid fa-industry"></i>
@@ -139,6 +164,7 @@
         </div>
       </div>
 
+      <!-- KPI 3: 當班平均良率 -->
       <div class="kpi-card">
         <div class="kpi-icon icon-emerald">
           <i class="fa-solid fa-chart-line"></i>
@@ -153,6 +179,7 @@
         </div>
       </div>
 
+      <!-- KPI 4: 未改 I 欄位項目 -->
       <div class="kpi-card">
         <div class="kpi-icon icon-amber">
           <i class="fa-solid fa-triangle-exclamation"></i>
@@ -167,6 +194,9 @@
         </div>
       </div>
     </section>
+
+    <!-- 12 條標準線體即時交班進度看板 -->
+    <div id="handover-tracker-container" class="handover-tracker-container"></div>
 
     <!-- Main Content Area -->
     <main class="main-content">
@@ -524,8 +554,8 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Scripts -->
-  <script src="js/storage.js?v=20260828_5"></script>
-  <script src="js/charts.js?v=20260828_5"></script>
-  <script src="js/app.js?v=20260828_5"></script>
+  <script src="js/storage.js?v=20260828_6"></script>
+  <script src="js/charts.js?v=20260828_6"></script>
+  <script src="js/app.js?v=20260828_6"></script>
 </body>
 </html>

@@ -313,6 +313,167 @@ const TallyStorage = {
   },
 
   /**
+   * 檢核 6 線體 × 2 線別 = 12 條標準產線交班紀錄狀況
+   * @param {string} dateStr 'YYYY-MM-DD'
+   * @param {string} shift 'ALL' | '早班' | '夜班'
+   * @returns {Object}
+   */
+  getHandoverInspection(dateStr, shift = 'ALL') {
+    const recordedItems = this.getItemsByDate(dateStr).filter(i => {
+      if (shift !== 'ALL') return (i.shift || '早班') === shift;
+      return true;
+    });
+
+    const standardLines = ['module', 'cp', '測組', '測拆', '壓件', '水冷'];
+    const standardCodes = ['1', '2'];
+
+    const allSlots = [];
+    const missingSlots = [];
+    const completedSlots = [];
+
+    standardLines.forEach(lineName => {
+      standardCodes.forEach(lineCode => {
+        const slotKey = `${lineName}_${lineCode}`;
+        const match = recordedItems.find(i => (i.lineName || 'module') === lineName && String(i.lineCode || '1') === lineCode);
+        const slotData = {
+          lineName,
+          lineCode,
+          slotKey,
+          isRecorded: Boolean(match),
+          item: match || null
+        };
+        allSlots.push(slotData);
+        if (match) {
+          completedSlots.push(slotData);
+        } else {
+          missingSlots.push(slotData);
+        }
+      });
+    });
+
+    return {
+      totalStandard: 12,
+      recordedCount: completedSlots.length,
+      missingCount: missingSlots.length,
+      completionRate: Math.round((completedSlots.length / 12) * 100),
+      allSlots,
+      missingSlots,
+      completedSlots
+    };
+  },
+
+  /**
+   * 匯出當日或全量資料至 Excel (.xls 含內嵌縮圖照片)
+   * @param {string|null} dateStr
+   */
+  exportToExcel(dateStr = null) {
+    const items = dateStr ? this.getItemsByDate(dateStr) : this.getAllItems();
+    if (items.length === 0) {
+      alert('目前無可匯出的項目資料！');
+      return;
+    }
+
+    let rowsHtml = '';
+    items.forEach((item, idx) => {
+      const yieldRateStr = this.calculateYieldRate(item.totalProduction, item.count);
+      const columnIStatus = item.unmodifiedItems || (item.unmodifiedColumnI ? '未改 I 欄位' : '已改 I 欄位');
+      
+      let photosHtml = '<span style="color: #94a3b8;">無照片</span>';
+      if (item.images && item.images.length > 0) {
+        photosHtml = item.images.map((img, i) => `
+          <div style="display:inline-block; margin:2px; text-align:center;">
+            <img src="${img}" width="90" height="70" style="object-fit:cover; border:1px solid #e2e8f0; border-radius:4px;" />
+            <div style="font-size:10px; color:#64748b;">照片 ${i + 1}</div>
+          </div>
+        `).join('');
+      }
+
+      rowsHtml += `
+        <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'}; text-align: center; vertical-align: middle;">
+          <td style="padding: 10px; border: 1px solid #cbd5e1; mso-number-format:'\\@';">${item.date}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1;">${item.shift || '早班'}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1;">${item.timeSlot || '08:00 - 10:00'}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1; font-weight: bold; color: #1e293b;">${item.lineName || 'module'}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1; font-weight: bold;">${item.lineCode || '1'} 號線</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1;">${item.handoverPerson || '-'}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1;">${item.receiverEngineer || '-'}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1; font-weight: bold; mso-number-format:'\\#\\,\\#\\#0';">${item.totalProduction !== undefined ? item.totalProduction : 0}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1; color: #ef4444; font-weight: bold;">${item.count || 0}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1; color: #10b981; font-weight: bold;">${yieldRateStr}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1;">${columnIStatus}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1; text-align: left;">${item.notes || '-'}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1; text-align: center;">${photosHtml}</td>
+          <td style="padding: 10px; border: 1px solid #cbd5e1; font-size: 11px; color: #64748b;">${item.updatedAt || item.createdAt || ''}</td>
+        </tr>
+      `;
+    });
+
+    const excelTemplate = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!--[if gte mso 9]>
+        <xml>
+          <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+              <x:ExcelWorksheet>
+                <x:Name>產線交接良率報表</x:Name>
+                <x:WorksheetOptions>
+                  <x:DisplayGridlines/>
+                </x:WorksheetOptions>
+              </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+          </x:ExcelWorkbook>
+        </xml>
+        <![endif]-->
+        <style>
+          table { border-collapse: collapse; width: 100%; font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif; }
+          th { background-color: #1e293b; color: #ffffff; padding: 12px; border: 1px solid #94a3b8; font-size: 13px; font-weight: bold; }
+          td { border: 1px solid #cbd5e1; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <h2 style="font-family: 'Microsoft JhengHei', sans-serif; color: #1e293b; margin-bottom: 12px;">產線數量與良率統計交接日報表（含照片檢視）</h2>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">匯出日期範圍：${dateStr || '全部歷史紀錄'} ｜ 總筆數：${items.length} 筆</p>
+        <table>
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>班別</th>
+              <th>生產時間段</th>
+              <th>生產線體</th>
+              <th>線別編號</th>
+              <th>交班人員</th>
+              <th>接班工程師</th>
+              <th>生產總數</th>
+              <th>不良數量</th>
+              <th>當班良率</th>
+              <th>I 欄位標記</th>
+              <th>備註說明</th>
+              <th>現場照片 (縮圖)</th>
+              <th>更新時間</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `產線良率交接報表_含照片_${dateStr || '全部'}_${Date.now()}.xls`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  },
+
+  /**
    * 匯出當日或全量資料至 CSV (包含 UTF-8 BOM，支援 Excel 繁體中文)
    * @param {string|null} dateStr
    */
@@ -323,10 +484,13 @@ const TallyStorage = {
       return;
     }
 
-    const headers = ['日期', '班別', '生產時間段', '生產線體', '線別編號', '交班人員', '接班工程師', '生產總數', '不良數量', '當班良率(%)', '未改I欄位細項', '備註說明', '更新時間'];
+    const headers = ['日期', '班別', '生產時間段', '生產線體', '線別編號', '交班人員', '接班工程師', '生產總數', '不良數量', '當班良率(%)', '未改I欄位細項', '照片數量', '照片資料預覽', '備註說明', '更新時間'];
     const rows = items.map(item => {
       const yieldRateStr = this.calculateYieldRate(item.totalProduction, item.count);
       const columnIStatus = item.unmodifiedItems || (item.unmodifiedColumnI ? '未改 I 欄位' : '已改 I 欄位');
+      const photoCountStr = item.images && item.images.length > 0 ? `${item.images.length} 張照片` : '無照片';
+      const photosDataStr = item.images && item.images.length > 0 ? item.images.join(' | ') : '無';
+
       return [
         `"${item.date}"`,
         `"${item.shift || '早班'}"`,
@@ -335,10 +499,12 @@ const TallyStorage = {
         `"${item.lineCode ? item.lineCode + '線' : '1線'}"`,
         `"${(item.handoverPerson || '').replace(/"/g, '""')}"`,
         `"${(item.receiverEngineer || '').replace(/"/g, '""')}"`,
-        item.totalProduction || 0,
+        item.totalProduction !== undefined ? item.totalProduction : 0,
         item.count || 0,
         `"${yieldRateStr}"`,
         `"${columnIStatus}"`,
+        `"${photoCountStr}"`,
+        `"${photosDataStr.replace(/"/g, '""')}"`,
         `"${(item.notes || '').replace(/"/g, '""')}"`,
         `"${item.updatedAt || item.createdAt || ''}"`
       ];

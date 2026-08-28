@@ -2077,8 +2077,196 @@ input:focus, textarea:focus {
   animation: itemPulseHighlight 1.2s ease-out forwards;
 }
 
-tr.item-highlight-pulse {
-  background-color: rgba(37, 99, 235, 0.15) !important;
-  transition: background-color 1.5s ease;
+.icon-rose {
+  background: rgba(244, 63, 94, 0.15);
+  color: #f43f5e;
+}
+
+.clickable-kpi {
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.clickable-kpi:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md), 0 0 12px rgba(244, 63, 94, 0.2);
+}
+
+/* ==========================================================================
+   12 條標準線交班進度看板 (Handover Tracker Bar)
+   ========================================================================== */
+
+.handover-tracker-container {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tracker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tracker-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tracker-progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tracker-progress-bar {
+  width: 160px;
+  height: 8px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.tracker-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: var(--radius-pill);
+  transition: width 0.4s ease;
+}
+
+.tracker-progress-fill.incomplete {
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+}
+
+.tracker-badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.tracker-slot-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-hover);
+  font-size: 12px;
+  transition: all var(--transition-fast);
+}
+
+.tracker-slot-pill.recorded {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+.tracker-slot-pill.missing {
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.3);
+  color: #e11d48;
+}
+
+.tracker-slot-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tracker-slot-action {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #f43f5e;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tracker-slot-action:hover {
+  background: #e11d48;
+}
+
+/* ==========================================================================
+   未記錄交班卡片 (Missing Slot Card)
+   ========================================================================== */
+
+.missing-slot-card {
+  border: 2px dashed rgba(244, 63, 94, 0.5) !important;
+  background: rgba(244, 63, 94, 0.03) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.missing-slot-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #f43f5e;
+}
+
+.missing-card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.missing-alert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(244, 63, 94, 0.15);
+  color: #f43f5e;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.btn-fill-missing {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.3);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-fill-missing:hover {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+}
+
+.missing-table-row {
+  background-color: rgba(244, 63, 94, 0.04) !important;
+  border-left: 4px solid #f43f5e !important;
 }
 
