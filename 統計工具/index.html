@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>產線數量與良率統計工作台 | Production Line Counter & Yield Rate</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- App Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="theme-light">
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-box">
+          <i class="fa-solid fa-industry logo-icon"></i>
+        </div>
+        <div class="title-group">
+          <h1>產線數量與良率統計工作台</h1>
+          <p class="subtitle">時間段點數・當班良率計算・交接人員紀錄與 I 欄位標記</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <!-- Quick Action Buttons -->
+        <button id="btn-sound-toggle" class="btn-icon" title="切換按鈕音效" aria-label="切換音效">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <button id="btn-theme-toggle" class="btn-icon" title="切換深色/淺色主題" aria-label="切換主題">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button id="btn-export-csv" class="btn-secondary" title="匯出 Excel / CSV">
+          <i class="fa-solid fa-file-csv"></i> 匯出 CSV
+        </button>
+        <button id="btn-export-image" class="btn-secondary" title="匯出統計圖卡">
+          <i class="fa-solid fa-image"></i> 匯出圖卡
+        </button>
+        <button id="btn-print-report" class="btn-secondary" title="列印報表">
+          <i class="fa-solid fa-print"></i> 列印
+        </button>
+        <button id="btn-open-add-modal" class="btn-primary">
+          <i class="fa-solid fa-plus"></i> 新增產線紀錄
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation & Filter Control Bar -->
+    <section class="control-bar card">
+      <div class="date-controls">
+        <div class="date-picker-wrapper">
+          <button id="btn-prev-day" class="btn-step" title="前一天">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <div class="date-input-group">
+            <i class="fa-regular fa-calendar-days"></i>
+            <input type="date" id="current-date-input">
+            <span id="date-weekday-badge" class="badge">星期幾</span>
+          </div>
+          <button id="btn-next-day" class="btn-step" title="後一天">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <button id="btn-today" class="btn-ghost">今天</button>
+        </div>
+      </div>
+
+      <div class="filter-controls">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-input" placeholder="搜尋交班人員、接班工程師、時間段、備註...">
+        </div>
+        <div class="select-filter-group">
+          <!-- 班別篩選 -->
+          <select id="filter-shift-select" class="filter-select" title="依班別篩選">
+            <option value="ALL">全部班別</option>
+            <option value="早班">☀️ 早班</option>
+            <option value="夜班">🌙 夜班</option>
+          </select>
+          <!-- 生產線體篩選 -->
+          <select id="filter-line-select" class="filter-select" title="依生產線體篩選">
+            <option value="ALL">全部線體</option>
+            <option value="module">module</option>
+            <option value="測組">測組</option>
+            <option value="cp">cp</option>
+            <option value="測拆">測拆</option>
+            <option value="壓件">壓件</option>
+            <option value="水冷">水冷</option>
+          </select>
+          <!-- 線別編號篩選 -->
+          <select id="filter-code-select" class="filter-select" title="依線別編號篩選">
+            <option value="ALL">全部線別</option>
+            <option value="1">1 號線</option>
+            <option value="2">2 號線</option>
+            <option value="3">3 號線</option>
+          </select>
+          <!-- I 欄位標記過濾 -->
+          <select id="filter-column-i-select" class="filter-select" title="依 I 欄位標記篩選">
+            <option value="ALL">全部 I 欄位狀態</option>
+            <option value="UNMODIFIED">⚠️ 僅看未改 I 欄位</option>
+            <option value="MODIFIED">✅ 已改 I 欄位</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="view-switcher">
+        <button id="btn-view-cards" class="view-btn active" title="卡片計數檢視">
+          <i class="fa-solid fa-grip"></i>
+        </button>
+        <button id="btn-view-table" class="view-btn" title="表格明細檢視">
+          <i class="fa-solid fa-table-list"></i>
+        </button>
+        <button id="btn-view-analytics" class="view-btn" title="統計圖表儀表板">
+          <i class="fa-solid fa-chart-pie"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- KPI Summary Section -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon icon-blue">
+          <i class="fa-solid fa-industry"></i>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">當日生產總數</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-total-production">0</span>
+            <span class="kpi-unit">件</span>
+          </div>
+          <span class="kpi-sub" id="kpi-total-defects-sub">不良總計：0 件</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon icon-emerald">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">當班平均良率</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-avg-yield">100.0</span>
+            <span class="kpi-unit">%</span>
+          </div>
+          <span class="kpi-sub" id="kpi-active-items">產線品質良率監控</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon icon-amber">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">未改 I 欄位項目</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-unmodified-i-count">0</span>
+            <span class="kpi-unit">項</span>
+          </div>
+          <span class="kpi-sub" id="kpi-top-item-count">需要確認更正的標記</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- 1. Cards View (Default) -->
+      <section id="view-cards-container" class="content-view active">
+        <div class="items-grid" id="items-grid-container">
+          <!-- Item Cards will be rendered here dynamically -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state hidden">
+          <div class="empty-illustration">
+            <i class="fa-solid fa-chart-line" style="font-size: 48px; color: var(--color-primary);"></i>
+          </div>
+          <h3>目前這一天尚無產線統計紀錄</h3>
+          <p>點擊上方「新增產線紀錄」按鈕，設定時間段、生產總數、不良數量與 I 欄位標記！</p>
+          <button class="btn-primary mt-3" onclick="document.getElementById('btn-open-add-modal').click()">
+            <i class="fa-solid fa-plus"></i> 新增第一個產線紀錄
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. Table List View -->
+      <section id="view-table-container" class="content-view hidden">
+        <div class="card table-card">
+          <div class="table-header-tools">
+            <h3><i class="fa-solid fa-table"></i> 當日產線計數與良率明細清單</h3>
+            <span class="text-muted" id="table-record-count">共 0 筆紀錄</span>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="items-data-table">
+              <thead>
+                <tr>
+                  <th width="45">排序</th>
+                  <th width="75">班別</th>
+                  <th width="110">生產時間段</th>
+                  <th width="90">生產線體</th>
+                  <th width="65">線別</th>
+                  <th width="95">交班人員</th>
+                  <th width="95">接班工程師</th>
+                  <th width="90">生產總數</th>
+                  <th width="85">不良數量</th>
+                  <th width="85">當班良率</th>
+                  <th width="105">I 欄位標記</th>
+                  <th>備註說明</th>
+                  <th width="140">快捷操作</th>
+                </tr>
+              </thead>
+              <tbody id="table-body-container">
+                <!-- Table rows dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Analytics & Charts View -->
+      <section id="view-analytics-container" class="content-view hidden">
+        <div class="charts-grid">
+          <!-- Donut Distribution Chart -->
+          <div class="chart-card card">
+            <div class="chart-header">
+              <h3><i class="fa-solid fa-chart-pie text-accent"></i> 各產線不良數量佔比</h3>
+              <span class="chart-subtitle">依當日線體不良件數佔比</span>
+            </div>
+            <div class="chart-canvas-wrapper">
+              <canvas id="chart-pie-canvas" width="400" height="300"></canvas>
+            </div>
+          </div>
+
+          <!-- Bar Ranking Chart -->
+          <div class="chart-card card">
+            <div class="chart-header">
+              <h3><i class="fa-solid fa-chart-column text-accent"></i> 產線不良數排行</h3>
+              <span class="chart-subtitle">不良數量由高至低</span>
+            </div>
+            <div class="chart-canvas-wrapper">
+              <canvas id="chart-bar-canvas" width="400" height="300"></canvas>
+            </div>
+          </div>
+
+          <!-- 7-Day Trend Chart -->
+          <div class="chart-card card full-width">
+            <div class="chart-header">
+              <h3><i class="fa-solid fa-chart-line text-accent"></i> 最近 7 天統計走勢</h3>
+              <span class="chart-subtitle">每日總生產數與不良數趨勢圖</span>
+            </div>
+            <div class="chart-canvas-wrapper">
+              <canvas id="chart-trend-canvas" width="800" height="260"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Floating Quick Actions Bar -->
+    <div class="quick-batch-bar" id="quick-batch-bar">
+      <span class="batch-title"><i class="fa-solid fa-bolt"></i> 快捷提示：</span>
+      <span class="batch-hint">點擊卡片大數字區域或 `+1` 按鈕即時增加不良數量；良率會自動即時重新計算！</span>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Item -->
+  <div class="modal-overlay" id="item-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title"><i class="fa-solid fa-pen-to-square"></i> 新增產線紀錄</h3>
+        <button class="btn-close-modal" id="btn-close-modal" aria-label="關閉">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form id="item-form" class="modal-body">
+        <input type="hidden" id="modal-item-id">
+        
+        <!-- 統計日期 與 生產時間段 -->
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="input-item-date">統計日期 <span class="required">*</span></label>
+            <input type="date" id="input-item-date" required>
+          </div>
+          <div class="form-group col-6">
+            <label for="input-item-time-slot"><i class="fa-regular fa-clock"></i> 生產時間段 <span class="required">*</span></label>
+            <input type="text" id="input-item-time-slot" placeholder="選擇或輸入時間段 (例: 08:00-10:00)" list="time-slot-datalist" required>
+            <datalist id="time-slot-datalist">
+              <option value="08:00 - 10:00">
+              <option value="10:00 - 12:00">
+              <option value="12:00 - 14:00">
+              <option value="14:00 - 16:00">
+              <option value="16:00 - 18:00">
+              <option value="18:00 - 20:00">
+              <option value="20:00 - 22:00">
+              <option value="22:00 - 00:00">
+              <option value="00:00 - 04:00">
+              <option value="04:00 - 08:00">
+            </datalist>
+          </div>
+        </div>
+
+        <!-- 產線設定列：班別、生產線體、線別編號 -->
+        <div class="form-row">
+          <div class="form-group col-4">
+            <label for="input-item-shift">班別 <span class="required">*</span></label>
+            <select id="input-item-shift" class="form-select" required>
+              <option value="早班">☀️ 早班</option>
+              <option value="夜班">🌙 夜班</option>
+            </select>
+          </div>
+          <div class="form-group col-4">
+            <label for="input-item-line-name">生產線體 <span class="required">*</span></label>
+            <select id="input-item-line-name" class="form-select" required>
+              <option value="module">module</option>
+              <option value="測組">測組</option>
+              <option value="cp">cp</option>
+              <option value="測拆">測拆</option>
+              <option value="壓件">壓件</option>
+              <option value="水冷">水冷</option>
+              <option value="__NEW__">➕ 新增自訂線體...</option>
+            </select>
+            <input type="text" id="input-custom-line-name" class="form-control mt-2 hidden" placeholder="請輸入新線體名稱 (例: SMT)">
+          </div>
+          <div class="form-group col-4">
+            <label for="input-item-line-code">線別編號 <span class="required">*</span></label>
+            <select id="input-item-line-code" class="form-select" required>
+              <option value="1">1 號線</option>
+              <option value="2">2 號線</option>
+              <option value="3">3 號線</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 人員設定列：交班人員 與 接班工程師 -->
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="input-item-handover-person"><i class="fa-solid fa-user-tag"></i> 交班人員</label>
+            <input type="text" id="input-item-handover-person" placeholder="請輸入交班人員姓名 (例如：王大明)" list="staff-person-datalist">
+          </div>
+          <div class="form-group col-6">
+            <label for="input-item-receiver-engineer"><i class="fa-solid fa-user-gear"></i> 接班工程師</label>
+            <input type="text" id="input-item-receiver-engineer" placeholder="請輸入接班工程師姓名 (例如：李工程師)" list="staff-person-datalist">
+          </div>
+          <datalist id="staff-person-datalist">
+            <option value="張小明">
+            <option value="李大華">
+            <option value="陳志遠">
+            <option value="林工程師">
+            <option value="黃工程師">
+          </datalist>
+        </div>
+
+        <!-- 數量與良率欄位列：生產總數, 不良數量, 當班良率預覽 -->
+        <div class="form-row">
+          <div class="form-group col-4">
+            <label for="input-item-total-production">生產總數 (件)</label>
+            <input type="number" id="input-item-total-production" min="0" value="1000" placeholder="例如：1000">
+          </div>
+          <div class="form-group col-4">
+            <label for="input-item-defect-count">不良數量 (件)</label>
+            <input type="number" id="input-item-defect-count" min="0" value="0" placeholder="例如：5">
+          </div>
+          <div class="form-group col-4">
+            <label>當班良率 (自動計算)</label>
+            <div id="modal-yield-preview" class="yield-preview-badge">100.0%</div>
+          </div>
+        </div>
+
+        <!-- 特殊狀態標記：未改 I 欄位項目選擇 -->
+        <div class="form-group" style="background: var(--bg-muted); padding: 14px; border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
+          <label for="input-unmodified-items" style="font-weight: 700; color: #d97706; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+            <i class="fa-solid fa-triangle-exclamation"></i> 未改 I 欄位項目選擇 (點擊快速加入或自行打字)
+          </label>
+          <div class="unmodified-chips-group mb-2" id="unmodified-chips-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+            <button type="button" class="btn-chip" data-val="未改工單號">+ 未改工單號</button>
+            <button type="button" class="btn-chip" data-val="未改產線號">+ 未改產線號</button>
+            <button type="button" class="btn-chip" data-val="未改機台號">+ 未改機台號</button>
+            <button type="button" class="btn-chip" data-val="未改人員">+ 未改人員</button>
+            <button type="button" class="btn-chip" data-val="未改規格">+ 未改規格</button>
+            <button type="button" class="btn-chip" data-val="未改時間段">+ 未改時間段</button>
+          </div>
+          <input type="text" id="input-unmodified-items" class="form-control" placeholder="請選擇上方標籤或輸入未修改之項目 (留空代表 I 欄位已完整修改)">
+        </div>
+
+        <!-- 現場照片上傳 (支援拖曳、點擊或貼上剪貼簿截圖) -->
+        <div class="form-group">
+          <label><i class="fa-solid fa-camera"></i> 現場與異常照片上傳 (可選，支援點擊、拖曳或 Ctrl+V 貼上)</label>
+          <div class="photo-upload-dropzone" id="photo-upload-dropzone">
+            <input type="file" id="input-item-photos" accept="image/*" multiple style="display: none;">
+            <div class="dropzone-content">
+              <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+              <p class="dropzone-text">點擊選取照片、拖曳檔案至此，或按 <strong>Ctrl+V / ⌘V</strong> 貼上截圖</p>
+              <span class="dropzone-hint">支援 JPG / PNG / WEBP 等格式，系統會自動優化壓縮儲存</span>
+            </div>
+          </div>
+          <div class="photo-preview-grid" id="modal-photo-preview-grid">
+            <!-- 照片縮圖容器動態生成 -->
+          </div>
+        </div>
+
+        <!-- 卡片代表色 -->
+        <div class="form-group">
+          <label>卡片主題色</label>
+          <div class="color-picker-group">
+            <label class="color-radio">
+              <input type="radio" name="item-color" value="#3b82f6" checked>
+              <span class="color-dot" style="background-color: #3b82f6;"></span>
+            </label>
+            <label class="color-radio">
+              <input type="radio" name="item-color" value="#10b981">
+              <span class="color-dot" style="background-color: #10b981;"></span>
+            </label>
+            <label class="color-radio">
+              <input type="radio" name="item-color" value="#f59e0b">
+              <span class="color-dot" style="background-color: #f59e0b;"></span>
+            </label>
+            <label class="color-radio">
+              <input type="radio" name="item-color" value="#8b5cf6">
+              <span class="color-dot" style="background-color: #8b5cf6;"></span>
+            </label>
+            <label class="color-radio">
+              <input type="radio" name="item-color" value="#ec4899">
+              <span class="color-dot" style="background-color: #ec4899;"></span>
+            </label>
+            <label class="color-radio">
+              <input type="radio" name="item-color" value="#06b6d4">
+              <span class="color-dot" style="background-color: #06b6d4;"></span>
+            </label>
+            <label class="color-radio">
+              <input type="radio" name="item-color" value="#64748b">
+              <span class="color-dot" style="background-color: #64748b;"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="input-item-notes">備註說明 (可選)</label>
+          <textarea id="input-item-notes" rows="2" placeholder="可選填相關詳細資訊或交接事項..."></textarea>
+        </div>
+      </form>
+      <!-- Modal Footer 固定於 modal-card 底部，不隨內容捲動 -->
+      <div class="modal-footer">
+        <button type="button" class="btn-danger-ghost hidden" id="btn-delete-from-modal">
+          <i class="fa-solid fa-trash-can"></i> 刪除此紀錄
+        </button>
+        <div style="flex: 1;"></div>
+        <button type="button" class="btn-ghost" id="btn-cancel-modal">取消</button>
+        <button type="button" class="btn-primary" id="btn-save-item">確認儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Fullscreen Photo Lightbox Viewer -->
+  <div class="modal-overlay" id="image-lightbox-modal">
+    <div class="lightbox-wrapper">
+      <button type="button" class="btn-close-lightbox" id="btn-close-lightbox" aria-label="關閉全螢幕預覽">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="lightbox-content">
+        <img id="lightbox-img" src="" alt="現場產線照片預覽">
+      </div>
+      <div class="lightbox-footer">
+        <span id="lightbox-title" style="color: #fff; font-size: 14px;">產線照片檢視</span>
+        <a id="btn-download-lightbox-img" href="#" download="產線照片.jpg" class="btn-secondary" style="padding: 6px 14px; font-size: 13px;">
+          <i class="fa-solid fa-download"></i> 下載照片
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Delete Confirmation -->
+  <div class="modal-overlay" id="delete-confirm-modal">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3 style="color: var(--color-danger);"><i class="fa-solid fa-triangle-exclamation"></i> 確認刪除紀錄</h3>
+        <button class="btn-close-modal" id="btn-close-delete-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 15px; line-height: 1.6;" id="delete-confirm-msg">
+          確定要刪除此產線紀錄嗎？
+        </p>
+        <p class="text-muted" style="font-size: 12px; margin-top: 4px;">
+          此操作將立即移除該產線的計數紀錄，且無法復原。
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" id="btn-cancel-delete">取消</button>
+        <button type="button" class="btn-danger" id="btn-confirm-delete">
+          <i class="fa-solid fa-trash-can"></i> 確認刪除
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Direct Exact Count Edit -->
+  <div class="modal-overlay" id="count-edit-modal">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-hashtag"></i> 修改不良數量</h3>
+        <button class="btn-close-modal" id="btn-close-count-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p id="count-edit-item-name" style="font-weight: 600; color: var(--text-primary); margin-bottom: 12px;"></p>
+        <div class="form-group">
+          <label for="direct-count-input">直接輸入不良數量 (件)</label>
+          <input type="number" id="direct-count-input" min="0" value="0" style="font-size: 24px; font-weight: 800; text-align: center;">
+        </div>
+        <div id="count-edit-preview" style="text-align: center; margin: 12px 0 6px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" id="btn-cancel-count-modal">取消</button>
+        <button type="button" class="btn-primary" id="btn-save-count">確認儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
