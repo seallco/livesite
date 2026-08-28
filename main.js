@@ -13,6 +13,40 @@ document.addEventListener('DOMContentLoaded', () => {
         contentContainer.innerHTML = ""; // 清空
         sidebarNav.innerHTML = "";       // 清空側邊欄導航
 
+        // 建立側邊欄：獨立應用直達 (Direct Featured Apps)
+        if (filterText === "") {
+            const directGroupTitle = document.createElement('div');
+            directGroupTitle.className = 'nav-group-title';
+            directGroupTitle.innerHTML = '<i class="fa-solid fa-star"></i> 核心應用直達';
+            sidebarNav.appendChild(directGroupTitle);
+
+            // 提取所有帶有標籤或重要直連項目
+            const featuredItems = [
+                { title: "產線良率統計", link: "./統計工具/index.html", icon: "fa-solid fa-industry", tag: "New", tagClass: "badge-new" },
+                { title: "LinguaPulse 英語", link: "./Gept/index.html", icon: "fa-solid fa-bolt", tag: "Hot", tagClass: "badge-hot" },
+                { title: "智慧精準灌溉", link: "./presentation/index.html", icon: "fa-solid fa-droplet", tag: "Featured", tagClass: "badge-featured" }
+            ];
+
+            featuredItems.forEach(item => {
+                const a = document.createElement('a');
+                a.href = item.link;
+                a.className = 'nav-featured';
+                a.innerHTML = `
+                    <span class="nav-left">
+                        <i class="${item.icon}" style="color: var(--primary);"></i>
+                        <span>${item.title}</span>
+                    </span>
+                    <span class="nav-badge-pill ${item.tagClass}">${item.tag}</span>
+                `;
+                sidebarNav.appendChild(a);
+            });
+
+            const categoryGroupTitle = document.createElement('div');
+            categoryGroupTitle.className = 'nav-group-title';
+            categoryGroupTitle.innerHTML = '<i class="fa-solid fa-layer-group"></i> 專案分類目錄';
+            sidebarNav.appendChild(categoryGroupTitle);
+        }
+
         siteConfig.sections.forEach((section, index) => {
             // 搜尋過濾邏輯
             const filteredItems = section.items.filter(item => 
@@ -33,7 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // 加入側邊欄連結
             const navLink = document.createElement('a');
             navLink.href = `#${sectionId}`;
-            navLink.innerHTML = `<i class="${section.icon}"></i> ${section.title.split(' ')[0]}`; // 只取第一個詞當導航
+            navLink.innerHTML = `
+                <span class="nav-left">
+                    <i class="${section.icon}"></i>
+                    <span>${section.title}</span>
+                </span>
+                <i class="fa-solid fa-angle-right" style="font-size: 11px; opacity: 0.5;"></i>
+            `;
             sidebarNav.appendChild(navLink);
 
             // 建立內容容器 (Card 或 List)
@@ -64,9 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     a.className = 'card';
                     a.href = item.link;
                     a.target = item.link.startsWith('http') ? '_blank' : '_self';
+                    const iconClass = item.icon || 'fa-regular fa-folder-open';
                     a.innerHTML = `
                         <div class="card-top">
-                            <i class="fa-regular fa-folder-open" style="color:var(--primary)"></i>
+                            <i class="${iconClass}" style="color:var(--primary); font-size: 1.25rem;"></i>
                             ${item.tag ? `<span class="tag">${item.tag}</span>` : ''}
                         </div>
                         <h3>${item.title}</h3>

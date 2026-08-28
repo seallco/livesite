@@ -12,9 +12,9 @@ const siteConfig = {
             icon: "fa-solid fa-bolt",
             type: "card",
             items: [
-                { title: "產線數量與良率統計工作台", desc: "時間段點數・當班良率計算・交接人員紀錄與 I 欄位標記", link: "./統計工具/index.html", tag: "New" },
-                { title: "LinguaPulse 靈感英語", desc: "GEPT 中高級 ✕ 多益金證 8,365 詞彙庫隨想隨練", link: "./Gept/index.html", tag: "Hot" },
-                { title: "智慧精準灌溉系統", desc: "氣象預報聯動之節水攔截機制 (GSAP + 3D 動畫)", link: "./presentation/index.html", tag: "Featured" }
+                { title: "產線數量與良率統計工作台", desc: "時間段點數・當班良率計算・交接人員紀錄與 I 欄位標記", link: "./統計工具/index.html", tag: "New", icon: "fa-solid fa-industry" },
+                { title: "LinguaPulse 靈感英語", desc: "GEPT 中高級 ✕ 多益金證 8,365 詞彙庫隨想隨練", link: "./Gept/index.html", tag: "Hot", icon: "fa-solid fa-language" },
+                { title: "智慧精準灌溉系統", desc: "氣象預報聯動之節水攔截機制 (GSAP + 3D 動畫)", link: "./presentation/index.html", tag: "Featured", icon: "fa-solid fa-droplet" }
             ]
         },
         {
