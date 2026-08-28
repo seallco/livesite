@@ -13,7 +13,7 @@ const TallyCharts = {
   ],
 
   /**
-   * 設置 Canvas 支援高解析度 (Retina 2x/3x)
+   * 設置 Canvas 支援高解析度 (Retina 2x/3x) 與自適應寬高
    * @param {HTMLCanvasElement} canvas
    * @returns {CanvasRenderingContext2D}
    */
@@ -22,19 +22,32 @@ const TallyCharts = {
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     
-    // 依據容器寬高調整
-    const width = rect.width || canvas.width;
-    const height = rect.height || canvas.height;
+    // 依據容器寬高調整 (若處於隱藏狀態則抓取父元素或預設寬高)
+    let width = rect.width;
+    let height = rect.height;
 
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
+    if (!width || width < 100) {
+      width = canvas.parentElement ? canvas.parentElement.clientWidth : 340;
+    }
+    if (!height || height < 100) {
+      height = canvas.parentElement ? canvas.parentElement.clientHeight : 300;
+    }
+
+    if (!width || width < 100) width = 340;
+    if (!height || height < 100) height = 300;
+
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+
     ctx.scale(dpr, dpr);
 
     return { ctx, width, height };
   },
 
   /**
-   * 繪製圓餅/環形分佈圖 (Donut Distribution Chart)
+   * 繪製圓餅/環形分佈圖 (Donut Distribution Chart) - 支援手機端自適應上下排版
    * @param {string} canvasId
    * @param {Array<Object>} items
    */
@@ -48,19 +61,66 @@ const TallyCharts = {
     const validItems = items.filter(i => (i.count || 0) > 0);
     const totalCount = validItems.reduce((sum, i) => sum + i.count, 0);
 
+    const isMobile = width < 520;
+
+    // 當目前不良數為 0 時，繪製 100% 全綠優良指標環，而不是空白或暗色文字
     if (totalCount === 0) {
-      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-muted').trim() || '#94a3b8';
-      ctx.font = '14px sans-serif';
+      const centerX = isMobile ? width / 2 : width * 0.4;
+      const centerY = isMobile ? 100 : height / 2;
+      const outerRadius = isMobile ? 70 : Math.min(centerX - 24, centerY - 24);
+      const innerRadius = outerRadius * 0.58;
+
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, innerRadius, Math.PI * 2, 0, true);
+      ctx.closePath();
+      ctx.fillStyle = '#10b981';
+      ctx.fill();
+
+      // 圓心文字
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 20px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('目前無計數數據可繪製圓餅圖', width / 2, height / 2);
+      ctx.fillText('100%', centerX, centerY - 8);
+
+      ctx.font = '11px sans-serif';
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-muted').trim() || '#94a3b8';
+      ctx.fillText('良率優良', centerX, centerY + 12);
+
+      // 圖例說明
+      if (isMobile) {
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#0f172a';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillText('🎉 今日各產線全數運作正常 (0 不良件)', width / 2, centerY + outerRadius + 30);
+      } else {
+        const legendX = width * 0.65;
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#10b981';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillText('✅ 全線無不良件紀錄', legendX, centerY - 10);
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-muted').trim() || '#94a3b8';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('當日各線體良率維持 100%', legendX, centerY + 12);
+      }
       return;
     }
 
-    const centerX = width * 0.38;
-    const centerY = height / 2;
-    const outerRadius = Math.min(centerX - 20, centerY - 20);
-    const innerRadius = outerRadius * 0.55;
+    let centerX, centerY, outerRadius, innerRadius;
+
+    if (isMobile) {
+      // 手機模式：圓餅在上，圖例在下
+      centerX = width / 2;
+      centerY = Math.min(100, height * 0.35);
+      outerRadius = Math.max(35, Math.min(centerX - 24, 75));
+      innerRadius = outerRadius * 0.55;
+    } else {
+      // 電腦模式：圓餅在左，圖例在右
+      centerX = width * 0.38;
+      centerY = height / 2;
+      outerRadius = Math.max(35, Math.min(centerX - 20, centerY - 20));
+      innerRadius = outerRadius * 0.55;
+    }
 
     let startAngle = -Math.PI / 2;
 
@@ -76,7 +136,7 @@ const TallyCharts = {
       ctx.fillStyle = color;
       ctx.fill();
 
-      // 邊界微白光
+      // 邊界線
       ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--bg-card-solid').trim() || '#ffffff';
       ctx.lineWidth = 2;
       ctx.stroke();
@@ -86,41 +146,72 @@ const TallyCharts = {
 
     // 圓心中間文字
     ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#0f172a';
-    ctx.font = 'bold 20px sans-serif';
+    ctx.font = 'bold 18px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`${totalCount}`, centerX, centerY - 8);
+    ctx.fillText(`${totalCount}`, centerX, centerY - 7);
 
     ctx.font = '11px sans-serif';
     ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-muted').trim() || '#94a3b8';
-    ctx.fillText('總筆數', centerX, centerY + 12);
+    ctx.fillText('不良總數', centerX, centerY + 11);
 
-    // 右側圖例 (Legend)
-    const legendX = width * 0.68;
-    let legendY = 24;
-    const lineHeight = 24;
+    // 圖例渲染 (Legend)
+    if (isMobile) {
+      // 手機端：雙欄圖例排版於下方
+      const startY = centerY + outerRadius + 22;
+      const colWidth = (width - 24) / 2;
+      const displayItems = validItems.slice(0, 8);
 
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
 
-    validItems.slice(0, 8).forEach((item, index) => {
-      const color = item.color || this.PALETTE[index % this.PALETTE.length];
-      const percentage = Math.round((item.count / totalCount) * 100);
+      displayItems.forEach((item, index) => {
+        const col = index % 2;
+        const row = Math.floor(index / 2);
+        const itemX = 14 + col * colWidth;
+        const itemY = startY + row * 22;
 
-      // 色塊點
-      ctx.beginPath();
-      ctx.arc(legendX, legendY, 5, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.fill();
+        const color = item.color || this.PALETTE[index % this.PALETTE.length];
+        const percentage = Math.round((item.count / totalCount) * 100);
 
-      // 文字
-      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#0f172a';
-      ctx.font = '12px sans-serif';
-      const label = item.name.length > 8 ? item.name.substring(0, 7) + '…' : item.name;
-      ctx.fillText(`${label} (${percentage}%)`, legendX + 12, legendY);
+        // 色塊圓點
+        ctx.beginPath();
+        ctx.arc(itemX + 5, itemY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
 
-      legendY += lineHeight;
-    });
+        // 圖例文字
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#0f172a';
+        ctx.font = '11px sans-serif';
+        const label = item.name.length > 8 ? item.name.substring(0, 7) + '…' : item.name;
+        ctx.fillText(`${label} ${percentage}%`, itemX + 14, itemY);
+      });
+    } else {
+      // 電腦端：右側垂直圖例
+      const legendX = width * 0.65;
+      let legendY = 24;
+      const lineHeight = 24;
+
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+
+      validItems.slice(0, 8).forEach((item, index) => {
+        const color = item.color || this.PALETTE[index % this.PALETTE.length];
+        const percentage = Math.round((item.count / totalCount) * 100);
+
+        ctx.beginPath();
+        ctx.arc(legendX, legendY, 5, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#0f172a';
+        ctx.font = '12px sans-serif';
+        const label = item.name.length > 9 ? item.name.substring(0, 8) + '…' : item.name;
+        ctx.fillText(`${label} (${percentage}%)`, legendX + 12, legendY);
+
+        legendY += lineHeight;
+      });
+    }
   },
 
   /**

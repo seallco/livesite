@@ -1478,6 +1478,12 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.viewAnalyticsContainer.classList.toggle('hidden', viewName !== 'analytics');
 
     renderMainContent();
+
+    if (viewName === 'analytics') {
+      requestAnimationFrame(() => {
+        renderAnalyticsView(getFilteredItems());
+      });
+    }
   }
 
   function applyTheme(themeName) {
