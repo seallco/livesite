@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>無線感測網路 (WSN) 測驗系統 | 周淵凱的學習歷程</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-blue: #0f172a;
+      --accent-cyan: #06b6d4;
+      --bg-body: #f8fafc;
+      --card-bg: #ffffff;
+    }
+    body {
+      background-color: var(--bg-body);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      padding-top: 80px;
+      padding-bottom: 60px;
+    }
+    .top-navbar {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      height: 64px;
+      background-color: var(--primary-blue);
+      color: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+    }
+    .nav-container {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-btn-link {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .nav-btn-link:hover {
+      color: var(--accent-cyan);
+    }
+    .quiz-hero {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #fff;
+      padding: 28px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+    }
+    .quiz-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      transition: transform 0.2s, box-shadow 0.2s;
+      background: var(--card-bg);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .quiz-card:hover {
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+    .option-btn {
+      text-align: left;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 10px 16px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+    .badge-protocol {
+      background: rgba(6, 182, 212, 0.15);
+      color: #0891b2;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <nav class="top-navbar">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-btn-link">
+        <i class="fa-solid fa-house"></i> 回主儀表板
+      </a>
+      <span style="font-weight:700; font-size:1.1rem; letter-spacing:0.5px;">
+        <i class="fa-solid fa-tower-broadcast text-info me-1"></i> 無線感測網路 (WSN) 測驗系統
+      </span>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+          <i class="fa-solid fa-plus"></i> 新增題目
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="max-width: 900px;">
+    <!-- Hero 標題看板 -->
+    <div class="quiz-hero">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <span class="badge-protocol mb-2 d-inline-block">IoT & Wireless Sensor Networks</span>
+          <h2 class="fw-bold mb-1">📘 無線感測網路互動測驗與複習系統</h2>
+          <p class="text-secondary mb-0" style="color:#94a3b8 !important;">涵蓋 ZigBee (IEEE 802.15.4)、LEACH 叢集路由、S-MAC 低功耗監聽、感測定位演算法與節點能量最佳化。</p>
+        </div>
+        <div class="text-end">
+          <button class="btn btn-info text-white fw-bold px-4 py-2" onclick="refreshQuiz()">
+            <i class="fa-solid fa-shuffle me-1"></i> 隨機抽 5 題測驗
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 測驗進度看板 -->
+    <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+      <span class="text-muted fw-bold" id="quiz-count-label">載入題目中...</span>
+      <span class="badge bg-primary fs-6 px-3 py-2" id="score-badge">目前得分：0 / 0</span>
+    </div>
+
+    <!-- 題目渲染清單 -->
+    <div id="questions-container"></div>
+  </div>
+
+  <!-- 新增題目彈窗 (支援 LocalStorage 本地儲存) -->
+  <div class="modal fade" id="addQuestionModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius:20px; overflow:hidden;">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-plus text-info me-2"></i>新增感測網路測驗題目</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="addQuestionForm">
+            <div class="mb-3">
+              <label class="form-label fw-bold">題目內容</label>
+              <textarea id="inp-q" class="form-control" rows="2" placeholder="請輸入測驗題目描述..." required></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label fw-bold">選項 A</label>
+              <input type="text" id="inp-optA" class="form-control" required placeholder="選項 A">
+            </div>
+            <div class="mb-2">
+              <label class="form-label fw-bold">選項 B</label>
+              <input type="text" id="inp-optB" class="form-control" required placeholder="選項 B">
+            </div>
+            <div class="mb-2">
+              <label class="form-label fw-bold">選項 C</label>
+              <input type="text" id="inp-optC" class="form-control" required placeholder="選項 C">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">選項 D</label>
+              <input type="text" id="inp-optD" class="form-control" required placeholder="選項 D">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">正確答案（請填寫與上述選項完全相同的文字）</label>
+              <input type="text" id="inp-ans" class="form-control" required placeholder="輸入正確答案文字">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">詳細解析</label>
+              <textarea id="inp-exp" class="form-control" rows="2" placeholder="說明正確原因與核心概念..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">確認儲存並加入題庫</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // 預設專業 WSN 題庫
+    const DEFAULT_WSN_QUESTIONS = [
+      {
+        question: "在無線感測網路 (WSN) 中，IEEE 802.15.4 標準主要定義了哪兩個協定層？",
+        options: ["實體層 (PHY) 與媒介存取控制層 (MAC)", "傳輸層 (Transport) 與網路層 (Network)", "應用層 (Application) 與簡報層", "資料鏈結層與傳輸層"],
+        answer: "實體層 (PHY) 與媒介存取控制層 (MAC)",
+        explanation: "IEEE 802.15.4 是低速無線個人區域網路 (LR-WPAN) 的標準，專為低功耗、低成本感測設備設計，規範了 PHY 層與 MAC 層架構。"
+      },
+      {
+        question: "LEACH (Low-Energy Adaptive Clustering Hierarchy) 路由協定的核心設計目標是什麼？",
+        options: ["透過輪替叢集頭部 (Cluster Head) 平均分攤網路節點能量消耗", "提供無限制的超高傳輸頻寬", "強制所有節點直接與基站 (Base Station) 通訊", "完全消除所有節點間的封包碰撞"],
+        answer: "透過輪替叢集頭部 (Cluster Head) 平均分攤網路節點能量消耗",
+        explanation: "LEACH 透過隨機輪流選舉叢集頭節點 (Cluster Head)，將資料匯整後再轉送至基站，避免特定節點因長期擔任中繼而過早耗盡電力。"
+      },
+      {
+        question: "在 S-MAC 協定中，感測節點主要是透過何種機制來達成大幅降低能耗的目的？",
+        options: ["週期性的睡眠 (Sleep) 與監聽 (Listen) 機制", "永久關閉射頻發射器", "提高載波頻率以縮短傳輸時間", "移除所有 CSMA/CA 機制"],
+        answer: "週期性的睡眠 (Sleep) 與監聽 (Listen) 機制",
+        explanation: "S-MAC 引入週期性的睡眠/監聽行程 (Periodic Sleep and Listen Schedule)，大幅減少閒置監聽 (Idle Listening) 所造成的能量浪費。"
+      },
+      {
+        question: "在感測網路節點定位技術中，RSSI (Received Signal Strength Indication) 技術的基本原理為何？",
+        options: ["根據接收訊號強度的衰減程度來估算發射端與接收端的距離", "測量光波在光纖中傳播的速度", "計算無線電波往返的奈秒級相位差", "利用 GPS 衛星直接對每個毫米級節點定位"],
+        answer: "根據接收訊號強度的衰減程度來估算發射端與接收端的距離",
+        explanation: "RSSI 是利用無線電波隨傳播距離增加而強度衰減的傳播模型，藉由量測接收訊號強度指標換算距離，具備低硬體成本優勢。"
+      },
+      {
+        question: "在無線感測網路架構中，負責收集所有感測節點數據，並連線至外部網際網路的核心網關被稱為什麼？",
+        options: ["匯集節點 / 基站 (Sink Node / Base Station)", "終端感測葉節點 (Leaf Node)", "中繼反射節點 (Reflector Node)", "備用跳躍節點 (Hop Node)"],
+        answer: "匯集節點 / 基站 (Sink Node / Base Station)",
+        explanation: "Sink Node (匯集節點) 具備較強運算能力與充足電力，作為無線感測網路與外界雲端伺服器或網際網路溝通的橋樑。"
+      },
+      {
+        question: "感測節點在能源消耗方面，通常消耗最多電力的硬體模組是哪一個？",
+        options: ["無線射頻通訊模組 (RF Transceiver)", "微處理器 (MCU) 休眠狀態", "微型溫度感測器本體", "快閃記憶體唯讀儲存區"],
+        answer: "無線射頻通訊模組 (RF Transceiver)",
+        explanation: "無線訊號的發射 (Tx) 與接收 (Rx) 是感測節點最主要的能源消耗來源，遠高於 MCU 純運算所消耗之能量。"
+      }
+    ];
+
+    let allQuestions = [];
+    let currentQuiz = [];
+    let correctCount = 0;
+    let answeredCount = 0;
+
+    function initQuestions() {
+      const saved = localStorage.getItem('wsn_custom_questions');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          allQuestions = [...DEFAULT_WSN_QUESTIONS, ...parsed];
+        } catch (e) {
+          allQuestions = [...DEFAULT_WSN_QUESTIONS];
+        }
+      } else {
+        allQuestions = [...DEFAULT_WSN_QUESTIONS];
+      }
+    }
+
+    function refreshQuiz() {
+      initQuestions();
+      correctCount = 0;
+      answeredCount = 0;
+      updateScoreBadge();
+
+      // 隨機抽 5 題
+      const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+      currentQuiz = shuffled.slice(0, Math.min(5, shuffled.length));
+
+      const container = document.getElementById('questions-container');
+      container.innerHTML = '';
+
+      document.getElementById('quiz-count-label').textContent = `🎯 正在進行：全隨機抽出 ${currentQuiz.length} 題 (題庫共 ${allQuestions.length} 題)`;
+
+      currentQuiz.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = 'quiz-card p-4';
+
+        const opts = [...q.options].sort(() => Math.random() - 0.5);
+        let optsHtml = '';
+        opts.forEach(opt => {
+          optsHtml += `
+            <button class="btn btn-outline-primary option-btn w-100" onclick="checkAnswer(this, '${escapeHtml(q.answer)}', '${escapeHtml(q.explanation)}')">
+              ${opt}
+            </button>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-secondary">第 ${idx + 1} 題</span>
+          </div>
+          <h5 class="fw-bold mb-3">${q.question}</h5>
+          <div class="options-group">${optsHtml}</div>
+          <div class="result-box mt-3" style="display:none;"></div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function checkAnswer(btn, correct, explanation) {
+      const parent = btn.closest('.quiz-card');
+      const resultBox = parent.querySelector('.result-box');
+      const allBtns = parent.querySelectorAll('.option-btn');
+
+      allBtns.forEach(b => b.disabled = true);
+      answeredCount++;
+
+      if (btn.textContent.trim() === correct.trim()) {
+        correctCount++;
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-success');
+        resultBox.innerHTML = `
+          <div class="alert alert-success py-2 mb-0">
+            <strong>✅ 答對了！</strong> ${explanation}
+          </div>
+        `;
+      } else {
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-danger');
+        allBtns.forEach(b => {
+          if (b.textContent.trim() === correct.trim()) {
+            b.classList.remove('btn-outline-primary');
+            b.classList.add('btn-outline-success');
+            b.classList.add('fw-bold');
+          }
+        });
+        resultBox.innerHTML = `
+          <div class="alert alert-danger py-2 mb-0">
+            <strong>❌ 答錯了！</strong> 正確答案是「<b>${correct}</b>」。<br><small class="text-muted">${explanation}</small>
+          </div>
+        `;
+      }
+
+      resultBox.style.display = 'block';
+      updateScoreBadge();
+    }
+
+    function updateScoreBadge() {
+      document.getElementById('score-badge').textContent = `目前得分：${correctCount} / ${answeredCount}`;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // 新增題目表單提交
+    document.getElementById('addQuestionForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = document.getElementById('inp-q').value.trim();
+      const a = document.getElementById('inp-optA').value.trim();
+      const b = document.getElementById('inp-optB').value.trim();
+      const c = document.getElementById('inp-optC').value.trim();
+      const d = document.getElementById('inp-optD').value.trim();
+      const ans = document.getElementById('inp-ans').value.trim();
+      const exp = document.getElementById('inp-exp').value.trim();
+
+      const newQ = {
+        question: q,
+        options: [a, b, c, d],
+        answer: ans,
+        explanation: exp
+      };
+
+      const saved = localStorage.getItem('wsn_custom_questions');
+      let customList = saved ? JSON.parse(saved) : [];
+      customList.push(newQ);
+      localStorage.setItem('wsn_custom_questions', JSON.stringify(customList));
+
+      const modalEl = document.getElementById('addQuestionModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      document.getElementById('addQuestionForm').reset();
+
+      alert('🎉 題目新增成功！已存入您的個人題庫！');
+      refreshQuiz();
+    });
+
+    refreshQuiz();
+  </script>
+
+  <!-- 全站通用快捷導航組件 -->
+  <script src="../portal-nav.js"></script>
+</body>
+</html>

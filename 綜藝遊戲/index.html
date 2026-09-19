@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>綜藝派對遊戲大廳 🎤 10-in-1 Party Game Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Outfit:wght@600;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <link rel=stylesheet href="style.css">
+</head>
+<body>
+
+  <!-- 全域頂部導覽列 -->
+  <header>
+    <div class="logo-container" id="btn-goto-lobby">
+      <div class="logo-badge">🎤 綜藝派對遊戲大廳</div>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-btn" id="btn-open-player-config" onclick="partyHub.openModal()" style="background:rgba(255,200,59,0.18); border-color:var(--gold); color:var(--gold);">👥 玩家與分隊設定</button>
+      <button class="nav-btn" id="btn-score-drawer">🏆 拍燈/計分板</button>
+      <button class="nav-btn primary" id="btn-home-nav">🏠 遊戲目錄</button>
+      <button class="nav-btn" id="btn-sound-toggle"><span id="sound-icon">🔊</span></button>
+    </div>
+  </header>
+
+  <!-- 搶答拍燈全螢幕提示 -->
+  <div id="buzzer-alert" class="buzzer-alert"></div>
+
+  <!-- 獨立計分/拍燈抽屜彈窗 -->
+  <div class="drawer-overlay" id="modal-score-drawer">
+    <div class="drawer-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-size:1.15rem; font-weight:800; color:var(--gold);">🏆 全域搶答拍燈與計分板</span>
+        <div style="display:flex; gap:6px;">
+          <button class="nav-btn" id="btn-reset-scores" style="padding:3px 10px; font-size:0.8rem; background:rgba(255,51,102,0.2); border-color:#ff3366; color:#ff85a1;">🔄 分數歸零</button>
+          <button class="nav-btn" id="btn-close-drawer" style="padding:3px 10px;">✕ 關閉</button>
+        </div>
+      </div>
+
+      <!-- 模式切換與自訂設定快捷鈕 -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+        <div class="score-mode-tabs" style="margin-bottom:0;">
+          <button class="score-tab-btn" data-mode="teams" onclick="partyHub.setMode('teams')">🔴🔵 戰隊對抗模式</button>
+          <button class="score-tab-btn" data-mode="solo" onclick="partyHub.setMode('solo')">👤 個人爭霸模式</button>
+        </div>
+        <button class="nav-btn" onclick="partyHub.openModal()" style="background:rgba(255,200,59,0.15); border-color:var(--gold); color:var(--gold); font-size:0.8rem; padding:4px 10px;">
+          ⚙️ 自訂玩家與分隊
+        </button>
+      </div>
+      
+      <!-- 拍燈按鈕容器 -->
+      <div id="modal-buzzer-container" style="margin-bottom:14px;"></div>
+
+      <!-- 計分卡片容器 -->
+      <div id="modal-scoreboard-container"></div>
+    </div>
+  </div>
+
+  <!-- 獨立玩家名單與戰隊分隊自訂彈窗 (高度自由) -->
+  <div class="drawer-overlay" id="modal-player-config">
+    <div class="cfg-modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.5rem;">👥</span>
+          <div>
+            <div style="font-size:1.2rem; font-weight:900; color:var(--gold);">玩家名單與戰隊分隊自訂中心</div>
+            <div style="font-size:0.8rem; color:#94a3b8;">高度自由客製化：人數無上限、姓名、Emoji 頭像、戰隊數量、隨機抽籤分隊</div>
+          </div>
+        </div>
+        <button class="nav-btn" onclick="partyHub.closeModal()" style="padding:4px 12px;">✕ 關閉</button>
+      </div>
+
+      <!-- 快捷人數與對抗模式列 -->
+      <div>
+        <div class="cfg-section-title">
+          <span>⚔️ 對抗模式與人數捷徑</span>
+          <span id="cfg-summary-text" style="font-size:0.75rem; color:var(--neon-green);"></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; margin-top:8px;">
+          <!-- 模式選擇 -->
+          <div class="cfg-btn-row">
+            <span style="font-size:0.85rem; color:#cbd5e1; font-weight:700;">模式：</span>
+            <button class="cfg-pill-btn" onclick="partyHub.setMode('teams')">🔴🔵 戰隊對抗模式</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setMode('solo')">👤 個人爭霸模式</button>
+          </div>
+          <!-- 快速人數 -->
+          <div class="cfg-btn-row">
+            <span style="font-size:0.85rem; color:#cbd5e1; font-weight:700;">快速人數：</span>
+            <button class="cfg-pill-btn" onclick="partyHub.setPlayerCount(2)">2人</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setPlayerCount(4)">4人</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setPlayerCount(6)">6人</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setPlayerCount(8)">8人</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setPlayerCount(10)">10人</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setPlayerCount(12)">12人</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 戰隊管理專區 -->
+      <div id="cfg-team-section">
+        <div class="cfg-section-title">
+          <span>🚩 戰隊設定與分隊操作</span>
+          <div class="cfg-btn-row">
+            <span style="font-size:0.8rem; color:#94a3b8;">隊數：</span>
+            <button class="cfg-pill-btn" onclick="partyHub.setTeamCount(2)">2隊</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setTeamCount(3)">3隊</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setTeamCount(4)">4隊</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setTeamCount(5)">5隊</button>
+            <button class="cfg-pill-btn" onclick="partyHub.setTeamCount(6)">6隊</button>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin:8px 0;">
+          <button class="action-btn-main" style="padding:6px 16px; font-size:0.9rem;" onclick="partyHub.randomShuffleTeams()">
+            🎲 綜藝抽籤分隊（隨機洗牌）
+          </button>
+          <button class="cfg-pill-btn" onclick="partyHub.balanceTeams()">
+            ⚖️ 依序均衡分隊
+          </button>
+        </div>
+
+        <!-- 隊伍預覽網格 -->
+        <div class="cfg-team-grid" id="cfg-team-list"></div>
+      </div>
+
+      <!-- 玩家名單專區 -->
+      <div>
+        <div class="cfg-section-title">
+          <span>👥 玩家名單客製化</span>
+          <div class="cfg-btn-row">
+            <span style="font-size:0.8rem; color:#94a3b8;">一鍵範本：</span>
+            <button class="cfg-pill-btn" onclick="partyHub.applyTemplate('variety')">綜藝天團</button>
+            <button class="cfg-pill-btn" onclick="partyHub.applyTemplate('heroes')">漫威英雄</button>
+            <button class="cfg-pill-btn" onclick="partyHub.applyTemplate('anime')">動漫夥伴</button>
+            <button class="cfg-pill-btn" onclick="partyHub.applyTemplate('fruits')">趣味水果</button>
+          </div>
+        </div>
+
+        <!-- 批次匯入與新增 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin:10px 0;">
+          <div style="display:flex; gap:8px; align-items:center; flex:1;">
+            <input type="text" id="cfg-batch-input" placeholder="批次貼上名字（逗號或空格分隔，例：小明, 小華, 小美, 阿強）..." style="flex:1; max-width:480px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:6px 10px; color:#fff; font-size:0.85rem; outline:none;">
+            <button class="cfg-pill-btn" onclick="partyHub.batchImport(document.getElementById('cfg-batch-input').value); document.getElementById('cfg-batch-input').value='';" style="background:rgba(5,217,232,0.2); border-color:#05d9e8; color:#05d9e8;">
+              📥 批次匯入
+            </button>
+          </div>
+          <button class="action-btn-main" style="padding:6px 16px; font-size:0.9rem;" onclick="partyHub.addPlayer()">
+            ＋ 新增自訂玩家
+          </button>
+        </div>
+
+        <!-- 玩家卡片網格 -->
+        <div class="cfg-player-grid" id="cfg-player-list"></div>
+      </div>
+
+      <!-- 底部控制列 -->
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px; margin-top:6px;">
+        <span style="font-size:0.8rem; color:#00f59b;">✓ 設定已即時自動儲存於瀏覽器</span>
+        <button class="action-btn-main" style="padding:6px 22px; font-size:0.95rem;" onclick="partyHub.closeModal()">
+          ✓ 完成並開始遊玩
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- ==========================================================
+         視圖 1: 遊戲目錄大廳 (Lobby)
+         ========================================================== -->
+    <section class="lobby-section" id="view-lobby">
+      <div class="hero-banner">
+        <div style="display:inline-block; background:linear-gradient(90deg, #ff2a6d, #9d4edd); padding:4px 16px; border-radius:20px; font-weight:900; font-size:0.85rem; margin-bottom:8px; letter-spacing:1px; color:#fff; box-shadow:0 0 15px rgba(255,42,109,0.5);">
+          🔥 旗艦企劃 ✕ 綜藝闖關連線競技模式
+        </div>
+        <h1 class="hero-title">🎉 12 款旗艦綜藝派對遊戲大廳</h1>
+        <p class="hero-sub">支援 4 位 / 6 位玩家「個人單挑」或「紅藍分隊 PK」！內建專業闖關活動模式，題目海量不重複！</p>
+      </div>
+
+      <!-- 旗艦闖關活動專區 (Stage 1 & Stage 2) -->
+      <div class="stage-hub-banner">
+        <div class="stage-hub-header">
+          <div class="stage-hub-title">
+            <span>🏆 派對活動專用・綜藝連環闖關企劃</span>
+            <span style="font-size:0.8rem; background:rgba(0,245,155,0.2); border:1px solid var(--neon-green); color:var(--neon-green); padding:3px 10px; border-radius:12px;">推薦循序闖關</span>
+          </div>
+          <div style="font-size:0.85rem; color:var(--text-sub);">
+            第一棒找物暖身 ➔ 第二棒靈魂畫手接力，笑果引爆全場！
+          </div>
+        </div>
+
+        <div class="stage-cards-row">
+          <!-- 闖關第一關 -->
+          <div class="stage-promo-card" onclick="switchView('11')">
+            <span class="stage-promo-badge">STAGE 01</span>
+            <div class="stage-promo-icon">🔍</div>
+            <div class="stage-promo-info">
+              <div class="stage-promo-name">第一關：翻注音現場大搜查</div>
+              <div class="stage-promo-desc">翻開注音符號（如「ㄑ」），全場限時在現場尋找相符物品（如「球」）！37音不重複＋豐富物品靈感庫。</div>
+            </div>
+            <button class="play-btn" style="padding:6px 14px; font-size:0.85rem;">開始闖關 ➔</button>
+          </div>
+
+          <!-- 闖關第二關 -->
+          <div class="stage-promo-card" onclick="switchView('12')">
+            <span class="stage-promo-badge">STAGE 02</span>
+            <div class="stage-promo-icon">🎨</div>
+            <div class="stage-promo-info">
+              <div class="stage-promo-name">第二關：童話與電影畫畫接力</div>
+              <div class="stage-promo-desc">範圍鎖定【童話故事】與【熱門電影】210+ 題！內建數位畫布、棒次限時交棒遮罩、主持人控台與大揭曉！</div>
+            </div>
+            <button class="play-btn" style="padding:6px 14px; font-size:0.85rem;">開始闖關 ➔</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-grid">
+        <!-- 遊戲 1 -->
+        <div class="game-card" data-game="1">
+          <div class="game-card-top">
+            <div class="game-icon">🎴</div>
+            <div class="game-info">
+              <div class="game-num">GAME 01</div>
+              <div class="game-title">注音雙卡造詞王</div>
+              <div class="game-desc">抽取兩張注音符號首音造詞，支援分類主題與 4人/雙隊搶答。</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-team">⚔️ 4人/雙隊PK</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 2 -->
+        <div class="game-card" data-game="2">
+          <div class="game-card-top">
+            <div class="game-icon">🥁</div>
+            <div class="game-info">
+              <div class="game-num">GAME 02</div>
+              <div class="game-title">綜藝 Tempo 節奏接龍</div>
+              <div class="game-desc">《天才衝衝衝》動茲動茲節拍器，依節奏喊出美食/成語/接龍！</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-solo">👥 全員接龍</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 3 -->
+        <div class="game-card" data-game="3">
+          <div class="game-card-top">
+            <div class="game-icon">📺</div>
+            <div class="game-info">
+              <div class="game-num">GAME 03</div>
+              <div class="game-title">綜藝大電視 (你比我猜)</div>
+              <div class="game-desc">背對螢幕猜題目，隊友比手畫腳或言語提示，60秒搶分挑戰。</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-team">⚔️ 猜題PK</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 4: 🔮 綜藝默契大考驗 -->
+        <div class="game-card" data-game="4">
+          <div class="game-card-top">
+            <div class="game-icon">🔮</div>
+            <div class="game-info">
+              <div class="game-num">GAME 04</div>
+              <div class="game-title">綜藝默契大考驗</div>
+              <div class="game-desc">4人/6人全員心電感應！倒數3秒同時喊出答案，考驗全場默契！</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-solo">👥 心電感應</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 5 -->
+        <div class="game-card" data-game="5">
+          <div class="game-card-top">
+            <div class="game-icon">🕵️</div>
+            <div class="game-info">
+              <div class="game-num">GAME 05</div>
+              <div class="game-title">誰是臥底 (詞彙諜對諜)</div>
+              <div class="game-desc">4~8人各自隱密抽取相似詞彙，輪流發言並投票揪出隱藏臥底。</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-solo">🔍 推理桌遊</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 6: 💣 類別炸彈接龍 -->
+        <div class="game-card" data-game="6">
+          <div class="game-card-top">
+            <div class="game-icon">💣</div>
+            <div class="game-info">
+              <div class="game-num">GAME 06</div>
+              <div class="game-title">類別炸彈接龍</div>
+              <div class="game-desc">隨機主題＋隨機隱藏定時炸彈！輪流講出不重複答案，在誰手上引爆誰輸！</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-solo">💣 接力拆彈</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 7: ⚡ 綜藝快問快答 -->
+        <div class="game-card" data-game="7">
+          <div class="game-card-top">
+            <div class="game-icon">⚡</div>
+            <div class="game-info">
+              <div class="game-num">GAME 07</div>
+              <div class="game-title">快問快答 (3秒急智爆破)</div>
+              <div class="game-desc">限時 3 秒說出 3 個答案！極度緊張刺激，情急之下爆笑連連！</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-team">⚔️ 輪流單挑</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 8 -->
+        <div class="game-card" data-game="8">
+          <div class="game-card-top">
+            <div class="game-icon">🔤</div>
+            <div class="game-info">
+              <div class="game-num">GAME 08</div>
+              <div class="game-title">瞎拼 ABC (菜英文猜字)</div>
+              <div class="game-desc">禁止講中文！只能用破英文描述台灣美食與日常詞彙。</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-team">⚔️ 猜詞PK</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 9 -->
+        <div class="game-card" data-game="9">
+          <div class="game-card-top">
+            <div class="game-icon">🧠</div>
+            <div class="game-info">
+              <div class="game-num">GAME 09</div>
+              <div class="game-title">派對記憶翻牌對決</div>
+              <div class="game-desc">雙隊/多人輪流翻開 16 張卡牌配對，比拼全場記憶力與即時反應。</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-team">⚔️ 記憶PK</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 10: 🎧 傳話筒與唇語大考驗 -->
+        <div class="game-card" data-game="10">
+          <div class="game-card-top">
+            <div class="game-icon">🎧</div>
+            <div class="game-info">
+              <div class="game-num">GAME 10</div>
+              <div class="game-title">傳話筒與唇語大考驗</div>
+              <div class="game-desc">依序無聲傳話或唇語傳遞！到最後一位講出爆笑變形答案！</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-solo">👥 團隊連線</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 11: 第一關 翻注音現場大搜查 -->
+        <div class="game-card" data-game="11" style="border-color:rgba(255,42,109,0.5);">
+          <div class="game-card-top">
+            <div class="game-icon">🔍</div>
+            <div class="game-info">
+              <div class="game-num" style="color:var(--red-team);">STAGE 01 / GAME 11</div>
+              <div class="game-title">翻注音現場大搜查</div>
+              <div class="game-desc">翻開注音符號，全場奔馳在現場限時找到實體物品！支援雙隊/多人拍燈驗收。</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-team" style="background:rgba(255,42,109,0.2); border-color:var(--red-team); color:var(--red-team);">⚔️ 現場競速找物</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+
+        <!-- 遊戲 12: 第二關 畫畫接力大考驗 -->
+        <div class="game-card" data-game="12" style="border-color:rgba(5,217,232,0.5);">
+          <div class="game-card-top">
+            <div class="game-icon">🎨</div>
+            <div class="game-info">
+              <div class="game-num" style="color:var(--blue-team);">STAGE 02 / GAME 12</div>
+              <div class="game-title">童話與電影畫畫接力</div>
+              <div class="game-desc">限定童話故事與熱門電影210+題！支援內建數位互動畫布、棒次交棒遮罩與主持控台。</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-solo" style="background:rgba(5,217,232,0.2); border-color:var(--blue-team); color:var(--blue-team);">🎨 靈魂畫手接力</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 1: 注音雙卡造詞王 (4人 / 雙隊)
+         ========================================================== -->
+    <section class="game-view" id="view-game-1">
+      <div class="game-header-bar">
+        <div class="game-header-title">🎴 注音雙卡造詞王</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:650px; font-size:0.85rem; font-weight:800; padding:0 6px;">
+        <span style="background:rgba(255,200,59,0.15); border:1px solid var(--gold); padding:4px 14px; border-radius:20px; color:var(--gold);" id="g1-topic">🎯 挑戰主題：【美食與飲料】</span>
+        <span style="color:var(--neon-green);" id="g1-deck-counter">🎯 主題進度：第 1 / 40 題 (無重複)</span>
+      </div>
+
+      <div class="cards-stage">
+        <div class="card-wrapper flipped" id="g1-card1">
+          <div class="card-inner">
+            <div class="card-face card-back"><div style="font-size:2.5rem; color:var(--gold);">✦</div></div>
+            <div class="card-face card-front" style="border-color:var(--red-team);"><div class="zhuyin-char" id="g1-c1">ㄍ</div></div>
+          </div>
+        </div>
+        <div class="card-wrapper flipped" id="g1-card2">
+          <div class="card-inner">
+            <div class="card-face card-back"><div style="font-size:2.5rem; color:var(--gold);">★</div></div>
+            <div class="card-face card-front" style="border-color:var(--blue-team);"><div class="zhuyin-char" id="g1-c2">ㄅ</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:1.3rem; font-weight:900;" id="g1-combo">請造詞：<span style="color:var(--gold);" id="g1-combo-text">ㄍ ＋ ㄅ</span></div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="action-btn-main" id="g1-btn-draw">🎲 抽下一題 (Space)</button>
+        <button class="nav-btn" id="g1-btn-hint">💡 靈感提示</button>
+      </div>
+      <div id="g1-hint-box" style="display:none; background:rgba(157,78,221,0.2); border:1px solid var(--purple); padding:8px 16px; border-radius:12px; font-size:0.9rem; color:#e9d5ff;"></div>
+
+      <!-- 內嵌計分面板 -->
+      <div class="competition-panel" id="g1-competition-panel">
+        <div class="score-mode-tabs">
+          <button class="score-tab-btn" data-mode="teams" onclick="partyHub.setMode('teams')">🔴🔵 戰隊對抗模式</button>
+          <button class="score-tab-btn" data-mode="solo" onclick="partyHub.setMode('solo')">👤 個人爭霸模式</button>
+          <button class="nav-btn" onclick="partyHub.openModal()" style="font-size:0.75rem; padding:2px 8px; margin-left:auto;">⚙️ 自訂設定</button>
+        </div>
+        <div id="g1-buzzer-container"></div>
+        <div id="g1-scoreboard-container"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 2: 綜藝 Tempo 節奏 (全員接龍)
+         ========================================================== -->
+    <section class="game-view" id="view-game-2">
+      <div class="game-header-bar">
+        <div class="game-header-title">🥁 綜藝 Tempo 節奏接龍</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div class="tempo-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; font-size:0.85rem; font-weight:800; padding:0 4px;">
+          <span style="color:var(--gold);">🥁 TEMPO 題目</span>
+          <span style="color:var(--neon-green);" id="g2-deck-counter">🎯 題庫進度：第 1 / 80 題 (無重複)</span>
+        </div>
+        <div class="tempo-topic" id="g2-topic">「美食 Tempo，請你跟我這樣做」</div>
+
+        <div class="beat-indicators">
+          <div class="beat-dot" id="b-1"></div>
+          <div class="beat-dot" id="b-2"></div>
+          <div class="beat-dot" id="b-3"></div>
+          <div class="beat-dot" id="b-4"></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="action-btn-main" id="g2-btn-toggle">▶️ 開始節拍</button>
+          <button class="nav-btn" id="g2-btn-next-topic">🎲 換個主題 (不重複)</button>
+        </div>
+
+        <div style="font-size:0.85rem; color:var(--text-sub); line-height:1.5;">
+          玩家依序順時針接龍！依節奏在第 3、4 拍喊出符合題目詞彙，卡住或落拍者淘汰！
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 3: 綜藝大電視 (你比我猜)
+         ========================================================== -->
+    <section class="game-view" id="view-game-3">
+      <div class="game-header-bar">
+        <div class="game-header-title">📺 綜藝大電視 (你比我猜)</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div class="charade-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; font-size:0.85rem; font-weight:800; padding:0 4px;">
+          <span id="g3-category" style="color:var(--gold);">🏷️ 類別：【台灣美食】</span>
+          <span style="color:var(--neon-green);" id="g3-deck-counter">🎯 題庫進度：第 1 / 150 題 (無重複)</span>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; font-size:1.1rem; font-weight:800; margin-top:2px;">
+          <span style="color:var(--gold);" id="g3-score-text">🏆 本局已答對：0 題</span>
+          <span style="color:#ff3366; font-size:1.4rem; font-weight:900;" id="g3-timer">⏱️ 60 秒</span>
+        </div>
+
+        <div class="charade-word" id="g3-word">珍珠奶茶</div>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+          <button class="action-btn-main" id="g3-btn-start">⏱️ 開始計時 (60s)</button>
+          <button class="action-btn-main" id="g3-btn-correct" style="background:linear-gradient(135deg,#00f59b,#00a86b);">✅ 答對 (+1分)</button>
+          <button class="nav-btn" id="g3-btn-pass" style="font-size:1rem; padding:10px 20px;">⏭️ PASS 跳過</button>
+        </div>
+
+        <div style="font-size:0.85rem; color:var(--text-sub); line-height:1.5;">
+          規則：一人比動作或口頭提示（不能說出題目字眼），另一人猜詞！答對按綠色，卡住按 PASS！
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 4: 🔮 綜藝默契大考驗
+         ========================================================== -->
+    <section class="game-view" id="view-game-4">
+      <div class="game-header-bar">
+        <div class="game-header-title">🔮 綜藝默契大考驗 (心電感應)</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div class="telepathy-box">
+        <div class="telepathy-mode-selector">
+          <button class="mode-btn active" id="g4-mode-4p">👤 4 位玩家</button>
+          <button class="mode-btn" id="g4-mode-6p">👥 6 位玩家</button>
+          <button class="mode-btn" id="g4-mode-team">⚔️ 紅藍分隊</button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; font-size:0.85rem; font-weight:800; padding:0 6px;">
+          <span style="color:var(--gold);" id="g4-category-badge">🏷️ 類別：【台灣美食】</span>
+          <span style="color:var(--neon-green);" id="g4-deck-counter">🎯 題庫進度：第 1 / 100 題 (無重複)</span>
+        </div>
+
+        <div class="telepathy-question" id="g4-question">
+          「說到台灣夜市必吃的一樣美食？」
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+          <button class="action-btn-main" id="g4-btn-countdown">⏱️ 倒數 3 秒同時喊！</button>
+          <button class="nav-btn" id="g4-btn-next-q">🎲 換下一題 (不重複)</button>
+        </div>
+
+        <div id="g4-countdown-display" style="font-size:2rem; font-weight:900; color:#ff2a6d; min-height:1.2em;"></div>
+
+        <div style="font-size:0.85rem; color:#cbd5e1; margin-top:4px;">
+          📝 玩家作答看板（可直接口頭喊，或在下方打字後一鍵公開比對）：
+        </div>
+        
+        <div class="telepathy-players-grid" id="g4-players-grid"></div>
+
+        <div style="display:flex; gap:10px; margin-top:4px;">
+          <button class="nav-btn" id="g4-btn-reveal-all">👀 公開所有答案</button>
+          <button class="nav-btn" id="g4-btn-clear-all">🔄 清空答案</button>
+        </div>
+
+        <div id="g4-result-msg" style="font-size:1.15rem; font-weight:800; color:var(--gold);"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 5: 誰是臥底 (4~8人)
+         ========================================================== -->
+    <section class="game-view" id="view-game-5">
+      <div class="game-header-bar">
+        <div class="game-header-title">🕵️ 誰是臥底 (詞彙諜對諜)</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;">
+        <span>玩家人數：</span>
+        <select id="g5-players-count" style="padding:6px 12px; border-radius:8px; background:#1e2640; color:#fff; border:1px solid #444;">
+          <option value="4" selected>4 人 (1臥底)</option>
+          <option value="5">5 人 (1臥底)</option>
+          <option value="6">6 人 (1臥底)</option>
+          <option value="7">7 人 (2臥底)</option>
+          <option value="8">8 人 (2臥底)</option>
+        </select>
+        <button class="action-btn-main" id="g5-btn-start" style="padding:8px 20px; font-size:0.95rem;">🎴 發牌開局 (不重複)</button>
+        <span id="g5-deck-counter" style="font-size:0.85rem; color:var(--neon-green); font-weight:800;">🎯 詞庫進度：第 1 / 80 組 (無重複)</span>
+      </div>
+
+      <div style="font-size:0.85rem; color:var(--text-sub);">玩家輪流點擊卡片隱密查看詞彙，看完再點一次蓋上！</div>
+      <div class="spy-grid" id="g5-cards-container"></div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 6: 💣 類別炸彈接龍
+         ========================================================== -->
+    <section class="game-view" id="view-game-6">
+      <div class="game-header-bar">
+        <div class="game-header-title">💣 類別炸彈接龍 (定時拆彈)</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div class="category-bomb-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; font-size:0.85rem; font-weight:800; padding:0 4px;">
+          <div style="display:flex; gap:6px; align-items:center;">
+            <span style="font-size:0.85rem; color:#cbd5e1;">人數：</span>
+            <button class="score-tab-btn active" id="g6-tab-4p" onclick="setG6Count(4)">4 位玩家</button>
+            <button class="score-tab-btn" id="g6-tab-6p" onclick="setG6Count(6)">6 位玩家</button>
+          </div>
+          <span style="color:var(--neon-green);" id="g6-deck-counter">🎯 題庫進度：第 1 / 80 題 (無重複)</span>
+        </div>
+
+        <div style="font-size:0.95rem; color:#ffc83b; font-weight:800;">🔥 挑戰類別題目：</div>
+        <div style="font-size:clamp(1.4rem, 4.5vw, 2.2rem); font-weight:900; color:#fff;" id="g6-bomb-topic">
+          「說出 4 個字的台灣藝人或名人」
+        </div>
+
+        <div style="font-size:1.1rem; font-weight:900; color:#ff3366;" id="g6-bomb-status">
+          💣 炸彈狀態：未啟動（請點擊下方開始）
+        </div>
+
+        <!-- 玩家持彈輪流圖示 -->
+        <div class="bomb-avatar-row" id="g6-player-nodes"></div>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+          <button class="action-btn-main" id="g6-btn-start-bomb" style="background:linear-gradient(135deg,#ff3b75,#c90038); color:#fff; padding:12px 30px;">
+            🧨 啟動定時炸彈！
+          </button>
+          <button class="action-btn-main" id="g6-btn-pass-bomb" style="background:linear-gradient(135deg,#00f59b,#00a86b); color:#000; padding:12px 28px;">
+            👉 答對！傳給下一位
+          </button>
+          <button class="nav-btn" id="g6-btn-next-topic">🎲 換個題目 (不重複)</button>
+        </div>
+
+        <div style="font-size:0.85rem; color:var(--text-sub); line-height:1.5; margin-top:4px;">
+          規則：炸彈會在隨機時間內引爆（無人知曉剩餘秒數）！持彈者需快速講出符合題目的答案，不能重複，講出後立刻點「傳給下一位」，炸彈在誰手上爆炸誰就淘汰！
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 7: ⚡ 綜藝快問快答
+         ========================================================== -->
+    <section class="game-view" id="view-game-7">
+      <div class="game-header-bar">
+        <div class="game-header-title">⚡ 快問快答 (3秒急智爆破)</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div class="panic-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; font-size:0.85rem; font-weight:800; padding:0 4px;">
+          <span style="color:var(--gold);">🔥 挑戰任務</span>
+          <span style="color:var(--neon-green);" id="g7-deck-counter">🎯 題庫進度：第 1 / 100 題 (無重複)</span>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; width:100%; font-size:1rem; font-weight:800; margin-top:2px;">
+          <span style="color:#cbd5e1;">限時急智：一口氣說出 3 個答案！</span>
+          <span style="color:#ff3366; font-size:1.3rem; font-weight:900;" id="g7-timer-text">⏱️ 3.0 秒</span>
+        </div>
+
+        <div class="panic-timer-bar">
+          <div class="panic-timer-fill" id="g7-timer-fill"></div>
+        </div>
+
+        <div class="panic-question" id="g7-question">
+          「3 秒內說出 3 種去肯德基或麥當勞必點的食物！」
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+          <button class="action-btn-main" id="g7-btn-start" style="font-size:1.2rem; padding:12px 36px; background:linear-gradient(135deg,#ff3b75,#c90038); color:#fff;">
+            💣 開始 3 秒倒數！
+          </button>
+          <button class="nav-btn" id="g7-btn-next">🎲 換下一題 (不重複)</button>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button class="nav-btn" id="g7-btn-pass" style="background:rgba(0,245,155,0.2); border-color:#00f59b; color:#00f59b; font-weight:800; padding:8px 20px;">
+            🎉 挑戰成功 (+1分)
+          </button>
+          <button class="nav-btn" id="g7-btn-fail" style="background:rgba(255,51,102,0.2); border-color:#ff3366; color:#ff3366; font-weight:800; padding:8px 20px;">
+            💥 失敗/超時 (挑戰失敗)
+          </button>
+        </div>
+
+        <div style="font-size:0.85rem; color:var(--text-sub); margin-top:6px;">
+          規則：玩家需在倒數 3 秒結束前，一口氣快速講出 3 個符合題目的答案！超時或卡住即算失敗！
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 8: 🔤 瞎拼 ABC (菜英文猜字)
+         ========================================================== -->
+    <section class="game-view" id="view-game-8">
+      <div class="game-header-bar">
+        <div class="game-header-title">🔤 瞎拼 ABC (菜英文猜字)</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div style="background:var(--bg-card); border:2px solid var(--gold); border-radius:20px; padding:28px 24px; max-width:680px; width:100%; text-align:center; display:flex; flex-direction:column; gap:16px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; font-size:0.85rem; font-weight:800; padding:0 4px;">
+          <span style="color:var(--gold);" id="g8-category-badge">🏷️ 類別：【台灣小吃】</span>
+          <span style="color:var(--neon-green);" id="g8-deck-counter">🎯 題庫進度：第 1 / 1000 題 (無重複)</span>
+        </div>
+
+        <div style="font-size:0.95rem; color:#ffc83b; font-weight:800; background:rgba(255,200,59,0.1); padding:6px 12px; border-radius:8px;">
+          ⚠️ 規則：出題者【嚴禁說中文】！只能用「English 單字」或「身體肢體」描述！
+        </div>
+
+        <div style="font-size:3.2rem; font-weight:900; color:#fff; letter-spacing:2px; text-shadow:0 0 20px rgba(255,200,59,0.3);" id="g8-word">珍珠奶茶</div>
+        
+        <div style="background:rgba(255,255,255,0.05); border:1px dashed rgba(255,255,255,0.2); border-radius:12px; padding:12px; font-size:1.05rem; color:#05d9e8; font-weight:700; line-height:1.5;" id="g8-hint">
+          💡 英文提示參考：Drink / Black ball / Milk / Bubble / Sweet
+        </div>
+
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+          <button class="action-btn-main" id="g8-btn-next" style="padding:12px 28px; font-size:1.1rem;">🎲 換下一題 (不重複)</button>
+          <button class="nav-btn" id="g8-btn-correct" style="background:rgba(0,245,155,0.2); border-color:#00f59b; color:#00f59b; font-weight:800; padding:10px 22px;">✅ 猜對了！(+1分)</button>
+          <button class="nav-btn" id="g8-btn-pass" style="padding:10px 20px;">⏭️ PASS 跳過</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 9: 記憶翻牌
+         ========================================================== -->
+    <section class="game-view" id="view-game-9">
+      <div class="game-header-bar">
+        <div class="game-header-title">🧠 派對記憶翻牌對決</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; width:100%; max-width:480px;">
+        <span id="g9-turn" style="font-weight:900; color:var(--red-team);">輪到：🔴 紅隊翻牌</span>
+        <button class="nav-btn" id="g9-btn-reset">🔄 重新洗牌 (不重複主題)</button>
+      </div>
+
+      <div class="memo-grid" id="g9-grid"></div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 10: 🎧 傳話筒與唇語大考驗
+         ========================================================== -->
+    <section class="game-view" id="view-game-10">
+      <div class="game-header-bar">
+        <div class="game-header-title">🎧 傳話筒與唇語大考驗</div>
+        <button class="nav-btn" onclick="switchView('lobby')">返回目錄</button>
+      </div>
+
+      <div class="whisper-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; font-size:0.85rem; font-weight:800; padding:0 4px;">
+          <span style="color:var(--gold);">👥 玩家排成一列傳話</span>
+          <span style="color:var(--neon-green);" id="g10-deck-counter">🎯 題庫進度：第 1 / 80 題 (無重複)</span>
+        </div>
+
+        <div class="secret-sentence-card">
+          <div id="g10-hidden-prompt" style="font-size:1.1rem; color:#cbd5e1; cursor:pointer;">
+            🔒 點擊此處【揭開傳話題目】（第 1 位玩家看）
+          </div>
+          <div id="g10-real-sentence" style="display:none; font-size:clamp(1.5rem, 5vw, 2.3rem); font-weight:900; color:#fff;">
+            麻辣鴨血臭豆腐配珍珠奶茶
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+          <button class="action-btn-main" id="g10-btn-start-timer">⏱️ 開始傳話倒數 (60s)</button>
+          <button class="nav-btn" id="g10-btn-next-sentence">🎲 換下一道題目 (不重複)</button>
+        </div>
+
+        <div id="g10-timer-display" style="font-size:1.5rem; font-weight:900; color:#ff3366;">⏱️ 剩餘時間：60 秒</div>
+
+        <div style="font-size:0.85rem; color:var(--text-sub); line-height:1.5;">
+          規則：第 1 位玩家看題目後，只用嘴型或輕聲依序傳給後面的玩家，最後一位玩家大聲講出答案，最後點擊「揭開題目」比對笑果！
+        </div>
+      </div>
+    </section>
+  
+    <!-- ==========================================================
+         遊戲 11: 🔍 第一關：翻注音現場大搜查 (翻注音找物)
+         ========================================================== -->
+    <section class="game-view" id="view-game-11">
+      <div class="game-header-bar">
+        <div class="game-header-title">🔍 第一關：翻注音現場大搜查</div>
+        <div style="display:flex; gap:8px;">
+          <button class="nav-btn" onclick="switchView('lobby')">🏠 目錄</button>
+          <button class="nav-btn primary" onclick="switchView('12')">進入第二關：畫畫接力 ➔</button>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:680px; font-size:0.88rem; font-weight:800; padding:0 6px; flex-wrap:wrap; gap:8px;">
+        <span style="background:rgba(255,200,59,0.15); border:1px solid var(--gold); padding:4px 14px; border-radius:20px; color:var(--gold);" id="g11-mode-indicator">🎯 任務：翻注音符號在現場找到物品</span>
+        <span style="color:var(--neon-green);" id="g11-deck-counter">🎯 題庫進度：第 1 / 37 題 (無重複)</span>
+      </div>
+
+      <!-- 3D 翻牌舞台 -->
+      <div class="g11-card-stage">
+        <div class="g11-card-wrapper flipped" id="g11-card-box">
+          <div class="g11-card-inner">
+            <div class="g11-card-face g11-card-back">
+              <div style="font-size:3.5rem; color:var(--gold);">✦</div>
+              <div style="font-size:1.1rem; font-weight:800; color:var(--gold); margin-top:8px;">點擊翻開注音</div>
+            </div>
+            <div class="g11-card-face g11-card-front">
+              <div class="g11-zhuyin-huge" id="g11-char-display">ㄑ</div>
+              <div class="g11-zhuyin-sub" id="g11-char-sub">首音注音符號</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 任務指令看板 -->
+      <div class="g11-mission-banner" id="g11-mission-text">
+        請在現場限時找到【<span style="color:var(--gold); font-size:1.6rem;" id="g11-target-char">ㄑ</span>】開頭的真實物品！
+      </div>
+
+      <!-- 突發加碼趣味挑戰卡 (隨機綜藝笑果) -->
+      <div class="g11-modifier-card" id="g11-modifier-box">
+        <span>⚡ 現場規則：率先將物品送至大螢幕前並清楚喊出名稱即獲得判定資格！</span>
+      </div>
+
+      <!-- 計時器面板 -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px; width:100%; max-width:680px;">
+        <div id="g11-timer-display" style="font-size:1.8rem; font-weight:900; color:#ff3366; text-shadow:0 0 15px rgba(255,51,102,0.4);">⏱️ 剩餘時間：60 秒</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+          <button class="nav-btn" onclick="setG11TimerPreset(30)">30 秒速戰</button>
+          <button class="nav-btn active" onclick="setG11TimerPreset(60)">60 秒標準</button>
+          <button class="nav-btn" onclick="setG11TimerPreset(90)">90 秒寬裕</button>
+          <button class="nav-btn" onclick="setG11TimerPreset(120)">120 秒大混戰</button>
+        </div>
+      </div>
+
+      <!-- 核心操作按鈕群 -->
+      <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+        <button class="action-btn-main" id="g11-btn-draw">🎲 翻下一張注音 (Space)</button>
+        <button class="nav-btn" id="g11-btn-timer-toggle">⏱️ 開始倒數計時</button>
+        <button class="nav-btn" id="g11-btn-hint">💡 查看現場物品靈感庫</button>
+      </div>
+
+      <!-- 現場驗收裁判快速按鈕 -->
+      <div style="display:flex; gap:12px; align-items:center; background:rgba(255,255,255,0.06); padding:10px 20px; border-radius:18px; border:1px solid rgba(255,255,255,0.12);">
+        <span style="font-weight:800; color:var(--text-sub); font-size:0.9rem;">裁判現場判定：</span>
+        <button class="nav-btn" id="g11-btn-verify-pass" style="background:rgba(0,245,155,0.25); border-color:var(--neon-green); color:#fff; font-weight:900;">✅ 驗收通過 (+1分/拉炮)</button>
+        <button class="nav-btn" id="g11-btn-verify-fail" style="background:rgba(255,51,102,0.2); border-color:#ff3366; color:#ff85a1;">❌ 判定不合格 (出局音效)</button>
+      </div>
+
+      <!-- 物品靈感庫展開區 -->
+      <div class="g11-hints-bubble" id="g11-hints-container">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="color:var(--gold);" id="g11-hints-title">💡【ㄑ】現場常見真實物品參考：</strong>
+          <span style="font-size:0.8rem; color:var(--text-sub); cursor:pointer;" onclick="document.getElementById('g11-hints-container').style.display='none'">✕ 關閉</span>
+        </div>
+        <div class="g11-chips-container" id="g11-chips-list">
+          <!-- 動態注入晶片標籤 -->
+        </div>
+        <div style="font-size:0.8rem; color:var(--text-sub); margin-top:8px;">只要發音首音符合即可，由現場主持人裁量判定！</div>
+      </div>
+
+      <!-- 內嵌計分與拍燈面板 -->
+      <div class="competition-panel" id="g11-competition-panel">
+        <div class="score-mode-tabs">
+          <button class="score-tab-btn" data-mode="teams" onclick="partyHub.setMode('teams')">🔴🔵 戰隊對抗模式</button>
+          <button class="score-tab-btn" data-mode="solo" onclick="partyHub.setMode('solo')">👤 個人爭霸模式</button>
+          <button class="nav-btn" onclick="partyHub.openModal()" style="font-size:0.75rem; padding:2px 8px; margin-left:auto;">⚙️ 自訂設定</button>
+        </div>
+        <div id="g11-buzzer-container"></div>
+        <div id="g11-scoreboard-container"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 12: 🎨 第二關：童話與電影畫畫接力 (童話故事 ✕ 熱門電影)
+         ========================================================== -->
+    <section class="game-view" id="view-game-12">
+      <div class="game-header-bar">
+        <div class="game-header-title">🎨 第二關：童話與電影畫畫接力</div>
+        <div style="display:flex; gap:8px;">
+          <button class="nav-btn" onclick="switchView('11')">⬅ 回第一關：注音找物</button>
+          <button class="nav-btn" onclick="switchView('lobby')">🏠 目錄</button>
+        </div>
+      </div>
+
+      <!-- 題庫分類切換 -->
+      <div class="g12-category-filter">
+        <button class="g12-filter-btn active" data-cat="all">🌟 全部混合 (210+ 題)</button>
+        <button class="g12-filter-btn" data-cat="fairy">🏰 經典童話故事 (85+ 題)</button>
+        <button class="g12-filter-btn" data-cat="movie">🎬 中外經典電影 (125+ 題)</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:860px; font-size:0.88rem; font-weight:800; padding:0 6px; flex-wrap:wrap; gap:8px;">
+        <span style="background:rgba(5,217,232,0.15); border:1px solid var(--blue-team); padding:4px 14px; border-radius:20px; color:var(--blue-team);" id="g12-current-cat-badge">🏷️ 題庫類別：【經典童話 ✕ 熱門電影】</span>
+        <span style="color:var(--neon-green);" id="g12-deck-counter">🎯 題庫進度：第 1 / 210 題 (無重複)</span>
+      </div>
+
+      <!-- 暗題防偷看卡片 (第一棒點擊看題) -->
+      <div class="g12-secret-card" id="g12-secret-card-box">
+        <div id="g12-secret-prompt" style="font-size:1.15rem; font-weight:800; color:#cbd5e1;">
+          🔒 點擊此處【揭開題目】（僅第 1 棒看題，其他隊員請背對）
+        </div>
+        <div id="g12-secret-content" style="display:none; width:100%;">
+          <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:6px;">
+            <span id="g12-topic-tag" style="background:rgba(255,200,59,0.2); border:1px solid var(--gold); color:var(--gold); font-size:0.8rem; font-weight:900; padding:2px 10px; border-radius:12px;">🏰 童話故事</span>
+            <span id="g12-words-count" style="background:rgba(255,255,255,0.1); color:#fff; font-size:0.8rem; padding:2px 10px; border-radius:12px;">4 個字</span>
+          </div>
+          <div id="g12-secret-title" style="font-size:clamp(1.8rem, 5.5vw, 2.6rem); font-weight:900; color:#fff; text-shadow:0 0 20px rgba(5,217,232,0.8);">
+            白雪公主
+          </div>
+          <div id="g12-secret-hint" style="font-size:0.92rem; color:#e2e8f0; margin-top:6px; background:rgba(0,0,0,0.3); padding:4px 14px; border-radius:10px; display:inline-block;">
+            💡 靈感特徵提示：毒蘋果、魔鏡、七個小矮人
+          </div>
+          <div style="margin-top:10px;">
+            <button class="nav-btn" id="g12-btn-rehide" style="font-size:0.8rem; padding:3px 12px;">🔒 隱藏題目 (開始畫畫)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模式切換 (數位畫布 / 現場白板主持控台) 與 當前作畫戰隊選擇 -->
+      <div style="display:flex; gap:10px; width:100%; max-width:860px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+        <div id="g12-team-select-container" style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.06); padding:4px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.12);">
+          <span style="font-size:0.85rem; color:#cbd5e1; font-weight:700;">🚩 當前接力作畫戰隊：</span>
+          <select id="g12-team-selector" class="cfg-team-select" style="font-size:0.85rem; font-weight:800; padding:4px 10px;"></select>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="nav-btn active" id="g12-mode-canvas-btn" onclick="toggleG12PlayMode('canvas')">🖌️ 螢幕數位畫布接力</button>
+          <button class="nav-btn" id="g12-mode-host-btn" onclick="toggleG12PlayMode('host')">📝 現場紙筆主持控台</button>
+        </div>
+      </div>
+
+      <!-- 主接力畫布區塊 -->
+      <div class="g12-container" id="g12-canvas-container">
+        
+        <!-- 接力狀態列 -->
+        <div class="g12-relay-bar">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="g12-baton-badge" id="g12-baton-display">👤 第 1 棒 作畫中</span>
+            <span style="font-size:0.85rem; color:var(--text-sub);" id="g12-relay-status-text">請依序傳遞畫作接力</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.3rem; font-weight:900; color:#ff3366;" id="g12-timer-display">⏱️ 30 秒</span>
+            <button class="nav-btn primary" id="g12-btn-start-baton" style="padding:5px 14px;">▶️ 開始作畫</button>
+            <button class="nav-btn" id="g12-btn-next-baton" style="background:rgba(255,123,0,0.25); border-color:var(--orange); color:var(--orange);">🔔 立即交棒</button>
+          </div>
+        </div>
+
+        <!-- 畫板工具列 -->
+        <div class="g12-toolbar" id="g12-tools-row">
+          <div class="color-swatches" id="g12-color-palette">
+            <!-- 顏色點由 JS 注入 -->
+          </div>
+          <div class="brush-sizes" id="g12-brush-sizes">
+            <button class="brush-size-btn" data-size="3">細 (3px)</button>
+            <button class="brush-size-btn active" data-size="8">中 (8px)</button>
+            <button class="brush-size-btn" data-size="16">粗 (16px)</button>
+            <button class="brush-size-btn" data-size="28">超粗</button>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="nav-btn" id="g12-btn-eraser" style="padding:4px 10px; font-size:0.82rem;">🧽 橡皮擦</button>
+            <button class="nav-btn" id="g12-btn-undo" style="padding:4px 10px; font-size:0.82rem;">↩️ 復原</button>
+            <button class="nav-btn" id="g12-btn-clear" style="padding:4px 10px; font-size:0.82rem; color:#ff85a1;">🗑️ 清空</button>
+            <button class="nav-btn" id="g12-btn-download" style="padding:4px 10px; font-size:0.82rem;">💾 保存</button>
+          </div>
+        </div>
+
+        <!-- HTML5 Canvas 畫布容器 -->
+        <div class="g12-canvas-wrapper" id="g12-canvas-wrap">
+          <canvas id="g12-drawing-canvas" width="800" height="460"></canvas>
+          
+          <!-- 交棒換人遮罩 -->
+          <div class="g12-relay-overlay" id="g12-relay-modal">
+            <div style="font-size:3rem;">🔔</div>
+            <div style="font-size:1.8rem; font-weight:900; color:#fff;" id="g12-overlay-title">時間到！請第 1 棒交棒！</div>
+            <div style="font-size:1.05rem; color:var(--text-sub);" id="g12-overlay-desc">請第 2 棒上前準備，點擊下方按鈕觀看畫作 5 秒倒數！</div>
+            <div style="display:flex; gap:12px; margin-top:8px;">
+              <button class="action-btn-main" id="g12-overlay-confirm-btn">👀 我是下一棒，看畫 5 秒！</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 現場紙筆主持控台 (當切換至紙筆模式時顯示) -->
+        <div id="g12-host-console" style="display:none; width:100%; text-align:center; padding:30px 20px; background:rgba(0,0,0,0.4); border-radius:18px;">
+          <div style="font-size:1.2rem; color:var(--text-sub);">📢 現場紙筆接力模式（大螢幕主持專用）</div>
+          <div style="font-size:clamp(2.5rem, 8vw, 4.5rem); font-weight:900; color:var(--gold); margin:16px 0;" id="g12-host-big-baton">
+            第 1 棒 繪製中
+          </div>
+          <div style="font-size:clamp(3rem, 10vw, 5.5rem); font-weight:900; color:#ff3366;" id="g12-host-big-timer">
+            ⏱️ 30
+          </div>
+          <div style="font-size:1rem; color:#94a3b8; margin-top:12px;">
+            提示：現場玩家於紙上畫圖，大螢幕倒數計時並響鈴提示換人！
+          </div>
+        </div>
+
+        <!-- 下方控制按鈕 -->
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; width:100%; margin-top:6px;">
+          <button class="action-btn-main" id="g12-btn-reveal" style="background:linear-gradient(90deg, #9d4edd, #ff2a6d);">🎉 揭曉題目答案！</button>
+          <button class="nav-btn" id="g12-btn-next-topic">🎲 換下一題 (不重複)</button>
+          <button class="nav-btn" onclick="resetG12Relay()">🔄 重置接力棒次</button>
+        </div>
+
+        <!-- 答案揭曉區 -->
+        <div id="g12-reveal-box" style="display:none; width:100%; text-align:center; background:rgba(255,200,59,0.12); border:2px solid var(--gold); border-radius:18px; padding:18px;">
+          <div style="font-size:0.95rem; font-weight:800; color:var(--gold); margin-bottom:4px;">🎉 本題正確答案是：</div>
+          <div class="g12-reveal-result" id="g12-revealed-title">白雪公主</div>
+          <div style="font-size:0.95rem; color:#f1f5f9; margin-top:6px;" id="g12-revealed-desc"></div>
+          <div style="display:flex; gap:10px; justify-content:center; margin-top:14px;">
+            <button class="nav-btn" onclick="modifyTeamScore('red', 1)" style="background:var(--red-team); color:#fff; font-weight:800;">🔴 紅隊答對 (+1)</button>
+            <button class="nav-btn" onclick="modifyTeamScore('blue', 1)" style="background:var(--blue-team); color:#000; font-weight:800;">🔵 藍隊答對 (+1)</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 內嵌計分與拍燈面板 -->
+      <div class="competition-panel" id="g12-competition-panel">
+        <div class="score-mode-tabs">
+          <button class="score-tab-btn" data-mode="teams" onclick="partyHub.setMode('teams')">🔴🔵 戰隊對抗模式</button>
+          <button class="score-tab-btn" data-mode="solo" onclick="partyHub.setMode('solo')">👤 個人爭霸模式</button>
+          <button class="nav-btn" onclick="partyHub.openModal()" style="font-size:0.75rem; padding:2px 8px; margin-left:auto;">⚙️ 自訂設定</button>
+        </div>
+        <div id="g12-buzzer-container"></div>
+        <div id="g12-scoreboard-container"></div>
+      </div>
+    </section>
+</main>
+
+  <script src="js/audio.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/players.js"></script>
+  <script src="js/games.js"></script>
+  <script src="js/main.js"></script>
+    <!-- 全站通用快捷跳轉導航系統 -->
+    <script src="../portal-nav.js"></script>
+</body>
+</html>
