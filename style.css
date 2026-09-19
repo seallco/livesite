@@ -98,38 +98,6 @@ body {
     transform: translateX(3px);
 }
 
-#sidebar-nav a.nav-featured {
-    color: #f8fafc;
-    background: rgba(59, 130, 246, 0.12);
-    border: 1px solid rgba(59, 130, 246, 0.25);
-}
-
-#sidebar-nav a.nav-featured:hover {
-    background: rgba(59, 130, 246, 0.25);
-    border-color: rgba(59, 130, 246, 0.5);
-}
-
-.nav-badge-pill {
-    font-size: 0.68rem;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 9999px;
-    background: var(--primary);
-    color: white;
-    flex-shrink: 0;
-}
-
-.nav-badge-pill.badge-new {
-    background: #10b981;
-}
-
-.nav-badge-pill.badge-hot {
-    background: #ef4444;
-}
-
-.nav-badge-pill.badge-featured {
-    background: #8b5cf6;
-}
 
 /* ============ Main Content ============ */
 .main-content {

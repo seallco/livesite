@@ -190,7 +190,6 @@ function stopAllGameTimersAndSounds() {
     const scoreDrawerModal = document.getElementById('modal-score-drawer');
     const btnScoreDrawer = document.getElementById('btn-score-drawer');
     const btnCloseDrawer = document.getElementById('btn-close-drawer');
-    const btnPlayerConfig = document.getElementById('btn-open-player-config');
 
     if (btnScoreDrawer) {
       btnScoreDrawer.addEventListener('click', () => {
@@ -210,11 +209,7 @@ function stopAllGameTimersAndSounds() {
       });
     }
 
-    if (btnPlayerConfig) {
-      btnPlayerConfig.addEventListener('click', () => {
-        if (typeof partyHub !== 'undefined') partyHub.openModal();
-      });
-    }
+
 
     // 空白鍵抽卡監聽 (Game 1 & Game 11)
     window.addEventListener('keydown', (e) => {

@@ -38,20 +38,24 @@ function drawGame1() {
 const g1BtnDraw = document.getElementById('g1-btn-draw');
 if (g1BtnDraw) g1BtnDraw.addEventListener('click', drawGame1);
 
-const g1BtnHint = document.getElementById('g1-btn-hint');
-if (g1BtnHint) {
-  g1BtnHint.addEventListener('click', () => {
-    const c1 = document.getElementById('g1-c1')?.textContent || 'ㄅ';
-    const c2 = document.getElementById('g1-c2')?.textContent || 'ㄆ';
-    const key = `${c1}+${c2}`;
-    const hint = (typeof G1_HINTS !== 'undefined' && G1_HINTS[key]) ? G1_HINTS[key].join('、') : `例：${c1} ... ＋ ${c2} ...（造詞或造句）`;
-    const box = document.getElementById('g1-hint-box');
-    if (box) {
+function toggleG1Hint() {
+  console.info('[Action Triggered]: toggleG1Hint');
+  const c1 = document.getElementById('g1-c1')?.textContent || 'ㄅ';
+  const c2 = document.getElementById('g1-c2')?.textContent || 'ㄆ';
+  const key = `${c1}+${c2}`;
+  const hint = (typeof G1_HINTS !== 'undefined' && G1_HINTS[key]) ? G1_HINTS[key].join('、') : `例：${c1} ... ＋ ${c2} ...（造詞或造句）`;
+  const box = document.getElementById('g1-hint-box');
+  if (box) {
+    if (box.style.display === 'block') {
+      box.style.display = 'none';
+    } else {
       box.textContent = `💡 參考靈感：${hint}`;
       box.style.display = 'block';
+      if (typeof audio !== 'undefined') audio.playBeat(false);
     }
-  });
+  }
 }
+window.toggleG1Hint = toggleG1Hint;
 window.drawGame1 = drawGame1;
 
 // ==========================================================
@@ -800,6 +804,8 @@ function shuffleG11Deck() {
 }
 
 function drawNextG11Card() {
+  console.info('[Action Triggered]: drawNextG11Card');
+  const pool = (typeof G11_ZHUYIN_POOL !== 'undefined') ? G11_ZHUYIN_POOL : [];
   if (g11Deck.length === 0) {
     shuffleG11Deck();
     if (typeof audio !== 'undefined') audio.playBeat(true);
@@ -828,7 +834,7 @@ function drawNextG11Card() {
   // 更新文字看板與計數
   const deckCounter = document.getElementById('g11-deck-counter');
   if (deckCounter) {
-    deckCounter.textContent = `🎯 題庫進度：第 ${g11DrawnCount} / ${G11_ZHUYIN_POOL.length} 題 (無重複，剩餘 ${g11Deck.length} 題)`;
+    deckCounter.textContent = `🎯 題庫進度：第 ${g11DrawnCount} / ${pool.length} 題 (無重複，剩餘 ${g11Deck.length} 題)`;
   }
   const missionText = document.getElementById('g11-mission-text');
   if (missionText) {
@@ -857,10 +863,11 @@ function drawNextG11Card() {
 }
 
 function setG11TimerPreset(seconds) {
+  console.info('[Action Triggered]: setG11TimerPreset', { seconds });
   g11InitialSec = seconds;
   resetG11Timer();
   // 更新 30/60/90/120 按鈕 active 狀態
-  document.querySelectorAll('#view-game-11 .nav-btn').forEach(btn => {
+  document.querySelectorAll('#view-game-11 .g11-preset-btn, #view-game-11 .nav-btn').forEach(btn => {
     const txt = btn.textContent;
     if (txt.includes(`${seconds} 秒`)) {
       btn.classList.add('active');
@@ -872,6 +879,7 @@ function setG11TimerPreset(seconds) {
 }
 
 function resetG11Timer() {
+  console.info('[Action Triggered]: resetG11Timer', { initialSec: g11InitialSec });
   if (g11Timer) {
     clearInterval(g11Timer);
     g11Timer = null;
@@ -891,9 +899,12 @@ function toggleG11Timer() {
   const disp = document.getElementById('g11-timer-display');
 
   if (g11Timer) {
+    // 暫停倒數計時
     clearInterval(g11Timer);
     g11Timer = null;
+    console.info('[Action Triggered]: toggleG11Timer', { state: 'paused', remaining: g11Sec });
     if (btn) btn.textContent = '▶️ 繼續倒數';
+    if (typeof audio !== 'undefined') audio.playBeat(false);
     return;
   }
 
@@ -901,6 +912,7 @@ function toggleG11Timer() {
     g11Sec = g11InitialSec;
   }
 
+  console.info('[Action Triggered]: toggleG11Timer', { state: 'running', remaining: g11Sec });
   if (typeof audio !== 'undefined') audio.playBeat(true);
   if (btn) btn.textContent = '⏸️ 暫停計時';
 
@@ -919,6 +931,7 @@ function toggleG11Timer() {
     } else {
       clearInterval(g11Timer);
       g11Timer = null;
+      console.info('[Action Triggered]: g11TimerFinished');
       if (typeof audio !== 'undefined') audio.playExplosion();
       if (disp) disp.textContent = '⏰ 時間到！請全場停止移動，裁判進行驗收！';
       if (btn) btn.textContent = '🔄 重新計時';
@@ -935,66 +948,55 @@ if (g11CardBox) {
   });
 }
 
-// 靈感提示清單展開
-const g11BtnHint = document.getElementById('g11-btn-hint');
-if (g11BtnHint) {
-  g11BtnHint.addEventListener('click', () => {
-    if (!g11CurrentItem) {
-      g11CurrentItem = (typeof G11_ZHUYIN_POOL !== 'undefined' && G11_ZHUYIN_POOL.length > 0) 
-        ? (G11_ZHUYIN_POOL.find(i => i.char === 'ㄑ') || G11_ZHUYIN_POOL[0])
-        : { char: 'ㄑ', example: '球', hints: ['球', '鉛筆', '錢包', '汽水', '青椒'] };
-    }
-    const container = document.getElementById('g11-hints-container');
-    const list = document.getElementById('g11-chips-list');
-    const title = document.getElementById('g11-hints-title');
-    if (!container || !list || !title) return;
+// 靈感提示清單展開 (支援 toggle 開關)
+function toggleG11Hint() {
+  if (!g11CurrentItem) {
+    g11CurrentItem = (typeof G11_ZHUYIN_POOL !== 'undefined' && G11_ZHUYIN_POOL.length > 0) 
+      ? (G11_ZHUYIN_POOL.find(i => i.char === 'ㄑ') || G11_ZHUYIN_POOL[0])
+      : { char: 'ㄑ', example: '球', hints: ['球', '鉛筆', '錢包', '汽水', '青椒'] };
+  }
+  const container = document.getElementById('g11-hints-container');
+  const list = document.getElementById('g11-chips-list');
+  const title = document.getElementById('g11-hints-title');
+  if (!container || !list || !title) return;
 
-    if (container.style.display === 'block') {
-      container.style.display = 'none';
-      return;
-    }
+  if (container.style.display === 'block') {
+    container.style.display = 'none';
+    console.info('[Action Triggered]: toggleG11Hint', { state: 'closed' });
+    return;
+  }
 
-    title.textContent = `💡【${g11CurrentItem.char}】現場常見真實物品參考清單：`;
-    list.innerHTML = '';
-    (g11CurrentItem.hints || []).forEach(hint => {
-      const chip = document.createElement('span');
-      chip.className = 'g11-chip';
-      chip.textContent = hint;
-      list.appendChild(chip);
-    });
-
-    container.style.display = 'block';
-    if (typeof audio !== 'undefined') audio.playBeat(false);
+  console.info('[Action Triggered]: toggleG11Hint', { state: 'opened', char: g11CurrentItem.char });
+  title.textContent = `💡【${g11CurrentItem.char}】現場常見真實物品參考清單：`;
+  list.innerHTML = '';
+  (g11CurrentItem.hints || []).forEach(hint => {
+    const chip = document.createElement('span');
+    chip.className = 'g11-chip';
+    chip.textContent = hint;
+    list.appendChild(chip);
   });
+
+  container.style.display = 'block';
+  if (typeof audio !== 'undefined') audio.playBeat(false);
 }
 
-const g11BtnDraw = document.getElementById('g11-btn-draw');
-if (g11BtnDraw) g11BtnDraw.addEventListener('click', drawNextG11Card);
-
-const g11BtnTimerToggle = document.getElementById('g11-btn-timer-toggle');
-if (g11BtnTimerToggle) g11BtnTimerToggle.addEventListener('click', toggleG11Timer);
-
-const g11BtnVerifyPass = document.getElementById('g11-btn-verify-pass');
-if (g11BtnVerifyPass) {
-  g11BtnVerifyPass.addEventListener('click', () => {
-    if (typeof audio !== 'undefined') audio.playSuccess();
-    if (typeof confettiEffect === 'function') confettiEffect();
-    const modBox = document.getElementById('g11-modifier-box');
-    if (modBox) {
-      modBox.innerHTML = `<span>🎉 恭喜驗收合格！裁判請於下方計分板為獲勝隊伍/玩家加分！</span>`;
-    }
-  });
+function verifyG11Pass() {
+  console.info('[Action Triggered]: verifyG11Pass');
+  if (typeof audio !== 'undefined') audio.playSuccess();
+  if (typeof confettiEffect === 'function') confettiEffect();
+  const modBox = document.getElementById('g11-modifier-box');
+  if (modBox) {
+    modBox.innerHTML = `<span>🎉 恭喜驗收合格！裁判請於下方計分板為獲勝隊伍/玩家加分！</span>`;
+  }
 }
 
-const g11BtnVerifyFail = document.getElementById('g11-btn-verify-fail');
-if (g11BtnVerifyFail) {
-  g11BtnVerifyFail.addEventListener('click', () => {
-    if (typeof audio !== 'undefined') audio.playBuzzer(280);
-    const modBox = document.getElementById('g11-modifier-box');
-    if (modBox) {
-      modBox.innerHTML = `<span>❌ 判定不符或物品錯誤！開放其他隊伍/玩家繼續爭取！</span>`;
-    }
-  });
+function verifyG11Fail() {
+  console.info('[Action Triggered]: verifyG11Fail');
+  if (typeof audio !== 'undefined') audio.playBuzzer(280);
+  const modBox = document.getElementById('g11-modifier-box');
+  if (modBox) {
+    modBox.innerHTML = `<span>❌ 判定不符或物品錯誤！開放其他隊伍/玩家繼續爭取！</span>`;
+  }
 }
 
 window.shuffleG11Deck = shuffleG11Deck;
@@ -1002,6 +1004,9 @@ window.drawNextG11Card = drawNextG11Card;
 window.setG11TimerPreset = setG11TimerPreset;
 window.resetG11Timer = resetG11Timer;
 window.toggleG11Timer = toggleG11Timer;
+window.toggleG11Hint = toggleG11Hint;
+window.verifyG11Pass = verifyG11Pass;
+window.verifyG11Fail = verifyG11Fail;
 
 // ==========================================================
 // 遊戲 12: 🎨 第二關：童話與電影畫畫接力 (210+ 巨量題庫 ✕ 互動畫板)
