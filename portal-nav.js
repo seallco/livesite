@@ -37,7 +37,7 @@
   // 2. 全站所有資料夾與頁面完整清單
   const PORTAL_PAGES = [
     {
-      category: "🏠 核心儀表板",
+      category: "🏠 首頁與儀表板",
       items: [
         { title: "首頁專案目錄 Dashboard", path: "index.html", desc: "周淵凱的學習歷程首頁・全站專案入口", icon: "fa-solid fa-house", tag: "Home" }
       ]

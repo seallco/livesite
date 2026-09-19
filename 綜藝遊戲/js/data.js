@@ -407,88 +407,9 @@
       { cat: '終極默契', q: '「最後一題心電感應：現在全場心情是開心還是超級開心？（開心/超開心）」' }
     ];
 
-    let g4Mode = '4p';
-    let g4Deck = [];
-    let g4DrawnCount = 0;
-
-    // 洗牌並抽取不重複題目
-    function drawNextG4Question() {
-      if (g4Deck.length === 0) {
-        g4Deck = [...G4_QUESTIONS_POOL].sort(() => Math.random() - 0.5);
-        g4DrawnCount = 0;
-      }
-      g4DrawnCount++;
-      const item = g4Deck.pop();
-      return {
-        item: item,
-        current: g4DrawnCount,
-        total: G4_QUESTIONS_POOL.length,
-        remaining: g4Deck.length
-      };
-    }
-
-    function renderG4Players() {
-      const grid = document.getElementById('g4-players-grid');
-      grid.innerHTML = '';
-      const count = (g4Mode === '4p') ? 4 : 6;
-
-      for (let i = 1; i <= count; i++) {
-        const card = document.createElement('div');
-        const isRed = (g4Mode === 'team' && i <= 3);
-        const isBlue = (g4Mode === 'team' && i > 3);
-        card.className = `p-card ${isRed ? 'team-red-player' : ''} ${isBlue ? 'team-blue-player' : ''}`;
-        
-        let label = `玩家 ${i}`;
-        if (g4Mode === 'team') {
-          label = i <= 3 ? `🔴 紅隊 - 隊員 ${i}` : `🔵 藍隊 - 隊員 ${i - 3}`;
-        }
-
-        card.innerHTML = `
-          <span class="p-title">${label}</span>
-          <input type="password" class="p-answer-input" id="g4-p-${i}" placeholder="輸入答案...">
-        `;
-        grid.appendChild(card);
-      }
-    }
-    renderG4Players();
-
-    document.getElementById('g4-mode-4p').addEventListener('click', () => {
-      g4Mode = '4p';
-      document.querySelectorAll('.telepathy-mode-selector .mode-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('g4-mode-4p').classList.add('active');
-      renderG4Players();
-    });
-
-    document.getElementById('g4-mode-6p').addEventListener('click', () => {
-      g4Mode = '6p';
-      document.querySelectorAll('.telepathy-mode-selector .mode-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('g4-mode-6p').classList.add('active');
-      renderG4Players();
-    });
-
-    document.getElementById('g4-mode-team').addEventListener('click', () => {
-      g4Mode = 'team';
-      document.querySelectorAll('.telepathy-mode-selector .mode-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('g4-mode-team').classList.add('active');
-      renderG4Players();
-    });
-
-    function applyNextG4Question() {
-      audio.playBeat(true);
-      const res = drawNextG4Question();
-      document.getElementById('g4-question').textContent = res.item.q;
-      document.getElementById('g4-category-badge').textContent = `🏷️ 類別：【${res.item.cat}】`;
-      document.getElementById('g4-deck-counter').textContent = `🎯 題庫進度：第 ${res.current} / ${res.total} 題 (無重複)`;
-      document.getElementById('g4-result-msg').textContent = '';
-      document.querySelectorAll('.p-answer-input').forEach(inp => {
-        inp.value = '';
-        inp.type = 'password';
-      });
-    }
-
-/* ==========================================================
-   遊戲 5 邏輯: 誰是臥底 (80+ 組精選不重複詞彙庫)
-       ========================================================== */
+// ==========================================================
+// 遊戲 5 題庫: 誰是臥底 (80+ 組精選不重複詞彙庫)
+// ==========================================================
     const G5_PAIRS_POOL = [
       { normal: '珍珠奶茶', spy: '芋圓奶茶' },
       { normal: '火鍋', spy: '麻辣燙' },
@@ -5995,3 +5916,24 @@ const G12_MOVIES_POOL = [
 
 // 合併總題庫 (210+ 題)
 const G12_ALL_POOL = [...G12_FAIRY_TALES_POOL, ...G12_MOVIES_POOL];
+
+// 掛載至 window 全域，確保任何執行環境皆可無障礙存取
+if (typeof window !== 'undefined') {
+  window.ZHUYIN = ZHUYIN;
+  window.G1_TOPICS_POOL = G1_TOPICS_POOL;
+  window.G1_HINTS = G1_HINTS;
+  window.G2_TOPICS_POOL = G2_TOPICS_POOL;
+  window.G3_WORDS_POOL = G3_WORDS_POOL;
+  window.G4_QUESTIONS_POOL = G4_QUESTIONS_POOL;
+  window.G5_PAIRS_POOL = G5_PAIRS_POOL;
+  window.G6_BOMB_TOPICS_POOL = G6_BOMB_TOPICS_POOL;
+  window.G7_QUESTIONS_POOL = G7_QUESTIONS_POOL;
+  window.G8_WORDS_POOL = G8_WORDS_POOL;
+  window.THEME_ICONS_POOL = THEME_ICONS_POOL;
+  window.G10_SENTENCES_POOL = G10_SENTENCES_POOL;
+  window.G11_ZHUYIN_POOL = G11_ZHUYIN_POOL;
+  window.G11_MODIFIERS = G11_MODIFIERS;
+  window.G12_FAIRY_TALES_POOL = G12_FAIRY_TALES_POOL;
+  window.G12_MOVIES_POOL = G12_MOVIES_POOL;
+  window.G12_ALL_POOL = G12_ALL_POOL;
+}

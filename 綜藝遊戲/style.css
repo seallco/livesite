@@ -245,6 +245,7 @@
     .mode-solo { background: rgba(0, 245, 155, 0.15); color: #00f59b; border: 1px solid rgba(0, 245, 155, 0.3); }
 
     .play-btn {
+      pointer-events: none;
       background: linear-gradient(135deg, var(--blue-team), #0077b6);
       color: #001f2e;
       border: none;

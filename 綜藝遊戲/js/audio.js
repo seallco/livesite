@@ -98,6 +98,7 @@
     }
 
     const audio = new VarietyAudioEngine();
+    window.audio = audio;
 
     /* ==========================================================
        2. 目錄切換與全域重置系統 (View Switching & Cleanup)

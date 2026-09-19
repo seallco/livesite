@@ -1,527 +1,792 @@
+// ==========================================================
+// 綜藝派對遊戲大廳 - 核心遊戲引擎 (12 大遊戲完整邏輯)
+// ==========================================================
+
+// ==========================================================
+// 遊戲 1: 🔤 綜藝 Tempo 接龍 (題目無重複 ✕ 靈感提示)
+// ==========================================================
 let g1TopicDeck = [];
-    let g1DrawnCount = 0;
+let g1DrawnCount = 0;
 
-    function drawGame1() {
-      audio.playBeat(true);
-      if (g1TopicDeck.length === 0) {
-        g1TopicDeck = [...G1_TOPICS_POOL].sort(() => Math.random() - 0.5);
-        g1DrawnCount = 0;
-      }
-      g1DrawnCount++;
-      const c1 = ZHUYIN[Math.floor(Math.random() * ZHUYIN.length)];
-      let c2 = ZHUYIN[Math.floor(Math.random() * ZHUYIN.length)];
-      if (c1 === c2) c2 = ZHUYIN[(ZHUYIN.indexOf(c1) + 1) % ZHUYIN.length];
-      const topic = g1TopicDeck.pop();
+function drawGame1() {
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+  if (g1TopicDeck.length === 0) {
+    g1TopicDeck = [...G1_TOPICS_POOL].sort(() => Math.random() - 0.5);
+    g1DrawnCount = 0;
+  }
+  g1DrawnCount++;
+  const c1 = ZHUYIN[Math.floor(Math.random() * ZHUYIN.length)];
+  let c2 = ZHUYIN[Math.floor(Math.random() * ZHUYIN.length)];
+  if (c1 === c2) c2 = ZHUYIN[(ZHUYIN.indexOf(c1) + 1) % ZHUYIN.length];
+  const topic = g1TopicDeck.pop();
 
-      document.getElementById('g1-c1').textContent = c1;
-      document.getElementById('g1-c2').textContent = c2;
-      document.getElementById('g1-topic').textContent = `🎯 挑戰主題：${topic}`;
-      document.getElementById('g1-deck-counter').textContent = `🎯 主題進度：第 ${g1DrawnCount} / ${G1_TOPICS_POOL.length} 題 (無重複)`;
-      document.getElementById('g1-combo-text').textContent = `${c1} ＋ ${c2}`;
-      document.getElementById('g1-hint-box').style.display = 'none';
-    }
+  const c1El = document.getElementById('g1-c1');
+  const c2El = document.getElementById('g1-c2');
+  const topicEl = document.getElementById('g1-topic');
+  const counterEl = document.getElementById('g1-deck-counter');
+  const comboEl = document.getElementById('g1-combo-text');
+  const hintEl = document.getElementById('g1-hint-box');
 
-    document.getElementById('g1-btn-draw').addEventListener('click', drawGame1);
-    document.getElementById('g1-btn-hint').addEventListener('click', () => {
-      const c1 = document.getElementById('g1-c1').textContent;
-      const c2 = document.getElementById('g1-c2').textContent;
-      const key = `${c1}+${c2}`;
-      const hint = G1_HINTS[key] ? G1_HINTS[key].join('、') : `例：${c1} ... ＋ ${c2} ...（造詞或造句）`;
-      const box = document.getElementById('g1-hint-box');
+  if (c1El) c1El.textContent = c1;
+  if (c2El) c2El.textContent = c2;
+  if (topicEl) topicEl.textContent = `🎯 挑戰主題：${topic}`;
+  if (counterEl) counterEl.textContent = `🎯 主題進度：第 ${g1DrawnCount} / ${G1_TOPICS_POOL.length} 題 (無重複)`;
+  if (comboEl) comboEl.textContent = `${c1} ＋ ${c2}`;
+  if (hintEl) hintEl.style.display = 'none';
+}
+
+const g1BtnDraw = document.getElementById('g1-btn-draw');
+if (g1BtnDraw) g1BtnDraw.addEventListener('click', drawGame1);
+
+const g1BtnHint = document.getElementById('g1-btn-hint');
+if (g1BtnHint) {
+  g1BtnHint.addEventListener('click', () => {
+    const c1 = document.getElementById('g1-c1')?.textContent || 'ㄅ';
+    const c2 = document.getElementById('g1-c2')?.textContent || 'ㄆ';
+    const key = `${c1}+${c2}`;
+    const hint = (typeof G1_HINTS !== 'undefined' && G1_HINTS[key]) ? G1_HINTS[key].join('、') : `例：${c1} ... ＋ ${c2} ...（造詞或造句）`;
+    const box = document.getElementById('g1-hint-box');
+    if (box) {
       box.textContent = `💡 參考靈感：${hint}`;
       box.style.display = 'block';
-    });
-
-    /* ==========================================================
-
-    let g2Running = false, g2Interval = null, g2Beat = 0;
-    let g2Deck = [];
-    let g2DrawnCount = 0;
-
-    function applyNextG2Topic() {
-      audio.playBeat(true);
-      if (g2Deck.length === 0) {
-        g2Deck = [...G2_TOPICS_POOL].sort(() => Math.random() - 0.5);
-        g2DrawnCount = 0;
-      }
-      g2DrawnCount++;
-      const t = g2Deck.pop();
-      document.getElementById('g2-topic').textContent = t;
-      document.getElementById('g2-deck-counter').textContent = `🎯 題庫進度：第 ${g2DrawnCount} / ${G2_TOPICS_POOL.length} 題 (無重複)`;
     }
+  });
+}
+window.drawGame1 = drawGame1;
 
-    document.getElementById('g2-btn-toggle').addEventListener('click', () => {
-      const btn = document.getElementById('g2-btn-toggle');
-      if (g2Running) {
-        clearInterval(g2Interval);
-        g2Running = false;
-        btn.textContent = '▶️ 開始節拍';
+// ==========================================================
+// 遊戲 2: 🥁 節奏 Tempo 節拍器
+// ==========================================================
+let g2Running = false, g2Interval = null, g2Beat = 0;
+let g2Deck = [];
+let g2DrawnCount = 0;
+
+function applyNextG2Topic() {
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+  if (g2Deck.length === 0) {
+    g2Deck = [...G2_TOPICS_POOL].sort(() => Math.random() - 0.5);
+    g2DrawnCount = 0;
+  }
+  g2DrawnCount++;
+  const t = g2Deck.pop();
+  const topicEl = document.getElementById('g2-topic');
+  const counterEl = document.getElementById('g2-deck-counter');
+  if (topicEl) topicEl.textContent = t;
+  if (counterEl) counterEl.textContent = `🎯 題庫進度：第 ${g2DrawnCount} / ${G2_TOPICS_POOL.length} 題 (無重複)`;
+}
+
+const g2BtnToggle = document.getElementById('g2-btn-toggle');
+if (g2BtnToggle) {
+  g2BtnToggle.addEventListener('click', () => {
+    if (g2Running) {
+      clearInterval(g2Interval);
+      g2Interval = null;
+      g2Running = false;
+      g2BtnToggle.textContent = '▶️ 開始節拍';
+      for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById(`b-${i}`);
+        if (dot) dot.classList.remove('active');
+      }
+    } else {
+      g2Running = true;
+      g2BtnToggle.textContent = '⏸️ 停止節拍';
+      g2Interval = setInterval(() => {
+        g2Beat = (g2Beat % 4) + 1;
+        for (let i = 1; i <= 4; i++) {
+          const dot = document.getElementById(`b-${i}`);
+          if (dot) dot.classList.toggle('active', i === g2Beat);
+        }
+        if (typeof audio !== 'undefined') audio.playBeat(g2Beat === 1);
+      }, 550);
+    }
+  });
+}
+
+const g2BtnNext = document.getElementById('g2-btn-next-topic');
+if (g2BtnNext) g2BtnNext.addEventListener('click', applyNextG2Topic);
+window.applyNextG2Topic = applyNextG2Topic;
+
+// ==========================================================
+// 遊戲 3: 📺 綜藝大電視 (限時 60 秒猜詞挑戰)
+// ==========================================================
+let g3Timer = null, g3Sec = 60, g3Score = 0;
+let g3Deck = [];
+let g3DrawnCount = 0;
+
+function nextG3Word() {
+  if (g3Deck.length === 0) {
+    g3Deck = [...G3_WORDS_POOL].sort(() => Math.random() - 0.5);
+    g3DrawnCount = 0;
+  }
+  g3DrawnCount++;
+  const item = g3Deck.pop();
+  const wordEl = document.getElementById('g3-word');
+  const catEl = document.getElementById('g3-category');
+  const counterEl = document.getElementById('g3-deck-counter');
+  if (wordEl) wordEl.textContent = item.w;
+  if (catEl) catEl.textContent = `🏷️ 類別：【${item.cat}】`;
+  if (counterEl) counterEl.textContent = `🎯 題庫進度：第 ${g3DrawnCount} / ${G3_WORDS_POOL.length} 題 (無重複)`;
+}
+
+const g3BtnStart = document.getElementById('g3-btn-start');
+if (g3BtnStart) {
+  g3BtnStart.addEventListener('click', () => {
+    clearInterval(g3Timer);
+    g3Sec = 60; g3Score = 0;
+    const scoreText = document.getElementById('g3-score-text');
+    if (scoreText) scoreText.textContent = '🏆 本局已答對：0 題';
+    nextG3Word();
+    if (typeof audio !== 'undefined') audio.playBeat(true);
+
+    g3Timer = setInterval(() => {
+      if (g3Sec > 0) {
+        g3Sec--;
+        const timerEl = document.getElementById('g3-timer');
+        if (timerEl) timerEl.textContent = `⏱️ ${g3Sec} 秒`;
+        if (g3Sec <= 5 && g3Sec > 0) {
+          if (typeof audio !== 'undefined') audio.playCountdownBeep(g3Sec);
+        }
       } else {
-        g2Running = true;
-        btn.textContent = '⏸️ 停止節拍';
-        g2Interval = setInterval(() => {
-          g2Beat = (g2Beat % 4) + 1;
-          for (let i = 1; i <= 4; i++) {
-            document.getElementById(`b-${i}`).classList.toggle('active', i === g2Beat);
-          }
-          audio.playBeat(g2Beat === 1);
-        }, 550);
+        clearInterval(g3Timer);
+        g3Timer = null;
+        if (typeof audio !== 'undefined') audio.playExplosion();
+        const wordEl = document.getElementById('g3-word');
+        if (wordEl) wordEl.textContent = `⏰ 時間到！總計答對 ${g3Score} 題！`;
       }
-    });
+    }, 1000);
+  });
+}
 
-    document.getElementById('g2-btn-next-topic').addEventListener('click', applyNextG2Topic);
+const g3BtnCorrect = document.getElementById('g3-btn-correct');
+if (g3BtnCorrect) {
+  g3BtnCorrect.addEventListener('click', () => {
+    g3Score++;
+    const scoreText = document.getElementById('g3-score-text');
+    if (scoreText) scoreText.textContent = `🏆 本局已答對：${g3Score} 題`;
+    if (typeof audio !== 'undefined') audio.playSuccess();
+    if (typeof confettiEffect === 'function') confettiEffect();
+    nextG3Word();
+  });
+}
 
-    /* ==========================================================
+const g3BtnPass = document.getElementById('g3-btn-pass');
+if (g3BtnPass) {
+  g3BtnPass.addEventListener('click', () => {
+    if (typeof audio !== 'undefined') audio.playBeat(false);
+    nextG3Word();
+  });
+}
+window.nextG3Word = nextG3Word;
 
-    let g3Timer = null, g3Sec = 60, g3Score = 0;
-    let g3Deck = [];
-    let g3DrawnCount = 0;
+// ==========================================================
+// 遊戲 4: 🧠 我們心電感應 (默契大考驗)
+// ==========================================================
+let g4Mode = '4p';
+let g4Deck = [];
+let g4DrawnCount = 0;
 
-    function nextG3Word() {
-      if (g3Deck.length === 0) {
-        g3Deck = [...G3_WORDS_POOL].sort(() => Math.random() - 0.5);
-        g3DrawnCount = 0;
-      }
-      g3DrawnCount++;
-      const item = g3Deck.pop();
-      document.getElementById('g3-word').textContent = item.w;
-      document.getElementById('g3-category').textContent = `🏷️ 類別：【${item.cat}】`;
-      document.getElementById('g3-deck-counter').textContent = `🎯 題庫進度：第 ${g3DrawnCount} / ${G3_WORDS_POOL.length} 題 (無重複)`;
+function drawNextG4Question() {
+  if (g4Deck.length === 0) {
+    g4Deck = [...G4_QUESTIONS_POOL].sort(() => Math.random() - 0.5);
+    g4DrawnCount = 0;
+  }
+  g4DrawnCount++;
+  const item = g4Deck.pop();
+  return {
+    item: item,
+    current: g4DrawnCount,
+    total: G4_QUESTIONS_POOL.length,
+    remaining: g4Deck.length
+  };
+}
+
+function renderG4Players() {
+  const grid = document.getElementById('g4-players-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const count = (g4Mode === '4p') ? 4 : 6;
+
+  for (let i = 1; i <= count; i++) {
+    const card = document.createElement('div');
+    const isRed = (g4Mode === 'team' && i <= 3);
+    const isBlue = (g4Mode === 'team' && i > 3);
+    card.className = `p-card ${isRed ? 'team-red-player' : ''} ${isBlue ? 'team-blue-player' : ''}`;
+    
+    let label = `玩家 ${i}`;
+    if (g4Mode === 'team') {
+      label = i <= 3 ? `🔴 紅隊 - 隊員 ${i}` : `🔵 藍隊 - 隊員 ${i - 3}`;
     }
 
-    document.getElementById('g3-btn-start').addEventListener('click', () => {
-      clearInterval(g3Timer);
-      g3Sec = 60; g3Score = 0;
-      document.getElementById('g3-score-text').textContent = '🏆 本局已答對：0 題';
-      nextG3Word();
-      g3Timer = setInterval(() => {
-        if (g3Sec > 0) {
-          g3Sec--;
-          document.getElementById('g3-timer').textContent = `⏱️ ${g3Sec} 秒`;
-        } else {
-          clearInterval(g3Timer);
-          audio.playBuzzer(523.25);
-          alert(`⏰ 時間到！總共答對 ${g3Score} 題！`);
-        }
-      }, 1000);
+    card.innerHTML = `
+      <span class="p-title">${label}</span>
+      <input type="password" class="p-answer-input" id="g4-p-${i}" placeholder="輸入答案...">
+    `;
+    grid.appendChild(card);
+  }
+}
+
+function applyNextG4Question() {
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+  const res = drawNextG4Question();
+  const qEl = document.getElementById('g4-question');
+  const catEl = document.getElementById('g4-category-badge');
+  const counterEl = document.getElementById('g4-deck-counter');
+  const resultEl = document.getElementById('g4-result-msg');
+  if (qEl) qEl.textContent = res.item.q;
+  if (catEl) catEl.textContent = `🏷️ 類別：【${res.item.cat}】`;
+  if (counterEl) counterEl.textContent = `🎯 題庫進度：第 ${res.current} / ${res.total} 題 (無重複)`;
+  if (resultEl) resultEl.textContent = '';
+  document.querySelectorAll('.p-answer-input').forEach(inp => {
+    inp.value = '';
+    inp.type = 'password';
+  });
+}
+
+const g4Mode4p = document.getElementById('g4-mode-4p');
+if (g4Mode4p) {
+  g4Mode4p.addEventListener('click', () => {
+    g4Mode = '4p';
+    document.querySelectorAll('.telepathy-mode-selector .mode-btn').forEach(b => b.classList.remove('active'));
+    g4Mode4p.classList.add('active');
+    renderG4Players();
+  });
+}
+
+const g4Mode6p = document.getElementById('g4-mode-6p');
+if (g4Mode6p) {
+  g4Mode6p.addEventListener('click', () => {
+    g4Mode = '6p';
+    document.querySelectorAll('.telepathy-mode-selector .mode-btn').forEach(b => b.classList.remove('active'));
+    g4Mode6p.classList.add('active');
+    renderG4Players();
+  });
+}
+
+const g4ModeTeam = document.getElementById('g4-mode-team');
+if (g4ModeTeam) {
+  g4ModeTeam.addEventListener('click', () => {
+    g4Mode = 'team';
+    document.querySelectorAll('.telepathy-mode-selector .mode-btn').forEach(b => b.classList.remove('active'));
+    g4ModeTeam.classList.add('active');
+    renderG4Players();
+  });
+}
+
+const g4BtnNextQ = document.getElementById('g4-btn-next-q');
+if (g4BtnNextQ) g4BtnNextQ.addEventListener('click', applyNextG4Question);
+
+let g4CountdownTimer = null;
+const g4BtnCountdown = document.getElementById('g4-btn-countdown');
+if (g4BtnCountdown) {
+  g4BtnCountdown.addEventListener('click', () => {
+    clearInterval(g4CountdownTimer);
+    let count = 3;
+    const display = document.getElementById('g4-countdown-display');
+    if (display) display.textContent = `⏱️ ${count}...`;
+    if (typeof audio !== 'undefined') audio.playCountdownBeep(count);
+
+    g4CountdownTimer = setInterval(() => {
+      count--;
+      if (count > 0) {
+        if (display) display.textContent = `⏱️ ${count}...`;
+        if (typeof audio !== 'undefined') audio.playCountdownBeep(count);
+      } else if (count === 0) {
+        if (display) display.textContent = `📢 3、2、1！同時喊出答案！`;
+        if (typeof audio !== 'undefined') audio.playCountdownBeep(0);
+      } else {
+        clearInterval(g4CountdownTimer);
+        g4CountdownTimer = null;
+      }
+    }, 1000);
+  });
+}
+
+const g4BtnReveal = document.getElementById('g4-btn-reveal-all');
+if (g4BtnReveal) {
+  g4BtnReveal.addEventListener('click', () => {
+    if (typeof audio !== 'undefined') audio.playSuccess();
+    const answers = [];
+    document.querySelectorAll('.p-answer-input').forEach(inp => {
+      inp.type = 'text';
+      answers.push(inp.value.trim());
     });
 
-    document.getElementById('g3-btn-correct').addEventListener('click', () => {
-      g3Score++;
-      document.getElementById('g3-score-text').textContent = `🏆 本局已答對：${g3Score} 題`;
-      audio.playSuccess();
-      confettiEffect();
-      nextG3Word();
-    });
-
-    document.getElementById('g3-btn-pass').addEventListener('click', () => {
-      audio.playBeat(false);
-      nextG3Word();
-    });
-
-    /* ==========================================================
-
-document.getElementById('g4-btn-next-q').addEventListener('click', applyNextG4Question);
-
-    let g4CountdownTimer = null;
-    document.getElementById('g4-btn-countdown').addEventListener('click', () => {
-      clearInterval(g4CountdownTimer);
-      let count = 3;
-      const display = document.getElementById('g4-countdown-display');
-      display.textContent = `⏱️ ${count}...`;
-      audio.playCountdownBeep(count);
-
-      g4CountdownTimer = setInterval(() => {
-        count--;
-        if (count > 0) {
-          display.textContent = `⏱️ ${count}...`;
-          audio.playCountdownBeep(count);
-        } else if (count === 0) {
-          display.textContent = `📢 3、2、1！同時喊出答案！`;
-          audio.playCountdownBeep(0);
-        } else {
-          clearInterval(g4CountdownTimer);
-        }
-      }, 1000);
-    });
-
-    document.getElementById('g4-btn-reveal-all').addEventListener('click', () => {
-      audio.playSuccess();
-      const answers = [];
-      document.querySelectorAll('.p-answer-input').forEach(inp => {
-        inp.type = 'text';
-        answers.push(inp.value.trim());
-      });
-
-      const filled = answers.filter(a => a !== '');
-      if (filled.length > 0) {
-        const counts = {};
-        filled.forEach(a => { counts[a] = (counts[a] || 0) + 1; });
-        const maxMatch = Math.max(...Object.values(counts));
-        
+    const filled = answers.filter(a => a !== '');
+    if (filled.length > 0) {
+      const counts = {};
+      filled.forEach(a => { counts[a] = (counts[a] || 0) + 1; });
+      const maxMatch = Math.max(...Object.values(counts));
+      const resEl = document.getElementById('g4-result-msg');
+      if (resEl) {
         if (maxMatch >= 3) {
-          document.getElementById('g4-result-msg').textContent = `✨ 太有默契了！有 ${maxMatch} 位玩家答案完全一致！🎉`;
-          confettiEffect();
+          resEl.textContent = `✨ 太有默契了！有 ${maxMatch} 位玩家答案完全一致！🎉`;
+          if (typeof confettiEffect === 'function') confettiEffect();
         } else {
-          document.getElementById('g4-result-msg').textContent = `🤣 默契考驗中！最高相同人數：${maxMatch} 人！`;
+          resEl.textContent = `🤣 默契考驗中！最高相同人數：${maxMatch} 人！`;
         }
       }
-    });
+    }
+  });
+}
 
-    document.getElementById('g4-btn-clear-all').addEventListener('click', () => {
-      document.querySelectorAll('.p-answer-input').forEach(inp => {
-        inp.value = '';
-        inp.type = 'password';
+const g4BtnClear = document.getElementById('g4-btn-clear-all');
+if (g4BtnClear) {
+  g4BtnClear.addEventListener('click', () => {
+    document.querySelectorAll('.p-answer-input').forEach(inp => {
+      inp.value = '';
+      inp.type = 'password';
+    });
+    const resEl = document.getElementById('g4-result-msg');
+    const disp = document.getElementById('g4-countdown-display');
+    if (resEl) resEl.textContent = '';
+    if (disp) disp.textContent = '';
+  });
+}
+
+renderG4Players();
+window.applyNextG4Question = applyNextG4Question;
+
+// ==========================================================
+// 遊戲 5: 🕵️ 誰是臥底 (精選不重複詞彙庫 ✕ 現場發牌)
+// ==========================================================
+let g5PairsDeck = [];
+let g5DrawnCount = 0;
+
+const g5BtnStart = document.getElementById('g5-btn-start');
+if (g5BtnStart) {
+  g5BtnStart.addEventListener('click', () => {
+    if (typeof audio !== 'undefined') audio.playBeat(true);
+    if (g5PairsDeck.length === 0) {
+      g5PairsDeck = [...G5_PAIRS_POOL].sort(() => Math.random() - 0.5);
+      g5DrawnCount = 0;
+    }
+    g5DrawnCount++;
+    const pCountSelect = document.getElementById('g5-players-count');
+    const count = pCountSelect ? parseInt(pCountSelect.value) : 6;
+    const pair = g5PairsDeck.pop();
+    const spyIdx = Math.floor(Math.random() * count);
+    const container = document.getElementById('g5-cards-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const counterEl = document.getElementById('g5-deck-counter');
+    if (counterEl) counterEl.textContent = `🎯 詞庫進度：第 ${g5DrawnCount} / ${G5_PAIRS_POOL.length} 組 (無重複)`;
+
+    for (let i = 0; i < count; i++) {
+      const word = (i === spyIdx) ? pair.spy : pair.normal;
+      const card = document.createElement('div');
+      card.className = 'spy-card';
+      card.innerHTML = `<strong>玩家 ${i + 1}</strong><div style="margin-top:6px; font-size:0.8rem; color:#888;">點擊查看</div>`;
+      let open = false;
+      card.addEventListener('click', () => {
+        open = !open;
+        if (open) {
+          card.innerHTML = `<strong>玩家 ${i + 1}</strong><div style="margin-top:6px; color:var(--gold); font-weight:800;">${word}</div>`;
+          card.classList.add('checked');
+        } else {
+          card.innerHTML = `<strong>玩家 ${i + 1}</strong><div style="margin-top:6px; color:var(--neon-green);">✓ 已看過</div>`;
+        }
       });
-      document.getElementById('g4-result-msg').textContent = '';
-      document.getElementById('g4-countdown-display').textContent = '';
-    });
+      container.appendChild(card);
+    }
+  });
+}
 
-    /* ==========================================================
+// ==========================================================
+// 遊戲 6: 💣 定時炸彈聯想 (隨機爆炸 ✕ 緊張心跳)
+// ==========================================================
+let g6BombTimer = null;
+let g6CurrentHolder = 1;
+let g6BombRunning = false;
+let g6PlayerCount = 4;
+let g6BombDeck = [];
+let g6DrawnCount = 0;
 
-    let g5PairsDeck = [];
-    let g5DrawnCount = 0;
+function renderG6PlayerNodes() {
+  const container = document.getElementById('g6-player-nodes');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 1; i <= g6PlayerCount; i++) {
+    const node = document.createElement('div');
+    node.id = `b-node-${i}`;
+    if (i === g6CurrentHolder) {
+      node.className = 'player-bomb-node holding-bomb';
+      node.textContent = `💣 玩家 ${i}`;
+    } else {
+      node.className = 'player-bomb-node';
+      node.textContent = `玩家 ${i}`;
+    }
+    container.appendChild(node);
+  }
+}
 
-    document.getElementById('g5-btn-start').addEventListener('click', () => {
-      audio.playBeat(true);
-      if (g5PairsDeck.length === 0) {
-        g5PairsDeck = [...G5_PAIRS_POOL].sort(() => Math.random() - 0.5);
-        g5DrawnCount = 0;
+function setG6Count(num) {
+  g6PlayerCount = num;
+  g6CurrentHolder = 1;
+  const tab4 = document.getElementById('g6-tab-4p');
+  const tab6 = document.getElementById('g6-tab-6p');
+  if (tab4) tab4.classList.toggle('active', num === 4);
+  if (tab6) tab6.classList.toggle('active', num === 6);
+  renderG6PlayerNodes();
+}
+window.setG6Count = setG6Count;
+
+function updateBombHolderUI() {
+  for (let i = 1; i <= g6PlayerCount; i++) {
+    const node = document.getElementById(`b-node-${i}`);
+    if (!node) continue;
+    if (i === g6CurrentHolder) {
+      node.className = 'player-bomb-node holding-bomb';
+      node.textContent = `💣 玩家 ${i}`;
+    } else {
+      node.className = 'player-bomb-node';
+      node.textContent = `玩家 ${i}`;
+    }
+  }
+}
+
+function applyNextG6Topic() {
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+  if (g6BombDeck.length === 0) {
+    g6BombDeck = [...G6_BOMB_TOPICS_POOL].sort(() => Math.random() - 0.5);
+    g6DrawnCount = 0;
+  }
+  g6DrawnCount++;
+  const t = g6BombDeck.pop();
+  const topicEl = document.getElementById('g6-bomb-topic');
+  const counterEl = document.getElementById('g6-deck-counter');
+  const statusEl = document.getElementById('g6-bomb-status');
+  if (topicEl) topicEl.textContent = t;
+  if (counterEl) counterEl.textContent = `🎯 題庫進度：第 ${g6DrawnCount} / ${G6_BOMB_TOPICS_POOL.length} 題 (無重複)`;
+  if (statusEl) {
+    statusEl.textContent = '💣 炸彈狀態：未啟動（請點擊下方開始）';
+    statusEl.style.color = '#ff3366';
+  }
+  clearInterval(g6BombTimer);
+  g6BombTimer = null;
+  g6BombRunning = false;
+}
+
+const g6BtnNext = document.getElementById('g6-btn-next-topic');
+if (g6BtnNext) g6BtnNext.addEventListener('click', applyNextG6Topic);
+
+const g6BtnStart = document.getElementById('g6-btn-start-bomb');
+if (g6BtnStart) {
+  g6BtnStart.addEventListener('click', () => {
+    if (typeof audio !== 'undefined') audio.playBeat(true);
+    clearInterval(g6BombTimer);
+    g6BombRunning = true;
+    g6CurrentHolder = 1;
+    updateBombHolderUI();
+
+    const statusEl = document.getElementById('g6-bomb-status');
+    if (statusEl) {
+      statusEl.textContent = '🔥 炸彈引信已點燃！快回答傳給下一位！';
+      statusEl.style.color = '#ffc83b';
+    }
+
+    const bombDuration = (Math.floor(Math.random() * 22) + 14) * 1000;
+    const startTime = Date.now();
+
+    g6BombTimer = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      if (typeof audio !== 'undefined') audio.playBeat(false);
+
+      if (elapsed >= bombDuration) {
+        clearInterval(g6BombTimer);
+        g6BombTimer = null;
+        g6BombRunning = false;
+        if (typeof audio !== 'undefined') audio.playExplosion();
+        if (statusEl) {
+          statusEl.textContent = `💥💥 轟！！炸彈在【玩家 ${g6CurrentHolder}】手上引爆！淘汰！`;
+          statusEl.style.color = '#ff2a6d';
+        }
       }
-      g5DrawnCount++;
-      const count = parseInt(document.getElementById('g5-players-count').value);
-      const pair = g5PairsDeck.pop();
-      const spyIdx = Math.floor(Math.random() * count);
-      const container = document.getElementById('g5-cards-container');
-      container.innerHTML = '';
+    }, 700);
+  });
+}
 
-      document.getElementById('g5-deck-counter').textContent = `🎯 詞庫進度：第 ${g5DrawnCount} / ${G5_PAIRS_POOL.length} 組 (無重複)`;
+const g6BtnPass = document.getElementById('g6-btn-pass-bomb');
+if (g6BtnPass) {
+  g6BtnPass.addEventListener('click', () => {
+    if (!g6BombRunning) {
+      alert('請先點擊「🧨 啟動定時炸彈」開始遊戲！');
+      return;
+    }
+    if (typeof audio !== 'undefined') audio.playSuccess();
+    g6CurrentHolder = (g6CurrentHolder % g6PlayerCount) + 1;
+    updateBombHolderUI();
+  });
+}
 
-      for (let i = 0; i < count; i++) {
-        const word = (i === spyIdx) ? pair.spy : pair.normal;
-        const card = document.createElement('div');
-        card.className = 'spy-card';
-        card.innerHTML = `<strong>玩家 ${i + 1}</strong><div style="margin-top:6px; font-size:0.8rem; color:#888;">點擊查看</div>`;
-        let open = false;
-        card.addEventListener('click', () => {
-          open = !open;
-          if (open) {
-            card.innerHTML = `<strong>玩家 ${i + 1}</strong><div style="margin-top:6px; color:var(--gold); font-weight:800;">${word}</div>`;
-            card.classList.add('checked');
-          } else {
-            card.innerHTML = `<strong>玩家 ${i + 1}</strong><div style="margin-top:6px; color:var(--neon-green);">✓ 已看過</div>`;
-          }
-        });
-        container.appendChild(card);
+renderG6PlayerNodes();
+window.applyNextG6Topic = applyNextG6Topic;
+
+// ==========================================================
+// 遊戲 7: ⚡ 快問快答 3 秒極速 (緊迫倒數 ✕ 即時反應)
+// ==========================================================
+let g7PanicTimer = null;
+let g7TimeRemaining = 3.0;
+let g7Deck = [];
+let g7DrawnCount = 0;
+
+function resetG7Timer() {
+  clearInterval(g7PanicTimer);
+  g7PanicTimer = null;
+  g7TimeRemaining = 3.0;
+  const textEl = document.getElementById('g7-timer-text');
+  const fillEl = document.getElementById('g7-timer-fill');
+  if (textEl) textEl.textContent = '⏱️ 3.0 秒';
+  if (fillEl) fillEl.style.width = '100%';
+}
+
+function applyNextG7Question() {
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+  resetG7Timer();
+  if (g7Deck.length === 0) {
+    g7Deck = [...G7_QUESTIONS_POOL].sort(() => Math.random() - 0.5);
+    g7DrawnCount = 0;
+  }
+  g7DrawnCount++;
+  const q = g7Deck.pop();
+  const qEl = document.getElementById('g7-question');
+  const counterEl = document.getElementById('g7-deck-counter');
+  if (qEl) qEl.textContent = q;
+  if (counterEl) counterEl.textContent = `🎯 題庫進度：第 ${g7DrawnCount} / ${G7_QUESTIONS_POOL.length} 題 (無重複)`;
+}
+
+const g7BtnNext = document.getElementById('g7-btn-next');
+if (g7BtnNext) g7BtnNext.addEventListener('click', applyNextG7Question);
+
+const g7BtnStart = document.getElementById('g7-btn-start');
+if (g7BtnStart) {
+  g7BtnStart.addEventListener('click', () => {
+    resetG7Timer();
+    if (typeof audio !== 'undefined') audio.playBeat(true);
+    const startTime = Date.now();
+    const totalDuration = 3000;
+
+    g7PanicTimer = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const remain = Math.max(0, totalDuration - elapsed);
+      g7TimeRemaining = (remain / 1000).toFixed(1);
+      const textEl = document.getElementById('g7-timer-text');
+      const fillEl = document.getElementById('g7-timer-fill');
+      if (textEl) textEl.textContent = `⏱️ ${g7TimeRemaining} 秒`;
+      const percentage = (remain / totalDuration) * 100;
+      if (fillEl) fillEl.style.width = `${percentage}%`;
+
+      if (remain <= 0) {
+        clearInterval(g7PanicTimer);
+        g7PanicTimer = null;
+        if (typeof audio !== 'undefined') audio.playExplosion();
+        if (textEl) textEl.textContent = `💥 時間到！爆炸！`;
       }
-    });
+    }, 50);
+  });
+}
 
-    /* ==========================================================
+const g7BtnPass = document.getElementById('g7-btn-pass');
+if (g7BtnPass) {
+  g7BtnPass.addEventListener('click', () => {
+    clearInterval(g7PanicTimer);
+    g7PanicTimer = null;
+    if (typeof audio !== 'undefined') audio.playSuccess();
+    if (typeof confettiEffect === 'function') confettiEffect();
+    applyNextG7Question();
+  });
+}
 
+const g7BtnFail = document.getElementById('g7-btn-fail');
+if (g7BtnFail) {
+  g7BtnFail.addEventListener('click', () => {
+    clearInterval(g7PanicTimer);
+    g7PanicTimer = null;
+    if (typeof audio !== 'undefined') audio.playExplosion();
+  });
+}
+window.applyNextG7Question = applyNextG7Question;
 
-    let g6BombTimer = null;
-    let g6CurrentHolder = 1;
-    let g6BombRunning = false;
-    let g6PlayerCount = 4;
-    let g6BombDeck = [];
-    let g6DrawnCount = 0;
+// ==========================================================
+// 遊戲 8: 🔄 反向思考大腦倒著說 (詞彙鏡像逆轉)
+// ==========================================================
+let g8Deck = [];
+let g8DrawnCount = 0;
 
-    function renderG6PlayerNodes() {
-      const container = document.getElementById('g6-player-nodes');
-      container.innerHTML = '';
-      for (let i = 1; i <= g6PlayerCount; i++) {
-        const node = document.createElement('div');
-        node.id = `b-node-${i}`;
-        if (i === g6CurrentHolder) {
-          node.className = 'player-bomb-node holding-bomb';
-          node.textContent = `💣 玩家 ${i}`;
+function drawNextG8Word() {
+  if (g8Deck.length === 0) {
+    g8Deck = [...G8_WORDS_POOL].sort(() => Math.random() - 0.5);
+    g8DrawnCount = 0;
+  }
+  g8DrawnCount++;
+  const item = g8Deck.pop();
+  return {
+    item: item,
+    current: g8DrawnCount,
+    total: G8_WORDS_POOL.length,
+    remaining: g8Deck.length
+  };
+}
+
+function applyNextG8Word() {
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+  const res = drawNextG8Word();
+  const wordEl = document.getElementById('g8-word');
+  const hintEl = document.getElementById('g8-hint');
+  const catEl = document.getElementById('g8-category-badge');
+  const counterEl = document.getElementById('g8-deck-counter');
+  if (wordEl) wordEl.textContent = res.item.w;
+  if (hintEl) hintEl.textContent = `💡 英文提示參考：${res.item.h}`;
+  if (catEl) catEl.textContent = `🏷️ 類別：【${res.item.cat}】`;
+  if (counterEl) counterEl.textContent = `🎯 題庫進度：第 ${res.current} / ${res.total} 題 (無重複)`;
+}
+
+const g8BtnNext = document.getElementById('g8-btn-next');
+if (g8BtnNext) g8BtnNext.addEventListener('click', applyNextG8Word);
+
+const g8BtnCorrect = document.getElementById('g8-btn-correct');
+if (g8BtnCorrect) {
+  g8BtnCorrect.addEventListener('click', () => {
+    if (typeof audio !== 'undefined') audio.playSuccess();
+    if (typeof confettiEffect === 'function') confettiEffect();
+    applyNextG8Word();
+  });
+}
+
+const g8BtnPass = document.getElementById('g8-btn-pass');
+if (g8BtnPass) {
+  g8BtnPass.addEventListener('click', () => {
+    if (typeof audio !== 'undefined') audio.playBeat(false);
+    applyNextG8Word();
+  });
+}
+window.applyNextG8Word = applyNextG8Word;
+
+// ==========================================================
+// 遊戲 9: 🃏 記憶翻牌大對抗 (動態圖示 ✕ 戰隊翻牌)
+// ==========================================================
+let g9Cards = [], g9Flipped = [], g9TurnRed = true;
+
+function initG9() {
+  const grid = document.getElementById('g9-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  g9Flipped = [];
+  const currentTheme = THEME_ICONS_POOL[Math.floor(Math.random() * THEME_ICONS_POOL.length)];
+  const deck = [...currentTheme, ...currentTheme].sort(() => Math.random() - 0.5);
+  deck.forEach((icon) => {
+    const c = document.createElement('div');
+    c.className = 'memo-card';
+    c.textContent = '?';
+    c.dataset.icon = icon;
+    c.addEventListener('click', () => {
+      if (c.classList.contains('flipped') || g9Flipped.length >= 2) return;
+      c.classList.add('flipped');
+      c.textContent = icon;
+      if (typeof audio !== 'undefined') audio.playBeat(false);
+      g9Flipped.push(c);
+
+      if (g9Flipped.length === 2) {
+        const [c1, c2] = g9Flipped;
+        if (c1.dataset.icon === c2.dataset.icon) {
+          c1.classList.add('matched');
+          c2.classList.add('matched');
+          if (typeof audio !== 'undefined') audio.playSuccess();
+          g9Flipped = [];
         } else {
-          node.className = 'player-bomb-node';
-          node.textContent = `玩家 ${i}`;
-        }
-        container.appendChild(node);
-      }
-    }
-    renderG6PlayerNodes();
-
-    function setG6Count(num) {
-      g6PlayerCount = num;
-      g6CurrentHolder = 1;
-      document.getElementById('g6-tab-4p').classList.toggle('active', num === 4);
-      document.getElementById('g6-tab-6p').classList.toggle('active', num === 6);
-      renderG6PlayerNodes();
-    }
-
-    function updateBombHolderUI() {
-      for (let i = 1; i <= g6PlayerCount; i++) {
-        const node = document.getElementById(`b-node-${i}`);
-        if (!node) continue;
-        if (i === g6CurrentHolder) {
-          node.className = 'player-bomb-node holding-bomb';
-          node.textContent = `💣 玩家 ${i}`;
-        } else {
-          node.className = 'player-bomb-node';
-          node.textContent = `玩家 ${i}`;
-        }
-      }
-    }
-
-    function applyNextG6Topic() {
-      audio.playBeat(true);
-      if (g6BombDeck.length === 0) {
-        g6BombDeck = [...G6_BOMB_TOPICS_POOL].sort(() => Math.random() - 0.5);
-        g6DrawnCount = 0;
-      }
-      g6DrawnCount++;
-      const t = g6BombDeck.pop();
-      document.getElementById('g6-bomb-topic').textContent = t;
-      document.getElementById('g6-deck-counter').textContent = `🎯 題庫進度：第 ${g6DrawnCount} / ${G6_BOMB_TOPICS_POOL.length} 題 (無重複)`;
-      document.getElementById('g6-bomb-status').textContent = '💣 炸彈狀態：未啟動（請點擊下方開始）';
-      document.getElementById('g6-bomb-status').style.color = '#ff3366';
-      clearInterval(g6BombTimer);
-      g6BombRunning = false;
-    }
-
-    document.getElementById('g6-btn-next-topic').addEventListener('click', applyNextG6Topic);
-
-    document.getElementById('g6-btn-start-bomb').addEventListener('click', () => {
-      audio.playBeat(true);
-      clearInterval(g6BombTimer);
-      g6BombRunning = true;
-      g6CurrentHolder = 1;
-      updateBombHolderUI();
-
-      document.getElementById('g6-bomb-status').textContent = '🔥 炸彈引信已點燃！快回答傳給下一位！';
-      document.getElementById('g6-bomb-status').style.color = '#ffc83b';
-
-      const bombDuration = (Math.floor(Math.random() * 22) + 14) * 1000;
-      const startTime = Date.now();
-
-      g6BombTimer = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        audio.playBeat(false);
-
-        if (elapsed >= bombDuration) {
-          clearInterval(g6BombTimer);
-          g6BombRunning = false;
-          audio.playExplosion();
-          document.getElementById('g6-bomb-status').textContent = `💥💥 轟！！炸彈在【玩家 ${g6CurrentHolder}】手上引爆！淘汰！`;
-          document.getElementById('g6-bomb-status').style.color = '#ff2a6d';
-        }
-      }, 700);
-    });
-
-    document.getElementById('g6-btn-pass-bomb').addEventListener('click', () => {
-      if (!g6BombRunning) {
-        alert('請先點擊「🧨 啟動定時炸彈」開始遊戲！');
-        return;
-      }
-      audio.playSuccess();
-      g6CurrentHolder = (g6CurrentHolder % g6PlayerCount) + 1;
-      updateBombHolderUI();
-    });
-
-    /* ==========================================================
-
-
-    let g7PanicTimer = null;
-    let g7TimeRemaining = 3.0;
-    let g7Deck = [];
-    let g7DrawnCount = 0;
-
-    function resetG7Timer() {
-      clearInterval(g7PanicTimer);
-      g7TimeRemaining = 3.0;
-      document.getElementById('g7-timer-text').textContent = '⏱️ 3.0 秒';
-      document.getElementById('g7-timer-fill').style.width = '100%';
-    }
-
-    function applyNextG7Question() {
-      audio.playBeat(true);
-      resetG7Timer();
-      if (g7Deck.length === 0) {
-        g7Deck = [...G7_QUESTIONS_POOL].sort(() => Math.random() - 0.5);
-        g7DrawnCount = 0;
-      }
-      g7DrawnCount++;
-      const q = g7Deck.pop();
-      document.getElementById('g7-question').textContent = q;
-      document.getElementById('g7-deck-counter').textContent = `🎯 題庫進度：第 ${g7DrawnCount} / ${G7_QUESTIONS_POOL.length} 題 (無重複)`;
-    }
-
-    document.getElementById('g7-btn-next').addEventListener('click', applyNextG7Question);
-
-    document.getElementById('g7-btn-start').addEventListener('click', () => {
-      resetG7Timer();
-      audio.playBeat(true);
-      const startTime = Date.now();
-      const totalDuration = 3000;
-
-      g7PanicTimer = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const remain = Math.max(0, totalDuration - elapsed);
-        g7TimeRemaining = (remain / 1000).toFixed(1);
-        document.getElementById('g7-timer-text').textContent = `⏱️ ${g7TimeRemaining} 秒`;
-        const percentage = (remain / totalDuration) * 100;
-        document.getElementById('g7-timer-fill').style.width = `${percentage}%`;
-
-        if (remain <= 0) {
-          clearInterval(g7PanicTimer);
-          audio.playExplosion();
-          document.getElementById('g7-timer-text').textContent = `💥 時間到！爆炸！`;
-        }
-      }, 50);
-    });
-
-    document.getElementById('g7-btn-pass').addEventListener('click', () => {
-      clearInterval(g7PanicTimer);
-      audio.playSuccess();
-      confettiEffect();
-      applyNextG7Question();
-    });
-
-    document.getElementById('g7-btn-fail').addEventListener('click', () => {
-      clearInterval(g7PanicTimer);
-      audio.playExplosion();
-    });
-
-    /* ==========================================================
-
-
-    let g8Deck = [];
-    let g8DrawnCount = 0;
-
-    function drawNextG8Word() {
-      if (g8Deck.length === 0) {
-        g8Deck = [...G8_WORDS_POOL].sort(() => Math.random() - 0.5);
-        g8DrawnCount = 0;
-      }
-      g8DrawnCount++;
-      const item = g8Deck.pop();
-      return {
-        item: item,
-        current: g8DrawnCount,
-        total: G8_WORDS_POOL.length,
-        remaining: g8Deck.length
-      };
-    }
-
-    function applyNextG8Word() {
-      audio.playBeat(true);
-      const res = drawNextG8Word();
-      document.getElementById('g8-word').textContent = res.item.w;
-      document.getElementById('g8-hint').textContent = `💡 英文提示參考：${res.item.h}`;
-      document.getElementById('g8-category-badge').textContent = `🏷️ 類別：【${res.item.cat}】`;
-      document.getElementById('g8-deck-counter').textContent = `🎯 題庫進度：第 ${res.current} / ${res.total} 題 (無重複)`;
-    }
-
-    document.getElementById('g8-btn-next').addEventListener('click', applyNextG8Word);
-
-    document.getElementById('g8-btn-correct').addEventListener('click', () => {
-      audio.playSuccess();
-      confettiEffect();
-      applyNextG8Word();
-    });
-
-    document.getElementById('g8-btn-pass').addEventListener('click', () => {
-      audio.playBeat(false);
-      applyNextG8Word();
-    });
-
-    /* ==========================================================
-
-    let g9Cards = [], g9Flipped = [], g9TurnRed = true;
-
-    function initG9() {
-      const grid = document.getElementById('g9-grid');
-      grid.innerHTML = '';
-      g9Flipped = [];
-      const currentTheme = THEME_ICONS_POOL[Math.floor(Math.random() * THEME_ICONS_POOL.length)];
-      const deck = [...currentTheme, ...currentTheme].sort(() => Math.random() - 0.5);
-      deck.forEach((icon) => {
-        const c = document.createElement('div');
-        c.className = 'memo-card';
-        c.textContent = '?';
-        c.dataset.icon = icon;
-        c.addEventListener('click', () => {
-          if (c.classList.contains('flipped') || g9Flipped.length >= 2) return;
-          c.classList.add('flipped');
-          c.textContent = icon;
-          audio.playBeat(false);
-          g9Flipped.push(c);
-
-          if (g9Flipped.length === 2) {
-            const [c1, c2] = g9Flipped;
-            if (c1.dataset.icon === c2.dataset.icon) {
-              c1.classList.add('matched');
-              c2.classList.add('matched');
-              audio.playSuccess();
-              g9Flipped = [];
-            } else {
-              setTimeout(() => {
-                c1.classList.remove('flipped'); c1.textContent = '?';
-                c2.classList.remove('flipped'); c2.textContent = '?';
-                g9Flipped = [];
-                g9TurnRed = !g9TurnRed;
-                document.getElementById('g9-turn').textContent = g9TurnRed ? '輪到：🔴 紅隊翻牌' : '輪到：🔵 藍隊翻牌';
-                document.getElementById('g9-turn').style.color = g9TurnRed ? 'var(--red-team)' : 'var(--blue-team)';
-              }, 800);
+          setTimeout(() => {
+            c1.classList.remove('flipped'); c1.textContent = '?';
+            c2.classList.remove('flipped'); c2.textContent = '?';
+            g9Flipped = [];
+            g9TurnRed = !g9TurnRed;
+            const turnEl = document.getElementById('g9-turn');
+            if (turnEl) {
+              turnEl.textContent = g9TurnRed ? '輪到：🔴 紅隊翻牌' : '輪到：🔵 藍隊翻牌';
+              turnEl.style.color = g9TurnRed ? 'var(--red-team)' : 'var(--blue-team)';
             }
-          }
-        });
-        grid.appendChild(c);
-      });
-    }
-    document.getElementById('g9-btn-reset').addEventListener('click', initG9);
-    initG9();
-
-    /* ==========================================================
-
-
-    let g10Timer = null;
-    let g10Sec = 60;
-    let g10Deck = [];
-
-    const promptCard = document.getElementById('g10-hidden-prompt');
-    const realCard = document.getElementById('g10-real-sentence');
-
-    promptCard.addEventListener('click', () => {
-      promptCard.style.display = 'none';
-      realCard.style.display = 'block';
-    });
-
-    document.getElementById('g10-btn-next-sentence').addEventListener('click', () => {
-      audio.playBeat(true);
-      if (g10Deck.length === 0) {
-        g10Deck = [...G10_SENTENCES_POOL].sort(() => Math.random() - 0.5);
-      }
-      const s = g10Deck.pop();
-      realCard.textContent = s;
-      realCard.style.display = 'none';
-      promptCard.style.display = 'block';
-      clearInterval(g10Timer);
-      g10Sec = 60;
-      document.getElementById('g10-timer-display').textContent = '⏱️ 剩餘時間：60 秒';
-    });
-
-    document.getElementById('g10-btn-start-timer').addEventListener('click', () => {
-      clearInterval(g10Timer);
-      g10Sec = 60;
-      audio.playBeat(true);
-
-      g10Timer = setInterval(() => {
-        if (g10Sec > 0) {
-          g10Sec--;
-          document.getElementById('g10-timer-display').textContent = `⏱️ 剩餘時間：${g10Sec} 秒`;
-          if (g10Sec <= 5 && g10Sec > 0) audio.playCountdownBeep(g10Sec);
-        } else {
-          clearInterval(g10Timer);
-          audio.playExplosion();
-          document.getElementById('g10-timer-display').textContent = `⏰ 時間到！請最後一位玩家公佈答案！`;
+          }, 800);
         }
-      }, 1000);
+      }
     });
+    grid.appendChild(c);
+  });
+}
 
+const g9BtnReset = document.getElementById('g9-btn-reset');
+if (g9BtnReset) g9BtnReset.addEventListener('click', initG9);
+window.initG9 = initG9;
+
+// ==========================================================
+// 遊戲 10: 🤫 綜藝傳話筒 (超長繞口令與爆笑秘密句子)
+// ==========================================================
+let g10Timer = null;
+let g10Sec = 60;
+let g10Deck = [];
+let g10DrawnCount = 0;
+
+const promptCard = document.getElementById('g10-hidden-prompt');
+const realCard = document.getElementById('g10-real-sentence');
+
+if (promptCard && realCard) {
+  promptCard.addEventListener('click', () => {
+    promptCard.style.display = 'none';
+    realCard.style.display = 'block';
+  });
+}
+
+function applyNextG10Sentence() {
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+  if (g10Deck.length === 0) {
+    g10Deck = [...G10_SENTENCES_POOL].sort(() => Math.random() - 0.5);
+    g10DrawnCount = 0;
+  }
+  g10DrawnCount++;
+  const s = g10Deck.pop();
+  if (realCard) {
+    realCard.textContent = s;
+    realCard.style.display = 'none';
+  }
+  if (promptCard) promptCard.style.display = 'block';
+  clearInterval(g10Timer);
+  g10Timer = null;
+  g10Sec = 60;
+  const timerDisplay = document.getElementById('g10-timer-display');
+  if (timerDisplay) timerDisplay.textContent = '⏱️ 剩餘時間：60 秒';
+}
+
+const g10BtnNext = document.getElementById('g10-btn-next-sentence');
+if (g10BtnNext) g10BtnNext.addEventListener('click', applyNextG10Sentence);
+
+const g10BtnStart = document.getElementById('g10-btn-start-timer');
+if (g10BtnStart) {
+  g10BtnStart.addEventListener('click', () => {
+    clearInterval(g10Timer);
+    g10Sec = 60;
+    if (typeof audio !== 'undefined') audio.playBeat(true);
+
+    g10Timer = setInterval(() => {
+      if (g10Sec > 0) {
+        g10Sec--;
+        const timerDisplay = document.getElementById('g10-timer-display');
+        if (timerDisplay) timerDisplay.textContent = `⏱️ 剩餘時間：${g10Sec} 秒`;
+        if (g10Sec <= 5 && g10Sec > 0) {
+          if (typeof audio !== 'undefined') audio.playCountdownBeep(g10Sec);
+        }
+      } else {
+        clearInterval(g10Timer);
+        g10Timer = null;
+        if (typeof audio !== 'undefined') audio.playExplosion();
+        const timerDisplay = document.getElementById('g10-timer-display');
+        if (timerDisplay) timerDisplay.textContent = `⏰ 時間到！請最後一位玩家公佈答案！`;
+      }
+    }, 1000);
+  });
+}
+window.applyNextG10Sentence = applyNextG10Sentence;
+
+// ==========================================================
+// 遊戲 11: 🔍 第一關：翻注音現場找物 (37 注音不重複 ✕ 現場限時搶物)
+// ==========================================================
 let g11Deck = [];
 let g11DrawnCount = 0;
 let g11CurrentItem = null;
@@ -549,27 +814,38 @@ function drawNextG11Card() {
   if (cardBox) {
     cardBox.classList.remove('flipped');
     setTimeout(() => {
-      document.getElementById('g11-char-display').textContent = g11CurrentItem.char;
-      document.getElementById('g11-target-char').textContent = g11CurrentItem.char;
-      document.getElementById('g11-char-sub').textContent = `範例首音：找「${g11CurrentItem.example}」等`;
+      const charDisp = document.getElementById('g11-char-display');
+      const targetChar = document.getElementById('g11-target-char');
+      const charSub = document.getElementById('g11-char-sub');
+      if (charDisp) charDisp.textContent = g11CurrentItem.char;
+      if (targetChar) targetChar.textContent = g11CurrentItem.char;
+      if (charSub) charSub.textContent = `範例首音：找「${g11CurrentItem.example}」等`;
       cardBox.classList.add('flipped');
       if (typeof audio !== 'undefined') audio.playBeat(true);
     }, 280);
   }
 
   // 更新文字看板與計數
-  document.getElementById('g11-deck-counter').textContent = `🎯 題庫進度：第 ${g11DrawnCount} / ${G11_ZHUYIN_POOL.length} 題 (無重複，剩餘 ${g11Deck.length} 題)`;
-  document.getElementById('g11-mission-text').innerHTML = `請在現場限時找到【<span style="color:var(--gold); font-size:1.7rem;">${g11CurrentItem.char}</span>】開頭的真實物品！例如：${g11CurrentItem.example}`;
+  const deckCounter = document.getElementById('g11-deck-counter');
+  if (deckCounter) {
+    deckCounter.textContent = `🎯 題庫進度：第 ${g11DrawnCount} / ${G11_ZHUYIN_POOL.length} 題 (無重複，剩餘 ${g11Deck.length} 題)`;
+  }
+  const missionText = document.getElementById('g11-mission-text');
+  if (missionText) {
+    missionText.innerHTML = `請在現場限時找到【<span style="color:var(--gold); font-size:1.7rem;">${g11CurrentItem.char}</span>】開頭的真實物品！例如：${g11CurrentItem.example}`;
+  }
 
-  // 隨機趣味挑戰加碼卡 (約 35% 機率觸發加碼)
+  // 隨機趣味挑戰加碼卡
   const modBox = document.getElementById('g11-modifier-box');
-  if (Math.random() < 0.45) {
-    const randomMod = G11_MODIFIERS[Math.floor(Math.random() * G11_MODIFIERS.length)];
-    modBox.innerHTML = `<span>${randomMod}</span>`;
-    modBox.style.display = 'flex';
-  } else {
-    modBox.innerHTML = `<span>⚡ 現場規則：率先將物品送至大螢幕前並清楚喊出名稱即獲得判定資格！</span>`;
-    modBox.style.display = 'flex';
+  if (modBox) {
+    if (Math.random() < 0.45 && typeof G11_MODIFIERS !== 'undefined') {
+      const randomMod = G11_MODIFIERS[Math.floor(Math.random() * G11_MODIFIERS.length)];
+      modBox.innerHTML = `<span>${randomMod}</span>`;
+      modBox.style.display = 'flex';
+    } else {
+      modBox.innerHTML = `<span>⚡ 現場規則：率先將物品送至大螢幕前並清楚喊出名稱即獲得判定資格！</span>`;
+      modBox.style.display = 'flex';
+    }
   }
 
   // 隱藏並預載提示庫
@@ -583,6 +859,16 @@ function drawNextG11Card() {
 function setG11TimerPreset(seconds) {
   g11InitialSec = seconds;
   resetG11Timer();
+  // 更新 30/60/90/120 按鈕 active 狀態
+  document.querySelectorAll('#view-game-11 .nav-btn').forEach(btn => {
+    const txt = btn.textContent;
+    if (txt.includes(`${seconds} 秒`)) {
+      btn.classList.add('active');
+    } else if (txt.includes('秒速戰') || txt.includes('秒標準') || txt.includes('秒寬裕') || txt.includes('秒大混戰')) {
+      btn.classList.remove('active');
+    }
+  });
+  if (typeof audio !== 'undefined') audio.playBeat(false);
 }
 
 function resetG11Timer() {
@@ -611,6 +897,10 @@ function toggleG11Timer() {
     return;
   }
 
+  if (g11Sec <= 0) {
+    g11Sec = g11InitialSec;
+  }
+
   if (typeof audio !== 'undefined') audio.playBeat(true);
   if (btn) btn.textContent = '⏸️ 暫停計時';
 
@@ -619,7 +909,7 @@ function toggleG11Timer() {
       g11Sec--;
       if (disp) {
         disp.textContent = `⏱️ 剩餘時間：${g11Sec} 秒`;
-        if (g11Sec <= 10) disp.style.color = '#ff0033';
+        disp.style.color = (g11Sec <= 10) ? '#ff0033' : '#ff3366';
       }
       if (g11Sec <= 5 && g11Sec > 0) {
         if (typeof audio !== 'undefined') audio.playCountdownBeep(g11Sec);
@@ -646,63 +936,80 @@ if (g11CardBox) {
 }
 
 // 靈感提示清單展開
-document.getElementById('g11-btn-hint').addEventListener('click', () => {
-  if (!g11CurrentItem) return;
-  const container = document.getElementById('g11-hints-container');
-  const list = document.getElementById('g11-chips-list');
-  const title = document.getElementById('g11-hints-title');
+const g11BtnHint = document.getElementById('g11-btn-hint');
+if (g11BtnHint) {
+  g11BtnHint.addEventListener('click', () => {
+    if (!g11CurrentItem) {
+      g11CurrentItem = (typeof G11_ZHUYIN_POOL !== 'undefined' && G11_ZHUYIN_POOL.length > 0) 
+        ? (G11_ZHUYIN_POOL.find(i => i.char === 'ㄑ') || G11_ZHUYIN_POOL[0])
+        : { char: 'ㄑ', example: '球', hints: ['球', '鉛筆', '錢包', '汽水', '青椒'] };
+    }
+    const container = document.getElementById('g11-hints-container');
+    const list = document.getElementById('g11-chips-list');
+    const title = document.getElementById('g11-hints-title');
+    if (!container || !list || !title) return;
 
-  if (container.style.display === 'block') {
-    container.style.display = 'none';
-    return;
-  }
+    if (container.style.display === 'block') {
+      container.style.display = 'none';
+      return;
+    }
 
-  title.textContent = `💡【${g11CurrentItem.char}】現場真實常見物品參考清單：`;
-  list.innerHTML = '';
-  g11CurrentItem.hints.forEach(hint => {
-    const chip = document.createElement('span');
-    chip.className = 'g11-chip';
-    chip.textContent = hint;
-    list.appendChild(chip);
+    title.textContent = `💡【${g11CurrentItem.char}】現場常見真實物品參考清單：`;
+    list.innerHTML = '';
+    (g11CurrentItem.hints || []).forEach(hint => {
+      const chip = document.createElement('span');
+      chip.className = 'g11-chip';
+      chip.textContent = hint;
+      list.appendChild(chip);
+    });
+
+    container.style.display = 'block';
+    if (typeof audio !== 'undefined') audio.playBeat(false);
   });
+}
 
-  container.style.display = 'block';
-  if (typeof audio !== 'undefined') audio.playBeat(false);
-});
+const g11BtnDraw = document.getElementById('g11-btn-draw');
+if (g11BtnDraw) g11BtnDraw.addEventListener('click', drawNextG11Card);
 
-// 抽題按鈕監聽
-document.getElementById('g11-btn-draw').addEventListener('click', drawNextG11Card);
-document.getElementById('g11-btn-timer-toggle').addEventListener('click', toggleG11Timer);
+const g11BtnTimerToggle = document.getElementById('g11-btn-timer-toggle');
+if (g11BtnTimerToggle) g11BtnTimerToggle.addEventListener('click', toggleG11Timer);
 
-// 驗收判定按鈕
-document.getElementById('g11-btn-verify-pass').addEventListener('click', () => {
-  if (typeof audio !== 'undefined') audio.playSuccess();
-  if (typeof confettiEffect === 'function') confettiEffect();
-  const modBox = document.getElementById('g11-modifier-box');
-  if (modBox) {
-    modBox.innerHTML = `<span>🎉 恭喜驗收合格！裁判請於下方計分板為獲勝隊伍/玩家加分！</span>`;
-  }
-});
+const g11BtnVerifyPass = document.getElementById('g11-btn-verify-pass');
+if (g11BtnVerifyPass) {
+  g11BtnVerifyPass.addEventListener('click', () => {
+    if (typeof audio !== 'undefined') audio.playSuccess();
+    if (typeof confettiEffect === 'function') confettiEffect();
+    const modBox = document.getElementById('g11-modifier-box');
+    if (modBox) {
+      modBox.innerHTML = `<span>🎉 恭喜驗收合格！裁判請於下方計分板為獲勝隊伍/玩家加分！</span>`;
+    }
+  });
+}
 
-document.getElementById('g11-btn-verify-fail').addEventListener('click', () => {
-  if (typeof audio !== 'undefined') audio.playBuzzer(280);
-  const modBox = document.getElementById('g11-modifier-box');
-  if (modBox) {
-    modBox.innerHTML = `<span>❌ 判定不符或物品錯誤！開放其他隊伍/玩家繼續爭取！</span>`;
-  }
-});
+const g11BtnVerifyFail = document.getElementById('g11-btn-verify-fail');
+if (g11BtnVerifyFail) {
+  g11BtnVerifyFail.addEventListener('click', () => {
+    if (typeof audio !== 'undefined') audio.playBuzzer(280);
+    const modBox = document.getElementById('g11-modifier-box');
+    if (modBox) {
+      modBox.innerHTML = `<span>❌ 判定不符或物品錯誤！開放其他隊伍/玩家繼續爭取！</span>`;
+    }
+  });
+}
 
+window.shuffleG11Deck = shuffleG11Deck;
+window.drawNextG11Card = drawNextG11Card;
+window.setG11TimerPreset = setG11TimerPreset;
+window.resetG11Timer = resetG11Timer;
+window.toggleG11Timer = toggleG11Timer;
 
-/* ==========================================================
-   遊戲 12: 🎨 第二關：童話與電影畫畫接力 (210+ 巨量題庫 ✕ 互動畫板)
-   ========================================================== */
-
+// ==========================================================
+// 遊戲 12: 🎨 第二關：童話與電影畫畫接力 (210+ 巨量題庫 ✕ 互動畫板)
+// ==========================================================
 let g12Category = 'all'; // 'all', 'fairy', 'movie'
 let g12Deck = [];
 let g12DrawnCount = 0;
 let g12CurrentTopic = null;
-
-// 接力棒次與計時狀態
 let g12SelectedTeamId = null;
 
 function getG12Batons() {
@@ -766,21 +1073,30 @@ function drawNextG12Topic() {
 
   // 更新計數器與標籤
   const catNames = { all: '經典童話 ✕ 熱門電影', fairy: '經典童話故事專區', movie: '中外經典電影專區' };
-  document.getElementById('g12-current-cat-badge').textContent = `🏷️ 題庫類別：【${catNames[g12Category]}】`;
-  document.getElementById('g12-deck-counter').textContent = `🎯 題庫進度：第 ${g12DrawnCount} / ${pool.length} 題 (無重複，剩餘 ${g12Deck.length} 題)`;
+  const catBadge = document.getElementById('g12-current-cat-badge');
+  const counterEl = document.getElementById('g12-deck-counter');
+  if (catBadge) catBadge.textContent = `🏷️ 題庫類別：【${catNames[g12Category]}】`;
+  if (counterEl) counterEl.textContent = `🎯 題庫進度：第 ${g12DrawnCount} / ${pool.length} 題 (無重複，剩餘 ${g12Deck.length} 題)`;
 
   // 暗題卡片重設為隱藏狀態
-  document.getElementById('g12-secret-prompt').style.display = 'block';
-  document.getElementById('g12-secret-content').style.display = 'none';
+  const secretPrompt = document.getElementById('g12-secret-prompt');
+  const secretContent = document.getElementById('g12-secret-content');
+  if (secretPrompt) secretPrompt.style.display = 'block';
+  if (secretContent) secretContent.style.display = 'none';
 
   // 填入秘密題目內容
-  document.getElementById('g12-topic-tag').textContent = g12CurrentTopic.cat === '童話故事' ? '🏰 童話故事' : '🎬 經典電影';
-  document.getElementById('g12-words-count').textContent = g12CurrentTopic.words;
-  document.getElementById('g12-secret-title').textContent = g12CurrentTopic.title;
-  document.getElementById('g12-secret-hint').textContent = `💡 靈感特徵提示：${g12CurrentTopic.hint}`;
+  const topicTag = document.getElementById('g12-topic-tag');
+  const wordsCount = document.getElementById('g12-words-count');
+  const secretTitle = document.getElementById('g12-secret-title');
+  const secretHint = document.getElementById('g12-secret-hint');
+  if (topicTag) topicTag.textContent = g12CurrentTopic.cat === '童話故事' ? '🏰 童話故事' : '🎬 經典電影';
+  if (wordsCount) wordsCount.textContent = g12CurrentTopic.words;
+  if (secretTitle) secretTitle.textContent = g12CurrentTopic.title;
+  if (secretHint) secretHint.textContent = `💡 靈感特徵提示：${g12CurrentTopic.hint}`;
 
   // 隱藏揭曉答案框
-  document.getElementById('g12-reveal-box').style.display = 'none';
+  const revealBox = document.getElementById('g12-reveal-box');
+  if (revealBox) revealBox.style.display = 'none';
 
   // 重設接力狀態與清空畫布
   resetG12Relay();
@@ -792,16 +1108,18 @@ const secretCardBox = document.getElementById('g12-secret-card-box');
 if (secretCardBox) {
   secretCardBox.addEventListener('click', (e) => {
     if (e.target.id === 'g12-btn-rehide') {
-      document.getElementById('g12-secret-content').style.display = 'none';
-      document.getElementById('g12-secret-prompt').style.display = 'block';
+      const content = document.getElementById('g12-secret-content');
+      const prompt = document.getElementById('g12-secret-prompt');
+      if (content) content.style.display = 'none';
+      if (prompt) prompt.style.display = 'block';
       if (typeof audio !== 'undefined') audio.playBeat(false);
       return;
     }
     const prompt = document.getElementById('g12-secret-prompt');
     const content = document.getElementById('g12-secret-content');
-    if (prompt.style.display !== 'none') {
+    if (prompt && prompt.style.display !== 'none') {
       prompt.style.display = 'none';
-      content.style.display = 'block';
+      if (content) content.style.display = 'block';
       if (typeof audio !== 'undefined') audio.playBeat(true);
     }
   });
@@ -838,10 +1156,15 @@ function resetG12Relay() {
 function updateG12RelayUI() {
   const batons = getG12Batons();
   const batonName = batons[g12CurrentBatonIdx] || '交棒結束';
-  document.getElementById('g12-baton-display').textContent = `👤 ${batonName} 作畫中`;
-  document.getElementById('g12-timer-display').textContent = `⏱️ ${g12Sec} 秒`;
-  document.getElementById('g12-timer-display').style.color = '#ff3366';
-  document.getElementById('g12-btn-start-baton').textContent = '▶️ 開始作畫';
+  const batonDisp = document.getElementById('g12-baton-display');
+  const timerDisp = document.getElementById('g12-timer-display');
+  const startBtn = document.getElementById('g12-btn-start-baton');
+  if (batonDisp) batonDisp.textContent = `👤 ${batonName} 作畫中`;
+  if (timerDisp) {
+    timerDisp.textContent = `⏱️ ${g12Sec} 秒`;
+    timerDisp.style.color = '#ff3366';
+  }
+  if (startBtn) startBtn.textContent = '▶️ 開始作畫';
 
   // 主持人模式看板同步
   const hostBaton = document.getElementById('g12-host-big-baton');
@@ -851,21 +1174,23 @@ function updateG12RelayUI() {
 }
 
 function startG12BatonTimer() {
+  const startBtn = document.getElementById('g12-btn-start-baton');
   if (g12Timer) {
     clearInterval(g12Timer);
     g12Timer = null;
-    document.getElementById('g12-btn-start-baton').textContent = '▶️ 繼續作畫';
+    if (startBtn) startBtn.textContent = '▶️ 繼續作畫';
     return;
   }
 
   if (typeof audio !== 'undefined') audio.playBeat(true);
-  document.getElementById('g12-btn-start-baton').textContent = '⏸️ 暫停';
+  if (startBtn) startBtn.textContent = '⏸️ 暫停';
 
   g12Timer = setInterval(() => {
     if (g12Sec > 0) {
       g12Sec--;
-      document.getElementById('g12-timer-display').textContent = `⏱️ ${g12Sec} 秒`;
+      const timerDisp = document.getElementById('g12-timer-display');
       const hostTimer = document.getElementById('g12-host-big-timer');
+      if (timerDisp) timerDisp.textContent = `⏱️ ${g12Sec} 秒`;
       if (hostTimer) hostTimer.textContent = `⏱️ ${g12Sec}`;
 
       if (g12Sec <= 5 && g12Sec > 0) {
@@ -894,8 +1219,10 @@ function triggerG12NextBatonPrompt() {
       '👀 揭開畫作全貌！',
       () => {
         hideG12RelayOverlay();
-        document.getElementById('g12-baton-display').textContent = `🏆 ${guesserName}！`;
-        document.getElementById('g12-timer-display').textContent = `請猜題！`;
+        const batonDisp = document.getElementById('g12-baton-display');
+        const timerDisp = document.getElementById('g12-timer-display');
+        if (batonDisp) batonDisp.textContent = `🏆 ${guesserName}！`;
+        if (timerDisp) timerDisp.textContent = `請猜題！`;
       }
     );
     return;
@@ -918,24 +1245,24 @@ function startG12ReviewCountdown(batonName) {
   const overlayDesc = document.getElementById('g12-overlay-desc');
   const confirmBtn = document.getElementById('g12-overlay-confirm-btn');
 
-  confirmBtn.style.display = 'none';
-  overlayTitle.textContent = `👀 仔細看畫倒數：${viewSec} 秒！`;
-  overlayDesc.textContent = '把握時間記住上一棒的畫作特徵與細節！';
+  if (confirmBtn) confirmBtn.style.display = 'none';
+  if (overlayTitle) overlayTitle.textContent = `👀 仔細看畫倒數：${viewSec} 秒！`;
+  if (overlayDesc) overlayDesc.textContent = '把握時間記住上一棒的畫作特徵與細節！';
 
-  // 暫時隱藏遮罩露出畫布
+  // 暫時半透明露出畫布
   const relayModal = document.getElementById('g12-relay-modal');
-  relayModal.style.background = 'rgba(10, 13, 26, 0.4)';
+  if (relayModal) relayModal.style.background = 'rgba(10, 13, 26, 0.4)';
 
   g12ViewTimer = setInterval(() => {
     viewSec--;
     if (viewSec > 0) {
-      overlayTitle.textContent = `👀 仔細看畫倒數：${viewSec} 秒！`;
+      if (overlayTitle) overlayTitle.textContent = `👀 仔細看畫倒數：${viewSec} 秒！`;
       if (typeof audio !== 'undefined') audio.playCountdownBeep(viewSec);
     } else {
       clearInterval(g12ViewTimer);
       g12ViewTimer = null;
-      relayModal.style.background = 'rgba(10, 13, 26, 0.96)';
-      confirmBtn.style.display = 'inline-block';
+      if (relayModal) relayModal.style.background = 'rgba(10, 13, 26, 0.96)';
+      if (confirmBtn) confirmBtn.style.display = 'inline-block';
       hideG12RelayOverlay();
 
       // 開始該棒次繪圖
@@ -948,42 +1275,62 @@ function startG12ReviewCountdown(batonName) {
 
 function showG12RelayOverlay(title, desc, btnText, callback) {
   const overlay = document.getElementById('g12-relay-modal');
-  document.getElementById('g12-overlay-title').textContent = title;
-  document.getElementById('g12-overlay-desc').textContent = desc;
+  const titleEl = document.getElementById('g12-overlay-title');
+  const descEl = document.getElementById('g12-overlay-desc');
   const btn = document.getElementById('g12-overlay-confirm-btn');
-  btn.textContent = btnText;
-  btn.style.display = 'inline-block';
-  btn.onclick = callback;
-  overlay.classList.add('show');
+  if (titleEl) titleEl.textContent = title;
+  if (descEl) descEl.textContent = desc;
+  if (btn) {
+    btn.textContent = btnText;
+    btn.style.display = 'inline-block';
+    btn.onclick = callback;
+  }
+  if (overlay) overlay.classList.add('show');
 }
 
 function hideG12RelayOverlay() {
   const overlay = document.getElementById('g12-relay-modal');
-  overlay.classList.remove('show');
+  if (overlay) overlay.classList.remove('show');
 }
 
 // 揭曉答案
-document.getElementById('g12-btn-reveal').addEventListener('click', () => {
-  if (!g12CurrentTopic) return;
-  if (typeof audio !== 'undefined') audio.playSuccess();
-  if (typeof confettiEffect === 'function') confettiEffect();
+const g12BtnReveal = document.getElementById('g12-btn-reveal');
+if (g12BtnReveal) {
+  g12BtnReveal.addEventListener('click', () => {
+    if (!g12CurrentTopic) {
+      g12CurrentTopic = (typeof getG12ActivePool === 'function' && getG12ActivePool().length > 0)
+        ? getG12ActivePool()[0]
+        : { title: '白雪公主', cat: '童話故事', words: '4 個字', hint: '毒蘋果、魔鏡、七個小矮人' };
+    }
+    if (typeof audio !== 'undefined') audio.playSuccess();
+    if (typeof confettiEffect === 'function') confettiEffect();
 
-  const revealBox = document.getElementById('g12-reveal-box');
-  document.getElementById('g12-revealed-title').textContent = g12CurrentTopic.title;
-  document.getElementById('g12-revealed-desc').textContent = `分類：【${g12CurrentTopic.cat}】｜ 字數：${g12CurrentTopic.words} ｜ ${g12CurrentTopic.hint}`;
-  revealBox.style.display = 'block';
+    const revealBox = document.getElementById('g12-reveal-box');
+    const titleEl = document.getElementById('g12-revealed-title');
+    const descEl = document.getElementById('g12-revealed-desc');
+    if (titleEl) titleEl.textContent = g12CurrentTopic.title;
+    if (descEl) descEl.textContent = `分類：【${g12CurrentTopic.cat}】｜ 字數：${g12CurrentTopic.words} ｜ ${g12CurrentTopic.hint}`;
+    if (revealBox) revealBox.style.display = 'block';
 
-  // 停止一切計時
-  if (g12Timer) { clearInterval(g12Timer); g12Timer = null; }
-  hideG12RelayOverlay();
-});
+    // 停止一切計時
+    if (g12Timer) { clearInterval(g12Timer); g12Timer = null; }
+    hideG12RelayOverlay();
+  });
+}
 
-document.getElementById('g12-btn-start-baton').addEventListener('click', startG12BatonTimer);
-document.getElementById('g12-btn-next-baton').addEventListener('click', () => {
-  if (g12Timer) { clearInterval(g12Timer); g12Timer = null; }
-  triggerG12NextBatonPrompt();
-});
-document.getElementById('g12-btn-next-topic').addEventListener('click', drawNextG12Topic);
+const g12BtnStartBaton = document.getElementById('g12-btn-start-baton');
+if (g12BtnStartBaton) g12BtnStartBaton.addEventListener('click', startG12BatonTimer);
+
+const g12BtnNextBaton = document.getElementById('g12-btn-next-baton');
+if (g12BtnNextBaton) {
+  g12BtnNextBaton.addEventListener('click', () => {
+    if (g12Timer) { clearInterval(g12Timer); g12Timer = null; }
+    triggerG12NextBatonPrompt();
+  });
+}
+
+const g12BtnNextTopic = document.getElementById('g12-btn-next-topic');
+if (g12BtnNextTopic) g12BtnNextTopic.addEventListener('click', drawNextG12Topic);
 
 const g12TeamSel = document.getElementById('g12-team-selector');
 if (g12TeamSel) {
@@ -1004,25 +1351,25 @@ function toggleG12PlayMode(mode) {
   const hostBtn = document.getElementById('g12-mode-host-btn');
 
   if (mode === 'host') {
-    canvasWrap.style.display = 'none';
-    toolsRow.style.display = 'none';
-    hostConsole.style.display = 'block';
-    canvasBtn.classList.remove('active');
-    hostBtn.classList.add('active');
+    if (canvasWrap) canvasWrap.style.display = 'none';
+    if (toolsRow) toolsRow.style.display = 'none';
+    if (hostConsole) hostConsole.style.display = 'block';
+    if (canvasBtn) canvasBtn.classList.remove('active');
+    if (hostBtn) hostBtn.classList.add('active');
   } else {
-    canvasWrap.style.display = 'flex';
-    toolsRow.style.display = 'flex';
-    hostConsole.style.display = 'none';
-    canvasBtn.classList.add('active');
-    hostBtn.classList.remove('active');
+    if (canvasWrap) canvasWrap.style.display = 'flex';
+    if (toolsRow) toolsRow.style.display = 'flex';
+    if (hostConsole) hostConsole.style.display = 'none';
+    if (canvasBtn) canvasBtn.classList.add('active');
+    if (hostBtn) hostBtn.classList.remove('active');
     initG12Canvas();
   }
   if (typeof audio !== 'undefined') audio.playBeat(false);
 }
 
-/* ==========================================================
-   HTML5 Canvas 平滑互動繪圖引擎
-   ========================================================== */
+// ==========================================================
+// HTML5 Canvas 平滑互動繪圖引擎
+// ==========================================================
 const G12_COLORS = [
   '#000000', '#ffffff', '#ff2a6d', '#05d9e8', '#00f59b',
   '#ffc83b', '#ff7b00', '#9d4edd', '#ff85a1', '#8b5cf6'
@@ -1043,7 +1390,7 @@ function initG12Canvas() {
 
   // 容器寬度自適應
   const wrap = document.getElementById('g12-canvas-wrap');
-  const targetWidth = Math.min(wrap.clientWidth, 820);
+  const targetWidth = wrap ? Math.min(wrap.clientWidth, 820) : 800;
   const targetHeight = Math.round(targetWidth * 0.58);
 
   if (g12Canvas.width !== targetWidth) {
@@ -1064,7 +1411,8 @@ function initG12Canvas() {
         g12IsEraser = false;
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         dot.classList.add('active');
-        document.getElementById('g12-btn-eraser').classList.remove('active');
+        const eraserBtn = document.getElementById('g12-btn-eraser');
+        if (eraserBtn) eraserBtn.classList.remove('active');
         if (typeof audio !== 'undefined') audio.playBeat(false);
       });
       palette.appendChild(dot);
@@ -1132,22 +1480,22 @@ function clearG12Canvas() {
   g12Ctx.fillRect(0, 0, g12Canvas.width, g12Canvas.height);
 }
 
-// 橡皮擦切換
-document.getElementById('g12-btn-eraser').addEventListener('click', () => {
-  g12IsEraser = !g12IsEraser;
-  const btn = document.getElementById('g12-btn-eraser');
-  if (g12IsEraser) {
-    btn.classList.add('active');
-    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-  } else {
-    btn.classList.remove('active');
-    const firstDot = document.querySelector('.color-dot');
-    if (firstDot) firstDot.classList.add('active');
-  }
-  if (typeof audio !== 'undefined') audio.playBeat(false);
-});
+const g12BtnEraser = document.getElementById('g12-btn-eraser');
+if (g12BtnEraser) {
+  g12BtnEraser.addEventListener('click', () => {
+    g12IsEraser = !g12IsEraser;
+    if (g12IsEraser) {
+      g12BtnEraser.classList.add('active');
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+    } else {
+      g12BtnEraser.classList.remove('active');
+      const firstDot = document.querySelector('.color-dot');
+      if (firstDot) firstDot.classList.add('active');
+    }
+    if (typeof audio !== 'undefined') audio.playBeat(false);
+  });
+}
 
-// 筆刷粗細切換
 document.querySelectorAll('.brush-size-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.brush-size-btn').forEach(b => b.classList.remove('active'));
@@ -1157,32 +1505,37 @@ document.querySelectorAll('.brush-size-btn').forEach(btn => {
   });
 });
 
-// 復原 (Undo)
-document.getElementById('g12-btn-undo').addEventListener('click', () => {
-  if (g12UndoStack.length > 0) {
-    const last = g12UndoStack.pop();
-    g12Ctx.putImageData(last, 0, 0);
-    if (typeof audio !== 'undefined') audio.playBeat(false);
-  }
-});
+const g12BtnUndo = document.getElementById('g12-btn-undo');
+if (g12BtnUndo) {
+  g12BtnUndo.addEventListener('click', () => {
+    if (g12UndoStack.length > 0) {
+      const last = g12UndoStack.pop();
+      g12Ctx.putImageData(last, 0, 0);
+      if (typeof audio !== 'undefined') audio.playBeat(false);
+    }
+  });
+}
 
-// 清空畫布
-document.getElementById('g12-btn-clear').addEventListener('click', () => {
-  clearG12Canvas();
-  if (typeof audio !== 'undefined') audio.playBeat(true);
-});
+const g12BtnClear = document.getElementById('g12-btn-clear');
+if (g12BtnClear) {
+  g12BtnClear.addEventListener('click', () => {
+    clearG12Canvas();
+    if (typeof audio !== 'undefined') audio.playBeat(true);
+  });
+}
 
-// 保存下載畫作 PNG
-document.getElementById('g12-btn-download').addEventListener('click', () => {
-  if (!g12Canvas) return;
-  const link = document.createElement('a');
-  link.download = `畫畫接力_${g12CurrentTopic ? g12CurrentTopic.title : '畫作'}_${Date.now()}.png`;
-  link.href = g12Canvas.toDataURL('image/png');
-  link.click();
-  if (typeof audio !== 'undefined') audio.playSuccess();
-});
+const g12BtnDownload = document.getElementById('g12-btn-download');
+if (g12BtnDownload) {
+  g12BtnDownload.addEventListener('click', () => {
+    if (!g12Canvas) return;
+    const link = document.createElement('a');
+    link.download = `畫畫接力_${g12CurrentTopic ? g12CurrentTopic.title : '畫作'}_${Date.now()}.png`;
+    link.href = g12Canvas.toDataURL('image/png');
+    link.click();
+    if (typeof audio !== 'undefined') audio.playSuccess();
+  });
+}
 
-// 視窗縮放時適配
 window.addEventListener('resize', () => {
   if (g12Canvas && g12PlayMode === 'canvas') {
     const wrap = document.getElementById('g12-canvas-wrap');
@@ -1196,3 +1549,10 @@ window.addEventListener('resize', () => {
     }
   }
 });
+
+window.drawNextG12Topic = drawNextG12Topic;
+window.resetG12Relay = resetG12Relay;
+window.startG12BatonTimer = startG12BatonTimer;
+window.toggleG12PlayMode = toggleG12PlayMode;
+window.initG12Canvas = initG12Canvas;
+window.clearG12Canvas = clearG12Canvas;

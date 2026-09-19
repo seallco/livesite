@@ -180,6 +180,12 @@ function stopAllGameTimersAndSounds() {
       }
     }
 
+    window.triggerBuzzer = triggerBuzzer;
+    window.modifyPlayerScore = modifyPlayerScore;
+    window.modifyTeamScore = modifyTeamScore;
+    window.resetAllScores = resetAllScores;
+    window.switchView = switchView;
+
     // 彈窗開關綁定
     const scoreDrawerModal = document.getElementById('modal-score-drawer');
     const btnScoreDrawer = document.getElementById('btn-score-drawer');
