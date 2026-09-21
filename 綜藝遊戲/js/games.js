@@ -1009,14 +1009,47 @@ window.verifyG11Pass = verifyG11Pass;
 window.verifyG11Fail = verifyG11Fail;
 
 // ==========================================================
-// 遊戲 12: 🎨 第二關：童話與電影畫畫接力 (210+ 巨量題庫 ✕ 互動畫板)
+// 遊戲 12: 🎨 第二關：靈魂畫手大考驗 (接力傳畫 ✕ 經典猜畫雙模式・278+題)
 // ==========================================================
-let g12Category = 'all'; // 'all', 'fairy', 'movie'
+let g12SubMode = 'relay'; // 'relay' (傳畫接力) or 'solo' (單人作畫猜題)
+let g12Category = 'all'; // 'all', 'daily', 'idiom', 'fairy', 'movie'
 let g12Deck = [];
 let g12DrawnCount = 0;
 let g12CurrentTopic = null;
 let g12SelectedTeamId = null;
 
+// 接力棒次與計時狀態
+let g12CurrentBatonIdx = 0;
+let g12Timer = null;
+let g12Sec = 30;
+let g12BatonDuration = 30;
+let g12ViewTimer = null;
+let g12PlayMode = 'canvas'; // 'canvas' or 'host'
+
+// 單人作畫模式計時狀態
+let g12SoloTimer = null;
+let g12SoloInitialSec = 30;
+let g12SoloSec = 30;
+
+// 本回合接力畫作快照清單 [{ batonIndex, batonName, imgUrl, time }]
+let g12CurrentRelaySnapshots = [];
+
+// 歷史畫作相簿存儲 (讀取 localStorage)
+const G12_ARCHIVE_KEY = 'PARTY_HUB_G12_ARCHIVE';
+let g12Archive = [];
+try {
+  const saved = localStorage.getItem(G12_ARCHIVE_KEY);
+  if (saved) g12Archive = JSON.parse(saved);
+} catch (e) {
+  g12Archive = [];
+}
+
+function updateG12ArchiveCountBadge() {
+  const badge = document.getElementById('g12-archive-count-badge');
+  if (badge) badge.textContent = g12Archive.length;
+}
+
+// 獲取當前作畫隊伍的棒次名稱清單
 function getG12Batons() {
   if (typeof partyHub !== 'undefined' && typeof partyHub.getRelayBatons === 'function') {
     return partyHub.getRelayBatons(g12SelectedTeamId);
@@ -1046,25 +1079,34 @@ function updateG12RosterUI() {
 }
 window.updateG12RosterUI = updateG12RosterUI;
 
-let g12CurrentBatonIdx = 0;
-let g12Timer = null;
-let g12Sec = 30;
-let g12BatonDuration = 30;
-let g12ViewTimer = null;
-let g12PlayMode = 'canvas'; // 'canvas' or 'host'
-
+// 依據選擇的系列獲取題目池
 function getG12ActivePool() {
-  if (g12Category === 'fairy') return G12_FAIRY_TALES_POOL;
-  if (g12Category === 'movie') return G12_MOVIES_POOL;
-  return G12_ALL_POOL;
+  if (g12Category === 'daily') return (typeof G12_DAILY_LIFE_POOL !== 'undefined' ? G12_DAILY_LIFE_POOL : []);
+  if (g12Category === 'idiom') return (typeof G12_IDIOMS_POOL !== 'undefined' ? G12_IDIOMS_POOL : []);
+  if (g12Category === 'fairy') return (typeof G12_FAIRY_TALES_POOL !== 'undefined' ? G12_FAIRY_TALES_POOL : []);
+  if (g12Category === 'movie') return (typeof G12_MOVIES_POOL !== 'undefined' ? G12_MOVIES_POOL : []);
+  return (typeof G12_ALL_POOL !== 'undefined' ? G12_ALL_POOL : []);
 }
 
 function shuffleG12Deck() {
   const pool = getG12ActivePool();
   g12Deck = [...pool].sort(() => Math.random() - 0.5);
   g12DrawnCount = 0;
+  console.info('[Action Triggered]: shuffleG12Deck', { category: g12Category, total: pool.length });
 }
 
+// 切換題目系列分類
+function filterG12(cat, btn) {
+  console.info('[Action Triggered]: filterG12', { category: cat });
+  g12Category = cat;
+  document.querySelectorAll('.g12-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  shuffleG12Deck();
+  drawNextG12Topic();
+}
+window.filterG12 = filterG12;
+
+// 抽下一題 (不可重複)
 function drawNextG12Topic() {
   const pool = getG12ActivePool();
   if (g12Deck.length === 0) {
@@ -1073,20 +1115,32 @@ function drawNextG12Topic() {
   }
   g12DrawnCount++;
   g12CurrentTopic = g12Deck.pop();
+  console.info('[Action Triggered]: drawNextG12Topic', { topic: g12CurrentTopic.title, cat: g12CurrentTopic.cat });
 
   if (typeof audio !== 'undefined') audio.playBeat(false);
 
-  // 更新計數器與標籤
-  const catNames = { all: '經典童話 ✕ 熱門電影', fairy: '經典童話故事專區', movie: '中外經典電影專區' };
+  // 更新計數器與類別標籤
+  const catNames = {
+    all: '全部混合大亂鬥 (278+ 題)',
+    daily: '趣味生活日常 (簡單適中)',
+    idiom: '經典成語俗語 (中等聯想)',
+    fairy: '經典童話故事 (高難度)',
+    movie: '中外熱門電影 (高難度)'
+  };
   const catBadge = document.getElementById('g12-current-cat-badge');
   const counterEl = document.getElementById('g12-deck-counter');
-  if (catBadge) catBadge.textContent = `🏷️ 題庫類別：【${catNames[g12Category]}】`;
+  if (catBadge) catBadge.textContent = `🏷️ 題庫類別：【${catNames[g12Category] || '自訂題庫'}】`;
   if (counterEl) counterEl.textContent = `🎯 題庫進度：第 ${g12DrawnCount} / ${pool.length} 題 (無重複，剩餘 ${g12Deck.length} 題)`;
 
   // 暗題卡片重設為隱藏狀態
   const secretPrompt = document.getElementById('g12-secret-prompt');
   const secretContent = document.getElementById('g12-secret-content');
-  if (secretPrompt) secretPrompt.style.display = 'block';
+  if (secretPrompt) {
+    secretPrompt.style.display = 'block';
+    secretPrompt.textContent = g12SubMode === 'relay' 
+      ? '🔒 點擊此處【揭開秘密題目】（僅第 1 棒看題，其他隊員請背對螢幕）'
+      : '🔒 點擊此處【揭開秘密題目】（僅作畫者觀看，猜題者請閉眼或背對螢幕）';
+  }
   if (secretContent) secretContent.style.display = 'none';
 
   // 填入秘密題目內容
@@ -1094,7 +1148,26 @@ function drawNextG12Topic() {
   const wordsCount = document.getElementById('g12-words-count');
   const secretTitle = document.getElementById('g12-secret-title');
   const secretHint = document.getElementById('g12-secret-hint');
-  if (topicTag) topicTag.textContent = g12CurrentTopic.cat === '童話故事' ? '🏰 童話故事' : '🎬 經典電影';
+
+  if (topicTag) {
+    let tagColor = 'var(--neon-green)';
+    let tagText = '🟢 趣味生活';
+    if (g12CurrentTopic.cat === '經典成語') {
+      tagColor = 'var(--gold)';
+      tagText = '🟡 經典成語';
+    } else if (g12CurrentTopic.cat === '童話故事') {
+      tagColor = '#ff3366';
+      tagText = '🔴 經典童話';
+    } else if (g12CurrentTopic.cat === '經典電影') {
+      tagColor = '#9d4edd';
+      tagText = '🟣 熱門電影';
+    }
+    topicTag.textContent = tagText;
+    topicTag.style.borderColor = tagColor;
+    topicTag.style.color = tagColor;
+    topicTag.style.background = 'rgba(255,255,255,0.06)';
+  }
+
   if (wordsCount) wordsCount.textContent = g12CurrentTopic.words;
   if (secretTitle) secretTitle.textContent = g12CurrentTopic.title;
   if (secretHint) secretHint.textContent = `💡 靈感特徵提示：${g12CurrentTopic.hint}`;
@@ -1103,23 +1176,71 @@ function drawNextG12Topic() {
   const revealBox = document.getElementById('g12-reveal-box');
   if (revealBox) revealBox.style.display = 'none';
 
-  // 重設接力狀態與清空畫布
+  // 重置畫布、本局接力歷程與計時器
+  g12CurrentRelaySnapshots = [];
+  renderG12EvolutionStrip();
   resetG12Relay();
+  resetG12SoloTimer();
   clearG12Canvas();
 }
+window.drawNextG12Topic = drawNextG12Topic;
+
+// 切換接力模式 vs 單人猜畫模式
+function setG12SubMode(mode) {
+  console.info('[Action Triggered]: setG12SubMode', { mode });
+  g12SubMode = mode;
+
+  const tabRelay = document.getElementById('g12-tab-relay');
+  const tabSolo = document.getElementById('g12-tab-solo');
+  const relayBar = document.getElementById('g12-relay-status-bar');
+  const relayTeamToolbar = document.getElementById('g12-relay-team-toolbar');
+  const resetRelayBtn = document.getElementById('g12-btn-reset-relay');
+  const soloBar = document.getElementById('g12-solo-status-bar');
+  const secretPrompt = document.getElementById('g12-secret-prompt');
+
+  if (mode === 'relay') {
+    if (tabRelay) tabRelay.classList.add('active');
+    if (tabSolo) tabSolo.classList.remove('active');
+    if (relayBar) relayBar.style.display = 'flex';
+    if (relayTeamToolbar) relayTeamToolbar.style.display = 'flex';
+    if (resetRelayBtn) resetRelayBtn.style.display = 'inline-block';
+    if (soloBar) soloBar.classList.remove('show');
+    if (secretPrompt) secretPrompt.textContent = '🔒 點擊此處【揭開秘密題目】（僅第 1 棒看題，其他隊員請背對螢幕）';
+    resetG12Relay();
+    renderG12EvolutionStrip();
+  } else {
+    if (tabRelay) tabRelay.classList.remove('active');
+    if (tabSolo) tabSolo.classList.add('active');
+    if (relayBar) relayBar.style.display = 'none';
+    if (relayTeamToolbar) relayTeamToolbar.style.display = 'none';
+    if (resetRelayBtn) resetRelayBtn.style.display = 'none';
+    if (soloBar) soloBar.classList.add('show');
+    const evoBox = document.getElementById('g12-evolution-box');
+    if (evoBox) evoBox.style.display = 'none';
+    if (secretPrompt) secretPrompt.textContent = '🔒 點擊此處【揭開秘密題目】（僅作畫者觀看，猜題者請閉眼或背對螢幕）';
+    resetG12SoloTimer();
+    hideG12RelayOverlay();
+  }
+  if (typeof audio !== 'undefined') audio.playBeat(false);
+}
+window.setG12SubMode = setG12SubMode;
+
+// 重新隱藏題目 (作畫防偷看)
+function rehideG12() {
+  console.info('[Action Triggered]: rehideG12');
+  const prompt = document.getElementById('g12-secret-prompt');
+  const content = document.getElementById('g12-secret-content');
+  if (content) content.style.display = 'none';
+  if (prompt) prompt.style.display = 'block';
+  if (typeof audio !== 'undefined') audio.playBeat(false);
+}
+window.rehideG12 = rehideG12;
 
 // 點擊暗題卡揭開/隱藏
 const secretCardBox = document.getElementById('g12-secret-card-box');
 if (secretCardBox) {
   secretCardBox.addEventListener('click', (e) => {
-    if (e.target.id === 'g12-btn-rehide') {
-      const content = document.getElementById('g12-secret-content');
-      const prompt = document.getElementById('g12-secret-prompt');
-      if (content) content.style.display = 'none';
-      if (prompt) prompt.style.display = 'block';
-      if (typeof audio !== 'undefined') audio.playBeat(false);
-      return;
-    }
+    if (e.target.id === 'g12-btn-rehide') return;
     const prompt = document.getElementById('g12-secret-prompt');
     const content = document.getElementById('g12-secret-content');
     if (prompt && prompt.style.display !== 'none') {
@@ -1130,19 +1251,11 @@ if (secretCardBox) {
   });
 }
 
-// 題庫分類切換
-document.querySelectorAll('.g12-filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.g12-filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    g12Category = btn.dataset.cat;
-    shuffleG12Deck();
-    drawNextG12Topic();
-  });
-});
-
-// 重設接力棒次
+// ==========================================================
+// 接力模式 (Relay Mode) 邏輯與畫作快照紀錄
+// ==========================================================
 function resetG12Relay() {
+  console.info('[Action Triggered]: resetG12Relay');
   if (g12Timer) {
     clearInterval(g12Timer);
     g12Timer = null;
@@ -1153,10 +1266,10 @@ function resetG12Relay() {
   }
   g12CurrentBatonIdx = 0;
   g12Sec = g12BatonDuration;
-
   updateG12RelayUI();
   hideG12RelayOverlay();
 }
+window.resetG12Relay = resetG12Relay;
 
 function updateG12RelayUI() {
   const batons = getG12Batons();
@@ -1178,7 +1291,69 @@ function updateG12RelayUI() {
   if (hostTimer) hostTimer.textContent = `⏱️ ${g12Sec}`;
 }
 
+// 捕獲當前畫布快照
+function captureG12BatonSnapshot(batonName) {
+  if (!g12Canvas) return null;
+  try {
+    const dataUrl = g12Canvas.toDataURL('image/png');
+    const snapshot = {
+      batonIndex: g12CurrentBatonIdx + 1,
+      batonName: batonName || `第 ${g12CurrentBatonIdx + 1} 棒`,
+      imgUrl: dataUrl,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    };
+    g12CurrentRelaySnapshots.push(snapshot);
+    console.info('[Action Triggered]: captureG12BatonSnapshot', { batonName: snapshot.batonName });
+    renderG12EvolutionStrip();
+    return snapshot;
+  } catch (e) {
+    console.error('Failed to capture snapshot:', e);
+    return null;
+  }
+}
+
+// 渲染當前局各棒接力畫作走勢演變橫條
+function renderG12EvolutionStrip() {
+  const box = document.getElementById('g12-evolution-box');
+  const list = document.getElementById('g12-evolution-steps-list');
+  if (!box || !list) return;
+
+  if (g12SubMode !== 'relay' || g12CurrentRelaySnapshots.length === 0) {
+    box.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  box.style.display = 'flex';
+  list.innerHTML = '';
+
+  g12CurrentRelaySnapshots.forEach((snap, idx) => {
+    if (idx > 0) {
+      const arrow = document.createElement('div');
+      arrow.className = 'g12-evolution-arrow';
+      arrow.textContent = '➔';
+      list.appendChild(arrow);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'g12-evolution-card';
+    card.title = '點擊放大檢視這張畫作';
+    card.innerHTML = `
+      <img src="${snap.imgUrl}" alt="${snap.batonName}">
+      <div class="g12-evolution-card-meta">
+        <span class="g12-evolution-baton-title">${snap.batonName}</span>
+        <span class="g12-evolution-baton-author">⏰ ${snap.time}</span>
+      </div>
+    `;
+    card.onclick = () => {
+      openG12Lightbox(snap.imgUrl, snap.batonName, g12CurrentTopic ? `題目：${g12CurrentTopic.title}` : '');
+    };
+    list.appendChild(card);
+  });
+}
+
 function startG12BatonTimer() {
+  console.info('[Action Triggered]: startG12BatonTimer');
   const startBtn = document.getElementById('g12-btn-start-baton');
   if (g12Timer) {
     clearInterval(g12Timer);
@@ -1211,23 +1386,40 @@ function startG12BatonTimer() {
     }
   }, 1000);
 }
+window.startG12BatonTimer = startG12BatonTimer;
 
+function nextG12Baton() {
+  console.info('[Action Triggered]: nextG12Baton');
+  if (g12Timer) {
+    clearInterval(g12Timer);
+    g12Timer = null;
+  }
+  triggerG12NextBatonPrompt();
+}
+window.nextG12Baton = nextG12Baton;
+
+// 觸發換棒提示
 function triggerG12NextBatonPrompt() {
-  g12CurrentBatonIdx++;
   const batons = getG12Batons();
+  const finishedBatonName = batons[g12CurrentBatonIdx] || `第 ${g12CurrentBatonIdx + 1} 棒`;
+  
+  // 📸 自動捕捉當前棒次的畫作快照
+  captureG12BatonSnapshot(finishedBatonName);
+
+  g12CurrentBatonIdx++;
   if (g12CurrentBatonIdx >= batons.length - 1) {
-    // 進入猜題階段
-    const guesserName = batons[batons.length - 1] || '猜題者';
+    // 進入最後猜題階段
+    const guesserName = batons[batons.length - 1] || '最後猜題棒';
     showG12RelayOverlay(
-      '🎉 接力繪製完畢！',
-      `請【${guesserName}】上前觀看畫作，並向裁判或大聲猜出答案！`,
-      '👀 揭開畫作全貌！',
+      '🎉 接力作畫完畢！',
+      `請【${guesserName}】上前觀看畫作，向主持人或大螢幕大聲猜出答案！`,
+      '👀 揭開畫作全貌猜題！',
       () => {
         hideG12RelayOverlay();
         const batonDisp = document.getElementById('g12-baton-display');
         const timerDisp = document.getElementById('g12-timer-display');
         if (batonDisp) batonDisp.textContent = `🏆 ${guesserName}！`;
-        if (timerDisp) timerDisp.textContent = `請猜題！`;
+        if (timerDisp) timerDisp.textContent = '請猜題！';
       }
     );
     return;
@@ -1235,7 +1427,7 @@ function triggerG12NextBatonPrompt() {
 
   const nextBatonName = batons[g12CurrentBatonIdx] || `第 ${g12CurrentBatonIdx + 1} 棒`;
   showG12RelayOverlay(
-    `🔔 時間到！請前一棒離場！`,
+    '🔔 時間到！請前一棒離場！',
     `請【${nextBatonName}】上前準備，點擊下方按鈕觀看畫作 5 秒倒數！`,
     `👀 我是【${nextBatonName}】，看畫 5 秒！`,
     () => {
@@ -1254,7 +1446,6 @@ function startG12ReviewCountdown(batonName) {
   if (overlayTitle) overlayTitle.textContent = `👀 仔細看畫倒數：${viewSec} 秒！`;
   if (overlayDesc) overlayDesc.textContent = '把握時間記住上一棒的畫作特徵與細節！';
 
-  // 暫時半透明露出畫布
   const relayModal = document.getElementById('g12-relay-modal');
   if (relayModal) relayModal.style.background = 'rgba(10, 13, 26, 0.4)';
 
@@ -1270,7 +1461,7 @@ function startG12ReviewCountdown(batonName) {
       if (confirmBtn) confirmBtn.style.display = 'inline-block';
       hideG12RelayOverlay();
 
-      // 開始該棒次繪圖
+      // 開始新棒次繪圖
       g12Sec = g12BatonDuration;
       updateG12RelayUI();
       startG12BatonTimer();
@@ -1298,56 +1489,326 @@ function hideG12RelayOverlay() {
   if (overlay) overlay.classList.remove('show');
 }
 
-// 揭曉答案
-const g12BtnReveal = document.getElementById('g12-btn-reveal');
-if (g12BtnReveal) {
-  g12BtnReveal.addEventListener('click', () => {
-    if (!g12CurrentTopic) {
-      g12CurrentTopic = (typeof getG12ActivePool === 'function' && getG12ActivePool().length > 0)
-        ? getG12ActivePool()[0]
-        : { title: '白雪公主', cat: '童話故事', words: '4 個字', hint: '毒蘋果、魔鏡、七個小矮人' };
-    }
-    if (typeof audio !== 'undefined') audio.playSuccess();
-    if (typeof confettiEffect === 'function') confettiEffect();
-
-    const revealBox = document.getElementById('g12-reveal-box');
-    const titleEl = document.getElementById('g12-revealed-title');
-    const descEl = document.getElementById('g12-revealed-desc');
-    if (titleEl) titleEl.textContent = g12CurrentTopic.title;
-    if (descEl) descEl.textContent = `分類：【${g12CurrentTopic.cat}】｜ 字數：${g12CurrentTopic.words} ｜ ${g12CurrentTopic.hint}`;
-    if (revealBox) revealBox.style.display = 'block';
-
-    // 停止一切計時
-    if (g12Timer) { clearInterval(g12Timer); g12Timer = null; }
-    hideG12RelayOverlay();
-  });
+function confirmNextG12Baton() {
+  console.info('[Action Triggered]: confirmNextG12Baton');
+  // 由 showG12RelayOverlay 動態綁定回呼
 }
+window.confirmNextG12Baton = confirmNextG12Baton;
 
-const g12BtnStartBaton = document.getElementById('g12-btn-start-baton');
-if (g12BtnStartBaton) g12BtnStartBaton.addEventListener('click', startG12BatonTimer);
+// ==========================================================
+// 單人作畫猜題模式 (Solo Drawer Mode) 計時器狀態機
+// ==========================================================
+function setG12SoloPreset(sec) {
+  console.info('[Action Triggered]: setG12SoloPreset', { seconds: sec });
+  g12SoloInitialSec = sec;
+  resetG12SoloTimer();
 
-const g12BtnNextBaton = document.getElementById('g12-btn-next-baton');
-if (g12BtnNextBaton) {
-  g12BtnNextBaton.addEventListener('click', () => {
-    if (g12Timer) { clearInterval(g12Timer); g12Timer = null; }
-    triggerG12NextBatonPrompt();
+  document.querySelectorAll('.g12-solo-pbtn').forEach(b => {
+    if (b.id === `g12-solo-p${sec}`) b.classList.add('active');
+    else b.classList.remove('active');
   });
+  if (typeof audio !== 'undefined') audio.playBeat(false);
 }
+window.setG12SoloPreset = setG12SoloPreset;
 
-const g12BtnNextTopic = document.getElementById('g12-btn-next-topic');
-if (g12BtnNextTopic) g12BtnNextTopic.addEventListener('click', drawNextG12Topic);
+function resetG12SoloTimer() {
+  console.info('[Action Triggered]: resetG12SoloTimer');
+  if (g12SoloTimer) {
+    clearInterval(g12SoloTimer);
+    g12SoloTimer = null;
+  }
+  g12SoloSec = g12SoloInitialSec;
+  const disp = document.getElementById('g12-solo-timer-display');
+  const btn = document.getElementById('g12-solo-btn-timer');
+  if (disp) {
+    disp.textContent = g12SoloInitialSec === 0 ? '⏱️ 不限時自由畫' : `⏱️ ${g12SoloSec} 秒`;
+    disp.style.color = '#ff3366';
+  }
+  if (btn) btn.textContent = '▶️ 開始計時';
+}
+window.resetG12SoloTimer = resetG12SoloTimer;
 
-const g12TeamSel = document.getElementById('g12-team-selector');
-if (g12TeamSel) {
-  g12TeamSel.addEventListener('change', (e) => {
-    g12SelectedTeamId = e.target.value;
-    resetG12Relay();
+function toggleG12SoloTimer() {
+  const btn = document.getElementById('g12-solo-btn-timer');
+  const disp = document.getElementById('g12-solo-timer-display');
+
+  if (g12SoloTimer) {
+    clearInterval(g12SoloTimer);
+    g12SoloTimer = null;
+    console.info('[Action Triggered]: toggleG12SoloTimer', { state: 'paused', remaining: g12SoloSec });
+    if (btn) btn.textContent = '▶️ 繼續計時';
+    if (typeof audio !== 'undefined') audio.playBeat(false);
+    return;
+  }
+
+  if (g12SoloInitialSec === 0) {
+    // 不限時模式正計時
+    if (btn) btn.textContent = '⏸️ 暫停計時';
     if (typeof audio !== 'undefined') audio.playBeat(true);
-  });
+    let elapsed = 0;
+    g12SoloTimer = setInterval(() => {
+      elapsed++;
+      if (disp) disp.textContent = `⏱️ 已作畫 ${elapsed} 秒`;
+    }, 1000);
+    return;
+  }
+
+  if (g12SoloSec <= 0) {
+    g12SoloSec = g12SoloInitialSec;
+  }
+
+  console.info('[Action Triggered]: toggleG12SoloTimer', { state: 'running', remaining: g12SoloSec });
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+  if (btn) btn.textContent = '⏸️ 暫停計時';
+
+  g12SoloTimer = setInterval(() => {
+    if (g12SoloSec > 0) {
+      g12SoloSec--;
+      if (disp) {
+        disp.textContent = `⏱️ ${g12SoloSec} 秒`;
+        disp.style.color = (g12SoloSec <= 5) ? '#ff0033' : '#ff3366';
+      }
+      if (g12SoloSec <= 5 && g12SoloSec > 0) {
+        if (typeof audio !== 'undefined') audio.playCountdownBeep(g12SoloSec);
+      } else {
+        if (typeof audio !== 'undefined') audio.playBeat(false);
+      }
+    } else {
+      clearInterval(g12SoloTimer);
+      g12SoloTimer = null;
+      console.info('[Action Triggered]: g12SoloTimerFinished');
+      if (typeof audio !== 'undefined') audio.playExplosion();
+      if (disp) disp.textContent = '⏰ 時間到！請作畫者停筆，全場猜題！';
+      if (btn) btn.textContent = '🔄 重新計時';
+    }
+  }, 1000);
 }
+window.toggleG12SoloTimer = toggleG12SoloTimer;
+
+// ==========================================================
+// 揭曉答案與歷史畫作歸檔
+// ==========================================================
+function revealG12Answer() {
+  console.info('[Action Triggered]: revealG12Answer');
+  if (!g12CurrentTopic) {
+    const activePool = getG12ActivePool();
+    g12CurrentTopic = (activePool && activePool.length > 0) ? activePool[0] : { title: '吃火鍋眼鏡起霧', cat: '趣味生活', words: '7 個字', hint: '熱氣蒸騰的火鍋、筷子夾肉' };
+  }
+
+  // 停止所有計時
+  if (g12Timer) { clearInterval(g12Timer); g12Timer = null; }
+  if (g12SoloTimer) { clearInterval(g12SoloTimer); g12SoloTimer = null; }
+  hideG12RelayOverlay();
+
+  // 擷取最後一幅畫作快照
+  if (g12Canvas) {
+    const finalDataUrl = g12Canvas.toDataURL('image/png');
+    if (g12SubMode === 'relay') {
+      const batons = getG12Batons();
+      const currentBatonName = batons[g12CurrentBatonIdx] || '最終畫作';
+      // 如果最後一棒還沒加入 snapshots，補抓
+      if (!g12CurrentRelaySnapshots.some(s => s.batonName === currentBatonName)) {
+        g12CurrentRelaySnapshots.push({
+          batonIndex: g12CurrentBatonIdx + 1,
+          batonName: currentBatonName,
+          imgUrl: finalDataUrl,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+      }
+    } else {
+      // 單人模式
+      g12CurrentRelaySnapshots = [{
+        batonIndex: 1,
+        batonName: '作畫者成品',
+        imgUrl: finalDataUrl,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }];
+    }
+  }
+
+  // 存檔至歷史相簿
+  const roundRecord = {
+    id: 'round_' + Date.now(),
+    date: new Date().toLocaleString([], { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+    mode: g12SubMode,
+    modeTitle: g12SubMode === 'relay' ? '🤝 隊伍傳畫接力' : '🎨 單人作畫猜題',
+    topic: g12CurrentTopic.title,
+    cat: g12CurrentTopic.cat,
+    words: g12CurrentTopic.words,
+    hint: g12CurrentTopic.hint,
+    snapshots: [...g12CurrentRelaySnapshots]
+  };
+
+  g12Archive.unshift(roundRecord);
+  if (g12Archive.length > 40) g12Archive.pop();
+  try {
+    localStorage.setItem(G12_ARCHIVE_KEY, JSON.stringify(g12Archive));
+  } catch (e) {
+    console.warn('localStorage quota exceeded');
+  }
+  updateG12ArchiveCountBadge();
+
+  // 音效與拉炮
+  if (typeof audio !== 'undefined') audio.playSuccess();
+  if (typeof confettiEffect === 'function') confettiEffect();
+
+  // 展開答案面板
+  const revealBox = document.getElementById('g12-reveal-box');
+  const titleEl = document.getElementById('g12-revealed-title');
+  const descEl = document.getElementById('g12-revealed-desc');
+  const evoWrap = document.getElementById('g12-reveal-evolution-wrap');
+
+  if (titleEl) titleEl.textContent = g12CurrentTopic.title;
+  if (descEl) descEl.textContent = `難度系列：【${g12CurrentTopic.cat}】｜ 字數：${g12CurrentTopic.words} ｜ ${g12CurrentTopic.hint}`;
+
+  if (evoWrap) {
+    if (g12SubMode === 'relay' && g12CurrentRelaySnapshots.length > 0) {
+      evoWrap.innerHTML = `
+        <div style="font-size:1.05rem; font-weight:800; color:var(--gold); margin-bottom:10px;">
+          🎨 本局接力畫作演變大公開 (點擊可看大圖)：
+        </div>
+        <div class="g12-evolution-steps" style="justify-content:center;">
+          ${g12CurrentRelaySnapshots.map((s, idx) => `
+            ${idx > 0 ? '<div class="g12-evolution-arrow">➔</div>' : ''}
+            <div class="g12-evolution-card" onclick="openG12Lightbox('${s.imgUrl}', '${s.batonName}', '正確答案：${g12CurrentTopic.title}')">
+              <img src="${s.imgUrl}" alt="${s.batonName}">
+              <div class="g12-evolution-card-meta">
+                <span class="g12-evolution-baton-title">${s.batonName}</span>
+                <span class="g12-evolution-baton-author">⏰ ${s.time}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else if (g12CurrentRelaySnapshots.length > 0) {
+      const snap = g12CurrentRelaySnapshots[0];
+      evoWrap.innerHTML = `
+        <div style="font-size:1.05rem; font-weight:800; color:var(--gold); margin-bottom:10px;">
+          🎨 本局作畫成品 (點擊可看大圖)：
+        </div>
+        <div style="display:flex; justify-content:center;">
+          <div class="g12-evolution-card" style="flex:0 0 240px;" onclick="openG12Lightbox('${snap.imgUrl}', '單人作畫成品', '正確答案：${g12CurrentTopic.title}')">
+            <img src="${snap.imgUrl}" alt="成品" style="height:140px;">
+            <div class="g12-evolution-card-meta">
+              <span class="g12-evolution-baton-title">畫家成品畫作</span>
+              <span class="g12-evolution-baton-author">⏰ ${snap.time}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  if (revealBox) revealBox.style.display = 'block';
+  renderG12EvolutionStrip();
+}
+window.revealG12Answer = revealG12Answer;
+
+// ==========================================================
+// 歷史畫作相簿 (History Archive Modal)
+// ==========================================================
+function openG12GalleryModal() {
+  console.info('[Action Triggered]: openG12GalleryModal');
+  const modal = document.getElementById('g12-gallery-modal');
+  const list = document.getElementById('g12-gallery-list');
+  if (!modal || !list) return;
+
+  if (g12Archive.length === 0) {
+    list.innerHTML = `
+      <div style="text-align:center; padding:40px 20px; color:#94a3b8;">
+        <div style="font-size:3rem; margin-bottom:12px;">🖼️</div>
+        <div style="font-size:1.1rem; font-weight:800; color:#cbd5e1;">尚無任何歷史畫作紀錄</div>
+        <div style="font-size:0.9rem; margin-top:6px;">只要在接力或單人模式中揭曉答案，畫作將自動保存於此相簿中！</div>
+      </div>
+    `;
+  } else {
+    list.innerHTML = g12Archive.map(round => `
+      <div class="g12-gallery-round-item">
+        <div class="g12-gallery-round-header">
+          <div class="g12-gallery-round-title">
+            <span>🎨 ${round.topic}</span>
+            <span style="font-size:0.85rem; font-weight:normal; color:#94a3b8;">(${round.words})</span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span class="g12-gallery-round-badge">${round.modeTitle}</span>
+            <span style="font-size:0.8rem; color:#94a3b8;">📅 ${round.date}</span>
+          </div>
+        </div>
+        <div style="font-size:0.85rem; color:#cbd5e1; margin-bottom:4px;">
+          🏷️ 系列：${round.cat} ｜ 💡 特徵提示：${round.hint}
+        </div>
+        <div class="g12-evolution-steps" style="padding:4px 0 8px 0;">
+          ${(round.snapshots || []).map((s, idx) => `
+            ${idx > 0 ? '<div class="g12-evolution-arrow">➔</div>' : ''}
+            <div class="g12-evolution-card" onclick="openG12Lightbox('${s.imgUrl}', '${s.batonName} (${round.topic})', '紀錄時間：${round.date}')">
+              <img src="${s.imgUrl}" alt="${s.batonName}">
+              <div class="g12-evolution-card-meta">
+                <span class="g12-evolution-baton-title">${s.batonName}</span>
+                <span class="g12-evolution-baton-author">⏰ ${s.time || ''}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  modal.classList.add('show');
+}
+window.openG12GalleryModal = openG12GalleryModal;
+
+function closeG12GalleryModal() {
+  const modal = document.getElementById('g12-gallery-modal');
+  if (modal) modal.classList.remove('show');
+}
+window.closeG12GalleryModal = closeG12GalleryModal;
+
+function clearG12Archive() {
+  if (!confirm('確定要清空所有歷史畫作相簿紀錄嗎？')) return;
+  g12Archive = [];
+  try {
+    localStorage.removeItem(G12_ARCHIVE_KEY);
+  } catch (e) {}
+  updateG12ArchiveCountBadge();
+  openG12GalleryModal();
+}
+window.clearG12Archive = clearG12Archive;
+
+// ==========================================================
+// 單圖大圖檢視 (Lightbox Modal)
+// ==========================================================
+function openG12Lightbox(imgSrc, title, sub) {
+  console.info('[Action Triggered]: openG12Lightbox', { title });
+  const modal = document.getElementById('g12-lightbox-modal');
+  const img = document.getElementById('g12-lightbox-img');
+  const titleEl = document.getElementById('g12-lightbox-title');
+  const subEl = document.getElementById('g12-lightbox-sub');
+  const dlBtn = document.getElementById('g12-lightbox-dl-btn');
+
+  if (img) img.src = imgSrc;
+  if (titleEl) titleEl.textContent = title || '畫作檢視';
+  if (subEl) subEl.textContent = sub || '';
+  if (dlBtn) {
+    dlBtn.onclick = () => {
+      const link = document.createElement('a');
+      link.download = `${title || '畫畫'}_${Date.now()}.png`;
+      link.href = imgSrc;
+      link.click();
+    };
+  }
+  if (modal) modal.classList.add('show');
+}
+window.openG12Lightbox = openG12Lightbox;
+
+function closeG12Lightbox() {
+  const modal = document.getElementById('g12-lightbox-modal');
+  if (modal) modal.classList.remove('show');
+}
+window.closeG12Lightbox = closeG12Lightbox;
 
 // 模式切換 (數位畫布 / 現場主持控台)
 function toggleG12PlayMode(mode) {
+  console.info('[Action Triggered]: toggleG12PlayMode', { mode });
   g12PlayMode = mode;
   const canvasWrap = document.getElementById('g12-canvas-wrap');
   const toolsRow = document.getElementById('g12-tools-row');
@@ -1371,6 +1832,17 @@ function toggleG12PlayMode(mode) {
   }
   if (typeof audio !== 'undefined') audio.playBeat(false);
 }
+window.toggleG12PlayMode = toggleG12PlayMode;
+
+// 戰隊切換監聽
+const g12TeamSel = document.getElementById('g12-team-selector');
+if (g12TeamSel) {
+  g12TeamSel.addEventListener('change', (e) => {
+    g12SelectedTeamId = e.target.value;
+    resetG12Relay();
+    if (typeof audio !== 'undefined') audio.playBeat(true);
+  });
+}
 
 // ==========================================================
 // HTML5 Canvas 平滑互動繪圖引擎
@@ -1393,7 +1865,6 @@ function initG12Canvas() {
   if (!g12Canvas) return;
   g12Ctx = g12Canvas.getContext('2d', { willReadFrequently: true });
 
-  // 容器寬度自適應
   const wrap = document.getElementById('g12-canvas-wrap');
   const targetWidth = wrap ? Math.min(wrap.clientWidth, 820) : 800;
   const targetHeight = Math.round(targetWidth * 0.58);
@@ -1439,6 +1910,7 @@ function initG12Canvas() {
   };
   window.ontouchend = stopG12Draw;
 }
+window.initG12Canvas = initG12Canvas;
 
 function saveG12UndoState() {
   if (!g12Ctx || !g12Canvas) return;
@@ -1479,67 +1951,59 @@ function stopG12Draw() {
 }
 
 function clearG12Canvas() {
+  console.info('[Action Triggered]: clearG12Canvas');
   if (!g12Canvas || !g12Ctx) return;
   saveG12UndoState();
   g12Ctx.fillStyle = '#ffffff';
   g12Ctx.fillRect(0, 0, g12Canvas.width, g12Canvas.height);
 }
+window.clearG12Canvas = clearG12Canvas;
 
-const g12BtnEraser = document.getElementById('g12-btn-eraser');
-if (g12BtnEraser) {
-  g12BtnEraser.addEventListener('click', () => {
-    g12IsEraser = !g12IsEraser;
-    if (g12IsEraser) {
-      g12BtnEraser.classList.add('active');
-      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-    } else {
-      g12BtnEraser.classList.remove('active');
-      const firstDot = document.querySelector('.color-dot');
-      if (firstDot) firstDot.classList.add('active');
-    }
+function toggleG12Eraser() {
+  console.info('[Action Triggered]: toggleG12Eraser');
+  g12IsEraser = !g12IsEraser;
+  const eraserBtn = document.getElementById('g12-btn-eraser');
+  if (g12IsEraser) {
+    if (eraserBtn) eraserBtn.classList.add('active');
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  } else {
+    if (eraserBtn) eraserBtn.classList.remove('active');
+    const firstDot = document.querySelector('.color-dot');
+    if (firstDot) firstDot.classList.add('active');
+  }
+  if (typeof audio !== 'undefined') audio.playBeat(false);
+}
+window.toggleG12Eraser = toggleG12Eraser;
+
+function setG12BrushSize(size, btn) {
+  console.info('[Action Triggered]: setG12BrushSize', { size });
+  g12CurrentLineWidth = size;
+  document.querySelectorAll('.brush-size-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (typeof audio !== 'undefined') audio.playBeat(false);
+}
+window.setG12BrushSize = setG12BrushSize;
+
+function undoG12Canvas() {
+  console.info('[Action Triggered]: undoG12Canvas');
+  if (g12UndoStack.length > 0) {
+    const last = g12UndoStack.pop();
+    g12Ctx.putImageData(last, 0, 0);
     if (typeof audio !== 'undefined') audio.playBeat(false);
-  });
+  }
 }
+window.undoG12Canvas = undoG12Canvas;
 
-document.querySelectorAll('.brush-size-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.brush-size-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    g12CurrentLineWidth = parseInt(btn.dataset.size);
-    if (typeof audio !== 'undefined') audio.playBeat(false);
-  });
-});
-
-const g12BtnUndo = document.getElementById('g12-btn-undo');
-if (g12BtnUndo) {
-  g12BtnUndo.addEventListener('click', () => {
-    if (g12UndoStack.length > 0) {
-      const last = g12UndoStack.pop();
-      g12Ctx.putImageData(last, 0, 0);
-      if (typeof audio !== 'undefined') audio.playBeat(false);
-    }
-  });
+function downloadG12Canvas() {
+  console.info('[Action Triggered]: downloadG12Canvas');
+  if (!g12Canvas) return;
+  const link = document.createElement('a');
+  link.download = `畫畫_${g12CurrentTopic ? g12CurrentTopic.title : '畫作'}_${Date.now()}.png`;
+  link.href = g12Canvas.toDataURL('image/png');
+  link.click();
+  if (typeof audio !== 'undefined') audio.playSuccess();
 }
-
-const g12BtnClear = document.getElementById('g12-btn-clear');
-if (g12BtnClear) {
-  g12BtnClear.addEventListener('click', () => {
-    clearG12Canvas();
-    if (typeof audio !== 'undefined') audio.playBeat(true);
-  });
-}
-
-const g12BtnDownload = document.getElementById('g12-btn-download');
-if (g12BtnDownload) {
-  g12BtnDownload.addEventListener('click', () => {
-    if (!g12Canvas) return;
-    const link = document.createElement('a');
-    link.download = `畫畫接力_${g12CurrentTopic ? g12CurrentTopic.title : '畫作'}_${Date.now()}.png`;
-    link.href = g12Canvas.toDataURL('image/png');
-    link.click();
-    if (typeof audio !== 'undefined') audio.playSuccess();
-  });
-}
+window.downloadG12Canvas = downloadG12Canvas;
 
 window.addEventListener('resize', () => {
   if (g12Canvas && g12PlayMode === 'canvas') {
@@ -1555,9 +2019,3 @@ window.addEventListener('resize', () => {
   }
 });
 
-window.drawNextG12Topic = drawNextG12Topic;
-window.resetG12Relay = resetG12Relay;
-window.startG12BatonTimer = startG12BatonTimer;
-window.toggleG12PlayMode = toggleG12PlayMode;
-window.initG12Canvas = initG12Canvas;
-window.clearG12Canvas = clearG12Canvas;

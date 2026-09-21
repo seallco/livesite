@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Outfit:wght@600;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <link rel=stylesheet href="style.css?v=20260919_v4">
+  <link rel=stylesheet href="style.css?v=20260921_v1">
 </head>
 <body>
 
@@ -395,18 +395,18 @@
           </div>
         </div>
 
-        <!-- 遊戲 12: 第二關 畫畫接力大考驗 -->
-        <div class="game-card" data-game="12" style="border-color:rgba(5,217,232,0.5);">
+        <!-- 遊戲 12: 第二關 畫畫大考驗 -->
+        <div class="game-card" data-game="12" style="border-color:rgba(5,217,232,0.6); box-shadow:0 0 20px rgba(5,217,232,0.25);">
           <div class="game-card-top">
             <div class="game-icon">🎨</div>
             <div class="game-info">
               <div class="game-num" style="color:var(--blue-team);">STAGE 02 / GAME 12</div>
-              <div class="game-title">童話與電影畫畫接力</div>
-              <div class="game-desc">限定童話故事與熱門電影210+題！支援內建數位互動畫布、棒次交棒遮罩與主持控台。</div>
+              <div class="game-title">靈魂畫手大考驗 (接力 ✕ 經典猜畫)</div>
+              <div class="game-desc">支援「隊伍傳畫接力（附每棒歷程走鐘紀錄）」與「單人作畫猜題」雙模式！涵蓋趣味生活、生動成語、經典童話、熱門電影四大系列278+題！</div>
             </div>
           </div>
           <div class="game-card-bottom">
-            <span class="game-mode-badge mode-solo" style="background:rgba(5,217,232,0.2); border-color:var(--blue-team); color:var(--blue-team);">🎨 靈魂畫手接力</span>
+            <span class="game-mode-badge mode-solo" style="background:rgba(5,217,232,0.2); border-color:var(--blue-team); color:var(--blue-team);">🎨 雙版本 ✕ 歷史畫廊</span>
             <button class="play-btn">進入遊玩 ➔</button>
           </div>
         </div>
@@ -882,51 +882,67 @@
     <!-- ==========================================================
          遊戲 12: 🎨 第二關：童話與電影畫畫接力 (童話故事 ✕ 熱門電影)
          ========================================================== -->
-    <section class="game-view" id="view-game-12">
+        <section class="game-view" id="view-game-12">
       <div class="game-header-bar">
-        <div class="game-header-title">🎨 第二關：童話與電影畫畫接力</div>
-        <div style="display:flex; gap:8px;">
+        <div class="game-header-title">🎨 第二關：靈魂畫手大考驗 (接力傳畫 ✕ 經典猜畫)</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="nav-btn" onclick="openG12GalleryModal()" style="background:rgba(255,200,59,0.18); border-color:var(--gold); color:var(--gold);">🖼️ 歷史畫作相簿 (<span id="g12-archive-count-badge">0</span>)</button>
           <button class="nav-btn" onclick="switchView('11')">⬅ 回第一關：注音找物</button>
           <button class="nav-btn" onclick="switchView('lobby')">🏠 目錄</button>
         </div>
       </div>
 
-      <!-- 題庫分類切換 -->
+      <!-- 雙大遊玩版本切換 Tabs (接力傳畫 vs 單人作畫猜題) -->
+      <div class="g12-main-mode-tabs">
+        <button class="g12-mode-tab-btn active" id="g12-tab-relay" onclick="setG12SubMode('relay')">
+          <span>🤝 隊伍傳畫接力模式</span>
+          <span style="font-size:0.75rem; opacity:0.8; font-weight:normal;">(多棒接力・每棒畫作紀錄演變)</span>
+        </button>
+        <button class="g12-mode-tab-btn" id="g12-tab-solo" onclick="setG12SubMode('solo')">
+          <span>🎨 單人作畫猜題模式</span>
+          <span style="font-size:0.75rem; opacity:0.8; font-weight:normal;">(單純作畫給猜題者搶答)</span>
+        </button>
+      </div>
+
+      <!-- 題庫難度與系列分類切換 -->
       <div class="g12-category-filter">
-        <button class="g12-filter-btn active" data-cat="all">🌟 全部混合 (210+ 題)</button>
-        <button class="g12-filter-btn" data-cat="fairy">🏰 經典童話故事 (85+ 題)</button>
-        <button class="g12-filter-btn" data-cat="movie">🎬 中外經典電影 (125+ 題)</button>
+        <button class="g12-filter-btn active" data-cat="all" onclick="filterG12('all', this)">🌟 全部混合 (278 題)</button>
+        <button class="g12-filter-btn" data-cat="daily" onclick="filterG12('daily', this)">🟢 趣味生活 (80 題・簡單適中)</button>
+        <button class="g12-filter-btn" data-cat="idiom" onclick="filterG12('idiom', this)">🟡 經典成語 (60 題・中等聯想)</button>
+        <button class="g12-filter-btn" data-cat="fairy" onclick="filterG12('fairy', this)">🔴 經典童話 (60 題・高難度)</button>
+        <button class="g12-filter-btn" data-cat="movie" onclick="filterG12('movie', this)">🟣 熱門電影 (78 題・高難度)</button>
       </div>
 
+      <!-- 題庫狀態看板 -->
       <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:860px; font-size:0.88rem; font-weight:800; padding:0 6px; flex-wrap:wrap; gap:8px;">
-        <span style="background:rgba(5,217,232,0.15); border:1px solid var(--blue-team); padding:4px 14px; border-radius:20px; color:var(--blue-team);" id="g12-current-cat-badge">🏷️ 題庫類別：【經典童話 ✕ 熱門電影】</span>
-        <span style="color:var(--neon-green);" id="g12-deck-counter">🎯 題庫進度：第 1 / 210 題 (無重複)</span>
+        <span style="background:rgba(5,217,232,0.15); border:1px solid var(--blue-team); padding:4px 14px; border-radius:20px; color:var(--blue-team);" id="g12-current-cat-badge">🏷️ 題庫類別：【全部混合大亂鬥】</span>
+        <span style="color:var(--neon-green);" id="g12-deck-counter">🎯 題庫進度：第 1 / 278 題 (無重複)</span>
       </div>
 
-      <!-- 暗題防偷看卡片 (第一棒點擊看題) -->
+      <!-- 暗題防偷看卡片 (作畫者點擊看題) -->
       <div class="g12-secret-card" id="g12-secret-card-box">
         <div id="g12-secret-prompt" style="font-size:1.15rem; font-weight:800; color:#cbd5e1;">
-          🔒 點擊此處【揭開題目】（僅第 1 棒看題，其他隊員請背對）
+          🔒 點擊此處【揭開秘密題目】（僅作畫者觀看，猜題者請閉眼或背對螢幕）
         </div>
         <div id="g12-secret-content" style="display:none; width:100%;">
           <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:6px;">
-            <span id="g12-topic-tag" style="background:rgba(255,200,59,0.2); border:1px solid var(--gold); color:var(--gold); font-size:0.8rem; font-weight:900; padding:2px 10px; border-radius:12px;">🏰 童話故事</span>
-            <span id="g12-words-count" style="background:rgba(255,255,255,0.1); color:#fff; font-size:0.8rem; padding:2px 10px; border-radius:12px;">4 個字</span>
+            <span id="g12-topic-tag" style="background:rgba(0,245,155,0.2); border:1px solid var(--neon-green); color:var(--neon-green); font-size:0.8rem; font-weight:900; padding:2px 10px; border-radius:12px;">🟢 趣味生活</span>
+            <span id="g12-words-count" style="background:rgba(255,255,255,0.1); color:#fff; font-size:0.8rem; padding:2px 10px; border-radius:12px;">7 個字</span>
           </div>
           <div id="g12-secret-title" style="font-size:clamp(1.8rem, 5.5vw, 2.6rem); font-weight:900; color:#fff; text-shadow:0 0 20px rgba(5,217,232,0.8);">
-            白雪公主
+            吃火鍋眼鏡起霧
           </div>
           <div id="g12-secret-hint" style="font-size:0.92rem; color:#e2e8f0; margin-top:6px; background:rgba(0,0,0,0.3); padding:4px 14px; border-radius:10px; display:inline-block;">
-            💡 靈感特徵提示：毒蘋果、魔鏡、七個小矮人
+            💡 靈感特徵提示：熱氣蒸騰的火鍋、筷子夾肉、鏡片白茫茫看不清
           </div>
           <div style="margin-top:10px;">
-            <button class="nav-btn" id="g12-btn-rehide" style="font-size:0.8rem; padding:3px 12px;">🔒 隱藏題目 (開始畫畫)</button>
+            <button class="nav-btn" id="g12-btn-rehide" onclick="rehideG12()" style="font-size:0.8rem; padding:3px 12px;">🔒 隱藏題目 (開始作畫)</button>
           </div>
         </div>
       </div>
 
-      <!-- 模式切換 (數位畫布 / 現場白板主持控台) 與 當前作畫戰隊選擇 -->
-      <div style="display:flex; gap:10px; width:100%; max-width:860px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+      <!-- 接力模式下的戰隊選擇與現場模式切換 -->
+      <div id="g12-relay-team-toolbar" style="display:flex; gap:10px; width:100%; max-width:860px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
         <div id="g12-team-select-container" style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.06); padding:4px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.12);">
           <span style="font-size:0.85rem; color:#cbd5e1; font-weight:700;">🚩 當前接力作畫戰隊：</span>
           <select id="g12-team-selector" class="cfg-team-select" style="font-size:0.85rem; font-weight:800; padding:4px 10px;"></select>
@@ -937,19 +953,37 @@
         </div>
       </div>
 
-      <!-- 主接力畫布區塊 -->
+      <!-- 主畫布容器 -->
       <div class="g12-container" id="g12-canvas-container">
         
-        <!-- 接力狀態列 -->
-        <div class="g12-relay-bar">
+        <!-- 版本一：接力模式狀態條 -->
+        <div class="g12-relay-bar" id="g12-relay-status-bar">
           <div style="display:flex; align-items:center; gap:10px;">
             <span class="g12-baton-badge" id="g12-baton-display">👤 第 1 棒 作畫中</span>
-            <span style="font-size:0.85rem; color:var(--text-sub);" id="g12-relay-status-text">請依序傳遞畫作接力</span>
+            <span style="font-size:0.85rem; color:var(--text-sub);" id="g12-relay-status-text">每棒限時 30 秒接力傳畫</span>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:1.3rem; font-weight:900; color:#ff3366;" id="g12-timer-display">⏱️ 30 秒</span>
-            <button class="nav-btn primary" id="g12-btn-start-baton" style="padding:5px 14px;">▶️ 開始作畫</button>
-            <button class="nav-btn" id="g12-btn-next-baton" style="background:rgba(255,123,0,0.25); border-color:var(--orange); color:var(--orange);">🔔 立即交棒</button>
+            <button class="nav-btn primary" id="g12-btn-start-baton" onclick="startG12BatonTimer()" style="padding:5px 14px;">▶️ 開始作畫</button>
+            <button class="nav-btn" id="g12-btn-next-baton" onclick="nextG12Baton()" style="background:rgba(255,123,0,0.25); border-color:var(--orange); color:var(--orange);">🔔 立即交棒</button>
+          </div>
+        </div>
+
+        <!-- 版本二：單人作畫猜題模式專用計時條 -->
+        <div class="g12-solo-bar" id="g12-solo-status-bar">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span class="g12-solo-badge">🎨 單人作畫・全場猜題</span>
+            <div style="display:flex; gap:6px;">
+              <button class="nav-btn active g12-solo-pbtn" id="g12-solo-p30" onclick="setG12SoloPreset(30)">30s</button>
+              <button class="nav-btn g12-solo-pbtn" id="g12-solo-p60" onclick="setG12SoloPreset(60)">60s</button>
+              <button class="nav-btn g12-solo-pbtn" id="g12-solo-p90" onclick="setG12SoloPreset(90)">90s</button>
+              <button class="nav-btn g12-solo-pbtn" id="g12-solo-p0" onclick="setG12SoloPreset(0)">不限時</button>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.3rem; font-weight:900; color:#ff3366;" id="g12-solo-timer-display">⏱️ 30 秒</span>
+            <button class="nav-btn primary" id="g12-solo-btn-timer" onclick="toggleG12SoloTimer()">▶️ 開始計時</button>
+            <button class="nav-btn" onclick="resetG12SoloTimer()">🔄 重置</button>
           </div>
         </div>
 
@@ -959,16 +993,16 @@
             <!-- 顏色點由 JS 注入 -->
           </div>
           <div class="brush-sizes" id="g12-brush-sizes">
-            <button class="brush-size-btn" data-size="3">細 (3px)</button>
-            <button class="brush-size-btn active" data-size="8">中 (8px)</button>
-            <button class="brush-size-btn" data-size="16">粗 (16px)</button>
-            <button class="brush-size-btn" data-size="28">超粗</button>
+            <button class="brush-size-btn" data-size="3" onclick="setG12BrushSize(3, this)">細 (3px)</button>
+            <button class="brush-size-btn active" data-size="8" onclick="setG12BrushSize(8, this)">中 (8px)</button>
+            <button class="brush-size-btn" data-size="16" onclick="setG12BrushSize(16, this)">粗 (16px)</button>
+            <button class="brush-size-btn" data-size="28" onclick="setG12BrushSize(28, this)">超粗</button>
           </div>
           <div style="display:flex; gap:6px;">
-            <button class="nav-btn" id="g12-btn-eraser" style="padding:4px 10px; font-size:0.82rem;">🧽 橡皮擦</button>
-            <button class="nav-btn" id="g12-btn-undo" style="padding:4px 10px; font-size:0.82rem;">↩️ 復原</button>
-            <button class="nav-btn" id="g12-btn-clear" style="padding:4px 10px; font-size:0.82rem; color:#ff85a1;">🗑️ 清空</button>
-            <button class="nav-btn" id="g12-btn-download" style="padding:4px 10px; font-size:0.82rem;">💾 保存</button>
+            <button class="nav-btn" id="g12-btn-eraser" onclick="toggleG12Eraser()" style="padding:4px 10px; font-size:0.82rem;">🧽 橡皮擦</button>
+            <button class="nav-btn" id="g12-btn-undo" onclick="undoG12Canvas()" style="padding:4px 10px; font-size:0.82rem;">↩️ 復原</button>
+            <button class="nav-btn" id="g12-btn-clear" onclick="clearG12Canvas()" style="padding:4px 10px; font-size:0.82rem; color:#ff85a1;">🗑️ 清空</button>
+            <button class="nav-btn" id="g12-btn-download" onclick="downloadG12Canvas()" style="padding:4px 10px; font-size:0.82rem;">💾 保存</button>
           </div>
         </div>
 
@@ -982,7 +1016,7 @@
             <div style="font-size:1.8rem; font-weight:900; color:#fff;" id="g12-overlay-title">時間到！請第 1 棒交棒！</div>
             <div style="font-size:1.05rem; color:var(--text-sub);" id="g12-overlay-desc">請第 2 棒上前準備，點擊下方按鈕觀看畫作 5 秒倒數！</div>
             <div style="display:flex; gap:12px; margin-top:8px;">
-              <button class="action-btn-main" id="g12-overlay-confirm-btn">👀 我是下一棒，看畫 5 秒！</button>
+              <button class="action-btn-main" id="g12-overlay-confirm-btn" onclick="confirmNextG12Baton()">👀 我是下一棒，看畫 5 秒！</button>
             </div>
           </div>
         </div>
@@ -1001,18 +1035,34 @@
           </div>
         </div>
 
-        <!-- 下方控制按鈕 -->
+        <!-- 本回合接力畫作演變歷程區塊 -->
+        <div class="g12-evolution-container" id="g12-evolution-box" style="display:none;">
+          <div class="g12-evolution-title-bar">
+            <span style="font-size:0.95rem; font-weight:800; color:var(--gold);">🎨 本回合接力畫作演變歷程：</span>
+            <span style="font-size:0.8rem; color:var(--text-sub);">點擊縮圖可放大檢視畫作細節</span>
+          </div>
+          <div class="g12-evolution-steps" id="g12-evolution-steps-list">
+            <!-- 動態注入各棒縮圖卡片與箭頭 -->
+          </div>
+        </div>
+
+        <!-- 下方主要控制按鈕 -->
         <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; width:100%; margin-top:6px;">
-          <button class="action-btn-main" id="g12-btn-reveal" style="background:linear-gradient(90deg, #9d4edd, #ff2a6d);">🎉 揭曉題目答案！</button>
-          <button class="nav-btn" id="g12-btn-next-topic">🎲 換下一題 (不重複)</button>
-          <button class="nav-btn" onclick="resetG12Relay()">🔄 重置接力棒次</button>
+          <button class="action-btn-main" id="g12-btn-reveal" onclick="revealG12Answer()" style="background:linear-gradient(90deg, #9d4edd, #ff2a6d);">🎉 揭曉題目答案！</button>
+          <button class="nav-btn" id="g12-btn-next-topic" onclick="drawNextG12Topic()">🎲 換下一題 (不重複)</button>
+          <button class="nav-btn" id="g12-btn-reset-relay" onclick="resetG12Relay()">🔄 重置接力棒次</button>
+          <button class="nav-btn" onclick="openG12GalleryModal()">🖼️ 查看歷史畫作相簿</button>
         </div>
 
         <!-- 答案揭曉區 -->
         <div id="g12-reveal-box" style="display:none; width:100%; text-align:center; background:rgba(255,200,59,0.12); border:2px solid var(--gold); border-radius:18px; padding:18px;">
           <div style="font-size:0.95rem; font-weight:800; color:var(--gold); margin-bottom:4px;">🎉 本題正確答案是：</div>
-          <div class="g12-reveal-result" id="g12-revealed-title">白雪公主</div>
+          <div class="g12-reveal-result" id="g12-revealed-title">吃火鍋眼鏡起霧</div>
           <div style="font-size:0.95rem; color:#f1f5f9; margin-top:6px;" id="g12-revealed-desc"></div>
+          
+          <!-- 揭曉時的全歷程展示 -->
+          <div id="g12-reveal-evolution-wrap" style="margin-top:16px;"></div>
+
           <div style="display:flex; gap:10px; justify-content:center; margin-top:14px;">
             <button class="nav-btn" onclick="modifyTeamScore('red', 1)" style="background:var(--red-team); color:#fff; font-weight:800;">🔴 紅隊答對 (+1)</button>
             <button class="nav-btn" onclick="modifyTeamScore('blue', 1)" style="background:var(--blue-team); color:#000; font-weight:800;">🔵 藍隊答對 (+1)</button>
@@ -1034,12 +1084,48 @@
     </section>
 </main>
 
-  <script src="js/audio.js?v=20260919_v4"></script>
-  <script src="js/data.js?v=20260919_v4"></script>
-  <script src="js/players.js?v=20260919_v4"></script>
-  <script src="js/games.js?v=20260919_v4"></script>
-  <script src="js/main.js?v=20260919_v4"></script>
+  <!-- Game 12: 歷史畫作相簿彈窗 -->
+  <div class="g12-gallery-modal" id="g12-gallery-modal" onclick="if(event.target === this) closeG12GalleryModal()">
+    <div class="g12-gallery-card">
+      <div class="g12-gallery-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.3rem;">🖼️</span>
+          <span style="font-size:1.2rem; font-weight:900; color:var(--gold);">歷史畫作相簿・過往回合紀錄</span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="nav-btn" onclick="clearG12Archive()" style="font-size:0.8rem; color:#ff85a1;">🗑️ 清空歷史紀錄</button>
+          <button class="nav-btn" onclick="closeG12GalleryModal()">✕ 關閉</button>
+        </div>
+      </div>
+      <div class="g12-gallery-body" id="g12-gallery-list">
+        <!-- 動態注入歷史回合畫作 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Game 12: 點擊縮圖大圖預覽 Lightbox -->
+  <div class="g12-lightbox-modal" id="g12-lightbox-modal" onclick="if(event.target === this) closeG12Lightbox()">
+    <div class="g12-lightbox-content">
+      <img id="g12-lightbox-img" src="" alt="畫作預覽">
+      <div class="g12-lightbox-bar">
+        <div>
+          <div style="font-size:1.05rem; font-weight:900; color:var(--gold);" id="g12-lightbox-title">棒次畫作</div>
+          <div style="font-size:0.82rem; color:#94a3b8;" id="g12-lightbox-sub">題目</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="nav-btn primary" id="g12-lightbox-dl-btn">💾 下載這張圖</button>
+          <button class="nav-btn" onclick="closeG12Lightbox()">✕ 關閉</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/audio.js?v=20260921_v1"></script>
+  <script src="js/data.js?v=20260921_v1"></script>
+  <script src="js/players.js?v=20260921_v1"></script>
+  <script src="js/games.js?v=20260921_v1"></script>
+  <script src="js/main.js?v=20260921_v1"></script>
     <!-- 全站通用快捷跳轉導航系統 -->
-    <script src="../portal-nav.js?v=20260919_v4"></script>
+    <script src="../portal-nav.js?v=20260921_v1"></script>
 </body>
 </html>
