@@ -38,18 +38,85 @@ function drawGame1() {
 const g1BtnDraw = document.getElementById('g1-btn-draw');
 if (g1BtnDraw) g1BtnDraw.addEventListener('click', drawGame1);
 
+function generateG1SmartHintHTML(c1, c2, topicStr) {
+  const cleanTopic = (topicStr || '').replace('🎯 挑戰主題：', '').trim();
+  const topicData = (typeof G1_TOPIC_ANGLES !== 'undefined' && G1_TOPIC_ANGLES[cleanTopic])
+    ? G1_TOPIC_ANGLES[cleanTopic]
+    : { angle: '可從生活實體名詞、特定動作、特色物品切入聯想', keywords: [] };
+
+  const comboDict = (typeof G1_COMBO_WORDS !== 'undefined') ? G1_COMBO_WORDS : (typeof G1_HINTS !== 'undefined' ? G1_HINTS : {});
+  const directKey = `${c1}+${c2}`;
+  const reverseKey = `${c2}+${c1}`;
+  const directWords = comboDict[directKey] || [];
+  const reverseWords = comboDict[reverseKey] || [];
+
+  const singleDict = (typeof G1_SINGLE_VOCAB !== 'undefined') ? G1_SINGLE_VOCAB : {};
+  const c1Vocab = singleDict[c1] || ['物品', '名詞'];
+  const c2Vocab = singleDict[c2] || ['東西', '動作'];
+
+  const c1Picks = c1Vocab.slice(0, 3);
+  const c2Picks = c2Vocab.slice(0, 3);
+
+  let sampleSentence = '';
+  if (directWords.length > 0) {
+    sampleSentence = `在${cleanTopic}裡，直接回答「${directWords[0]}」立即得分！`;
+  } else if (reverseWords.length > 0) {
+    sampleSentence = `反向顛倒回答「${reverseWords[0]}」，既搞笑又合乎規則！`;
+  } else {
+    sampleSentence = `回答【${c1Picks[0]}】搭配【${c2Picks[0]}】，巧妙契合${cleanTopic}！`;
+  }
+
+  return `
+    <div style="text-align:left; line-height:1.6;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:8px; margin-bottom:10px;">
+        <span style="font-weight:900; color:var(--gold); font-size:1.05rem;">💡【注音雙卡造詞靈感錦囊】</span>
+        <span style="font-size:0.82rem; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); padding:2px 10px; border-radius:12px; color:var(--neon-green); font-weight:800;">${cleanTopic}</span>
+      </div>
+
+      <div style="margin-bottom:10px; background:rgba(255,255,255,0.06); padding:8px 12px; border-radius:8px; border-left:3px solid var(--neon-green); font-size:0.88rem;">
+        <span style="font-weight:800; color:var(--neon-green);">🧠 主題思路引導：</span>
+        <span style="color:#e2e8f0;">${topicData.angle}</span>
+      </div>
+
+      ${directWords.length > 0 ? `
+      <div style="margin-bottom:8px; font-size:0.9rem;">
+        <span style="font-weight:800; color:var(--blue-team);">🔤 正向雙字詞 (${c1} ＋ ${c2})：</span>
+        <span style="color:#fff; font-weight:800; background:rgba(5,217,232,0.18); border:1px solid rgba(5,217,232,0.4); padding:2px 10px; border-radius:6px;">${directWords.join('、')}</span>
+      </div>` : ''}
+
+      ${reverseWords.length > 0 ? `
+      <div style="margin-bottom:8px; font-size:0.9rem;">
+        <span style="font-weight:800; color:var(--orange);">🔄 反向顛倒詞 (${c2} ＋ ${c1})：</span>
+        <span style="color:#fff; font-weight:800; background:rgba(255,123,0,0.18); border:1px solid rgba(255,123,0,0.4); padding:2px 10px; border-radius:6px;">${reverseWords.join('、')}</span>
+        <span style="font-size:0.75rem; color:#94a3b8; margin-left:4px;">(派對可開放倒過來搶答)</span>
+      </div>` : ''}
+
+      <div style="margin-top:10px; padding-top:8px; border-top:1px dashed rgba(255,255,255,0.12); font-size:0.86rem; color:#cbd5e1;">
+        <div style="margin-bottom:4px;">
+          <span style="font-weight:800; color:#ff85a1;">🧩 拆字組合思路：</span>
+          <span>【${c1}開頭詞】：<b style="color:#fff;">${c1Picks.join('/')}</b> ＋ 【${c2}開頭詞】：<b style="color:#fff;">${c2Picks.join('/')}</b></span>
+        </div>
+        <div style="color:var(--gold); font-weight:700; margin-top:4px;">
+          💬 造句/情境示範：${sampleSentence}
+        </div>
+      </div>
+    </div>
+  `;
+}
+window.generateG1SmartHintHTML = generateG1SmartHintHTML;
+
 function toggleG1Hint() {
   console.info('[Action Triggered]: toggleG1Hint');
-  const c1 = document.getElementById('g1-c1')?.textContent || 'ㄅ';
-  const c2 = document.getElementById('g1-c2')?.textContent || 'ㄆ';
-  const key = `${c1}+${c2}`;
-  const hint = (typeof G1_HINTS !== 'undefined' && G1_HINTS[key]) ? G1_HINTS[key].join('、') : `例：${c1} ... ＋ ${c2} ...（造詞或造句）`;
+  const c1 = document.getElementById('g1-c1')?.textContent?.trim() || 'ㄅ';
+  const c2 = document.getElementById('g1-c2')?.textContent?.trim() || 'ㄆ';
+  const topicEl = document.getElementById('g1-topic');
+  const topic = topicEl ? topicEl.textContent : '【美食與飲料】';
   const box = document.getElementById('g1-hint-box');
   if (box) {
     if (box.style.display === 'block') {
       box.style.display = 'none';
     } else {
-      box.textContent = `💡 參考靈感：${hint}`;
+      box.innerHTML = generateG1SmartHintHTML(c1, c2, topic);
       box.style.display = 'block';
       if (typeof audio !== 'undefined') audio.playBeat(false);
     }
