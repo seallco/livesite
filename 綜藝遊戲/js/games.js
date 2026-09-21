@@ -1121,9 +1121,9 @@ function drawNextG12Topic() {
 
   // 更新計數器與類別標籤
   const catNames = {
-    all: '全部混合大亂鬥 (278+ 題)',
-    daily: '趣味生活日常 (簡單適中)',
-    idiom: '經典成語俗語 (中等聯想)',
+    all: '全部混合大亂鬥 (284+ 題)',
+    daily: '趣味生活日常 (精準詞彙)',
+    idiom: '經典成語俗語 (四字成語)',
     fairy: '經典童話故事 (高難度)',
     movie: '中外熱門電影 (高難度)'
   };
@@ -1592,7 +1592,7 @@ function revealG12Answer() {
   console.info('[Action Triggered]: revealG12Answer');
   if (!g12CurrentTopic) {
     const activePool = getG12ActivePool();
-    g12CurrentTopic = (activePool && activePool.length > 0) ? activePool[0] : { title: '吃火鍋眼鏡起霧', cat: '趣味生活', words: '7 個字', hint: '熱氣蒸騰的火鍋、筷子夾肉' };
+    g12CurrentTopic = (activePool && activePool.length > 0) ? activePool[0] : { title: '拔罐', cat: '趣味生活', words: '2 個字', hint: '背上一排排圓形玻璃罐與紫紅色的圓形印記' };
   }
 
   // 停止所有計時
