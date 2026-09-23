@@ -200,7 +200,7 @@
             <div class="stage-promo-icon">🔍</div>
             <div class="stage-promo-info">
               <div class="stage-promo-name">第一關：翻注音現場大搜查</div>
-              <div class="stage-promo-desc">翻開注音符號（如「ㄑ」），全場限時在現場尋找相符物品（如「球」）！37音不重複＋豐富物品靈感庫。</div>
+              <div class="stage-promo-desc">翻開注音符號（如「ㄑ」），全場限時在現場尋找相符的真實物品！37音不重複＋兩段式搜查線索引導。</div>
             </div>
             <button class="play-btn" style="padding:6px 14px; font-size:0.85rem;">開始闖關 ➔</button>
           </div>
@@ -845,7 +845,7 @@
       <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
         <button class="action-btn-main" id="g11-btn-draw" onclick="drawNextG11Card()">🎲 翻下一張注音 (Space)</button>
         <button class="nav-btn" id="g11-btn-timer-toggle" onclick="toggleG11Timer()">⏱️ 開始倒數計時</button>
-        <button class="nav-btn" id="g11-btn-hint" onclick="toggleG11Hint()">💡 查看現場物品靈感庫</button>
+        <button class="nav-btn" id="g11-btn-hint" onclick="toggleG11Hint()">💡 搜查提示 (線索與方向)</button>
       </div>
 
       <!-- 現場驗收裁判快速按鈕 -->
@@ -855,16 +855,33 @@
         <button class="nav-btn" id="g11-btn-verify-fail" onclick="verifyG11Fail()" style="background:rgba(255,51,102,0.2); border-color:#ff3366; color:#ff85a1;">❌ 判定不合格 (出局音效)</button>
       </div>
 
-      <!-- 物品靈感庫展開區 -->
-      <div class="g11-hints-bubble" id="g11-hints-container">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong style="color:var(--gold);" id="g11-hints-title">💡【ㄑ】現場常見真實物品參考：</strong>
+      <!-- 搜查線索提示區 (兩段式：先給搜查方向，卡關才看物品解答) -->
+      <div class="g11-hints-bubble" id="g11-hints-container" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:8px; margin-bottom:10px;">
+          <strong style="color:var(--gold); font-size:1.05rem;" id="g11-hints-title">💡【ㄑ】搜查方向線索 (不劇透物品)：</strong>
           <span style="font-size:0.8rem; color:var(--text-sub); cursor:pointer;" onclick="document.getElementById('g11-hints-container').style.display='none'">✕ 關閉</span>
         </div>
-        <div class="g11-chips-container" id="g11-chips-list">
-          <!-- 動態注入晶片標籤 -->
+
+        <!-- 第一段：搜查區域與情境線索 (預設展示) -->
+        <div id="g11-clue-direction-box" style="background:rgba(255,255,255,0.06); padding:10px 14px; border-radius:10px; border-left:3px solid var(--neon-green); font-size:0.9rem; color:#e2e8f0; line-height:1.6;">
+          <!-- 動態注入搜查區域線索 -->
         </div>
-        <div style="font-size:0.8rem; color:var(--text-sub); margin-top:8px;">只要發音首音符合即可，由現場主持人裁量判定！</div>
+
+        <!-- 解鎖第二段按鈕 -->
+        <div id="g11-reveal-btn-wrap" style="text-align:center; margin-top:12px;">
+          <button class="nav-btn" id="g11-btn-reveal-items" onclick="revealG11ItemList()" style="background:rgba(255,123,0,0.22); border-color:var(--orange); color:#fff; font-size:0.82rem; padding:5px 16px; font-weight:800; border-radius:20px;">
+            🚨 全場真的找不到？點此查看物品解答清單 ➔
+          </button>
+        </div>
+
+        <!-- 第二段：具體物品答案清單 (預設隱藏) -->
+        <div id="g11-items-reveal-section" style="display:none; margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.15);">
+          <div style="font-size:0.82rem; color:var(--gold); font-weight:800; margin-bottom:6px;">📋 現場常見物品參考清單（裁判/主持驗收查閱）：</div>
+          <div class="g11-chips-container" id="g11-chips-list">
+            <!-- 動態注入晶片標籤 -->
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-sub); margin-top:6px;">只要發音首音符合即可，由現場主持人裁量判定！</div>
+        </div>
       </div>
 
       <!-- 內嵌計分與拍燈面板 -->

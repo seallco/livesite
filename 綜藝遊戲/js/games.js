@@ -59,51 +59,82 @@ function generateG1SmartHintHTML(c1, c2, topicStr) {
 
   let sampleSentence = '';
   if (directWords.length > 0) {
-    sampleSentence = `在${cleanTopic}裡，直接回答「${directWords[0]}」立即得分！`;
+    sampleSentence = `例如迅速搶答：「${directWords[0]}」即可成功奪分！`;
   } else if (reverseWords.length > 0) {
-    sampleSentence = `反向顛倒回答「${reverseWords[0]}」，既搞笑又合乎規則！`;
+    sampleSentence = `例如顛倒詞搶答：「${reverseWords[0]}」，既爆笑又符合規則！`;
   } else {
-    sampleSentence = `回答【${c1Picks[0]}】搭配【${c2Picks[0]}】，巧妙契合${cleanTopic}！`;
+    sampleSentence = `例如創意組合：「${c1Picks[0]}」搭配「${c2Picks[0]}」，靈活應變奪分！`;
   }
 
   return `
     <div style="text-align:left; line-height:1.6;">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:8px; margin-bottom:10px;">
-        <span style="font-weight:900; color:var(--gold); font-size:1.05rem;">💡【注音雙卡造詞靈感錦囊】</span>
+        <span style="font-weight:900; color:var(--gold); font-size:1.05rem;">💡【注音雙卡造詞靈感錦囊】(兩段式)</span>
         <span style="font-size:0.82rem; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); padding:2px 10px; border-radius:12px; color:var(--neon-green); font-weight:800;">${cleanTopic}</span>
       </div>
 
+      <!-- 第一段：思維方向提示 (預設展示・不劇透具體答案) -->
       <div style="margin-bottom:10px; background:rgba(255,255,255,0.06); padding:8px 12px; border-radius:8px; border-left:3px solid var(--neon-green); font-size:0.88rem;">
         <span style="font-weight:800; color:var(--neon-green);">🧠 主題思路引導：</span>
         <span style="color:#e2e8f0;">${topicData.angle}</span>
       </div>
 
-      ${directWords.length > 0 ? `
-      <div style="margin-bottom:8px; font-size:0.9rem;">
-        <span style="font-weight:800; color:var(--blue-team);">🔤 正向雙字詞 (${c1} ＋ ${c2})：</span>
-        <span style="color:#fff; font-weight:800; background:rgba(5,217,232,0.18); border:1px solid rgba(5,217,232,0.4); padding:2px 10px; border-radius:6px;">${directWords.join('、')}</span>
-      </div>` : ''}
-
-      ${reverseWords.length > 0 ? `
-      <div style="margin-bottom:8px; font-size:0.9rem;">
-        <span style="font-weight:800; color:var(--orange);">🔄 反向顛倒詞 (${c2} ＋ ${c1})：</span>
-        <span style="color:#fff; font-weight:800; background:rgba(255,123,0,0.18); border:1px solid rgba(255,123,0,0.4); padding:2px 10px; border-radius:6px;">${reverseWords.join('、')}</span>
-        <span style="font-size:0.75rem; color:#94a3b8; margin-left:4px;">(派對可開放倒過來搶答)</span>
-      </div>` : ''}
-
-      <div style="margin-top:10px; padding-top:8px; border-top:1px dashed rgba(255,255,255,0.12); font-size:0.86rem; color:#cbd5e1;">
-        <div style="margin-bottom:4px;">
-          <span style="font-weight:800; color:#ff85a1;">🧩 拆字組合思路：</span>
-          <span>【${c1}開頭詞】：<b style="color:#fff;">${c1Picks.join('/')}</b> ＋ 【${c2}開頭詞】：<b style="color:#fff;">${c2Picks.join('/')}</b></span>
-        </div>
-        <div style="color:var(--gold); font-weight:700; margin-top:4px;">
-          💬 造句/情境示範：${sampleSentence}
+      <div style="font-size:0.86rem; color:#cbd5e1; margin-bottom:8px; background:rgba(255,255,255,0.04); padding:8px 12px; border-radius:8px; border-left:3px solid var(--gold);">
+        <div style="font-weight:800; color:var(--gold); margin-bottom:4px;">💡 造詞思路引導（兩段式・先動腦後看答案）：</div>
+        <div style="line-height:1.5;">
+          • 首字【<b style="color:#fff;">${c1}</b>】：可朝主題中常見的「實體事物、主要動作、或特定稱呼」方向構思。<br>
+          • 次字【<b style="color:#fff;">${c2}</b>】：嘗試搭配「受詞名詞、形容特徵、或情境產物」相互銜接。<br>
+          • 🔄 綜藝逆向思考：若正向一時卡住，可嘗試將順序對調為【<b style="color:var(--orange);">${c2} ＋ ${c1}</b>】顛倒搶答！
         </div>
       </div>
+
+      <!-- 解鎖第二段按鈕 -->
+      <div id="g1-reveal-btn-wrap" style="text-align:center; margin:12px 0 4px 0;">
+        <button class="nav-btn" id="g1-btn-reveal-words" onclick="revealG1WordAnswers()" style="background:rgba(157,78,221,0.25); border-color:var(--purple); color:#fff; font-size:0.82rem; padding:5px 18px; font-weight:800; border-radius:20px;">
+          🔍 全場想不到？點此揭曉具體參考字詞 ➔
+        </button>
+      </div>
+
+      <!-- 第二段：具體字詞解答清單 (預設隱藏，點擊後展開) -->
+      <div id="g1-hint-words-reveal" style="display:none; margin-top:10px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.15);">
+        ${directWords.length > 0 ? `
+        <div style="margin-bottom:8px; font-size:0.9rem;">
+          <span style="font-weight:800; color:var(--blue-team);">🔤 正向雙字詞 (${c1} ＋ ${c2})：</span>
+          <span style="color:#fff; font-weight:800; background:rgba(5,217,232,0.18); border:1px solid rgba(5,217,232,0.4); padding:2px 10px; border-radius:6px;">${directWords.join('、')}</span>
+        </div>` : ''}
+
+        ${reverseWords.length > 0 ? `
+        <div style="margin-bottom:8px; font-size:0.9rem;">
+          <span style="font-weight:800; color:var(--orange);">🔄 反向顛倒詞 (${c2} ＋ ${c1})：</span>
+          <span style="color:#fff; font-weight:800; background:rgba(255,123,0,0.18); border:1px solid rgba(255,123,0,0.4); padding:2px 10px; border-radius:6px;">${reverseWords.join('、')}</span>
+          <span style="font-size:0.75rem; color:#94a3b8; margin-left:4px;">(派對可開放倒過來搶答)</span>
+        </div>` : ''}
+
+        <div style="margin-top:8px; padding-top:6px; font-size:0.86rem; color:#cbd5e1;">
+          <div style="margin-bottom:4px;">
+            <span style="font-weight:800; color:#ff85a1;">🧩 拆字組合思路：</span>
+            <span>【${c1}開頭詞】：<b style="color:#fff;">${c1Picks.join('/')}</b> ＋ 【${c2}開頭詞】：<b style="color:#fff;">${c2Picks.join('/')}</b></span>
+          </div>
+          <div style="color:var(--gold); font-weight:700; margin-top:4px;">
+            💬 造句/情境示範：${sampleSentence}
+          </div>
+        </div>
+      </div>
+
     </div>
   `;
 }
 window.generateG1SmartHintHTML = generateG1SmartHintHTML;
+
+function revealG1WordAnswers() {
+  console.info('[Action Triggered]: revealG1WordAnswers');
+  const section = document.getElementById('g1-hint-words-reveal');
+  const btnWrap = document.getElementById('g1-reveal-btn-wrap');
+  if (section) section.style.display = 'block';
+  if (btnWrap) btnWrap.style.display = 'none';
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+}
+window.revealG1WordAnswers = revealG1WordAnswers;
 
 function toggleG1Hint() {
   console.info('[Action Triggered]: toggleG1Hint');
@@ -892,7 +923,7 @@ function drawNextG11Card() {
       const charSub = document.getElementById('g11-char-sub');
       if (charDisp) charDisp.textContent = g11CurrentItem.char;
       if (targetChar) targetChar.textContent = g11CurrentItem.char;
-      if (charSub) charSub.textContent = `範例首音：找「${g11CurrentItem.example}」等`;
+      if (charSub) charSub.textContent = '首音注音符號 (現場搜查)';
       cardBox.classList.add('flipped');
       if (typeof audio !== 'undefined') audio.playBeat(true);
     }, 280);
@@ -905,8 +936,10 @@ function drawNextG11Card() {
   }
   const missionText = document.getElementById('g11-mission-text');
   if (missionText) {
-    missionText.innerHTML = `請在現場限時找到【<span style="color:var(--gold); font-size:1.7rem;">${g11CurrentItem.char}</span>】開頭的真實物品！例如：${g11CurrentItem.example}`;
+    missionText.innerHTML = `請在現場限時找到【<span style="color:var(--gold); font-size:1.7rem;">${g11CurrentItem.char}</span>】開頭的真實物品！`;
   }
+  const hintContainer = document.getElementById('g11-hints-container');
+  if (hintContainer) hintContainer.style.display = 'none';
 
   // 隨機趣味挑戰加碼卡
   const modBox = document.getElementById('g11-modifier-box');
@@ -1015,7 +1048,7 @@ if (g11CardBox) {
   });
 }
 
-// 靈感提示清單展開 (支援 toggle 開關)
+// 搜查提示 (兩段式：Stage 1 區域線索與方向，Stage 2 點擊才揭開具體物品解答)
 function toggleG11Hint() {
   if (!g11CurrentItem) {
     g11CurrentItem = (typeof G11_ZHUYIN_POOL !== 'undefined' && G11_ZHUYIN_POOL.length > 0) 
@@ -1023,9 +1056,12 @@ function toggleG11Hint() {
       : { char: 'ㄑ', example: '球', hints: ['球', '鉛筆', '錢包', '汽水', '青椒'] };
   }
   const container = document.getElementById('g11-hints-container');
-  const list = document.getElementById('g11-chips-list');
   const title = document.getElementById('g11-hints-title');
-  if (!container || !list || !title) return;
+  const clueBox = document.getElementById('g11-clue-direction-box');
+  const revealBtnWrap = document.getElementById('g11-reveal-btn-wrap');
+  const itemsSection = document.getElementById('g11-items-reveal-section');
+  const list = document.getElementById('g11-chips-list');
+  if (!container) return;
 
   if (container.style.display === 'block') {
     container.style.display = 'none';
@@ -1034,17 +1070,59 @@ function toggleG11Hint() {
   }
 
   console.info('[Action Triggered]: toggleG11Hint', { state: 'opened', char: g11CurrentItem.char });
-  title.textContent = `💡【${g11CurrentItem.char}】現場常見真實物品參考清單：`;
-  list.innerHTML = '';
-  (g11CurrentItem.hints || []).forEach(hint => {
-    const chip = document.createElement('span');
-    chip.className = 'g11-chip';
-    chip.textContent = hint;
-    list.appendChild(chip);
-  });
+  
+  if (title) {
+    title.textContent = `💡【${g11CurrentItem.char}】現場搜查方向線索 (兩段式・不劇透物品)：`;
+  }
+
+  // 第一階段：僅提供搜查區域與思考方向，絕不劇透具體物品
+  const clueData = (typeof G11_AREA_CLUES !== 'undefined' && G11_AREA_CLUES[g11CurrentItem.char])
+    ? G11_AREA_CLUES[g11CurrentItem.char]
+    : { area: '隨身包包、辦公桌面、身上穿戴配飾', direction: '觀察身邊常用日用品、文具或隨身物件，先自己動腦尋找！' };
+
+  if (clueBox) {
+    if (typeof clueData === 'object' && clueData.area) {
+      clueBox.innerHTML = `
+        <div style="margin-bottom:8px;">
+          <strong style="color:var(--neon-green); font-size:0.92rem;">📍 推薦搜查區域：</strong>
+          <span style="color:#f1f5f9;">${clueData.area}</span>
+        </div>
+        <div>
+          <strong style="color:var(--gold); font-size:0.92rem;">🔍 線索思考方向：</strong>
+          <span style="color:#cbd5e1;">${clueData.direction}</span>
+        </div>
+      `;
+    } else {
+      clueBox.textContent = clueData;
+    }
+  }
+
+  // 重置第二階段狀態：預設隱藏物品清單，顯示解鎖按鈕
+  if (itemsSection) itemsSection.style.display = 'none';
+  if (revealBtnWrap) revealBtnWrap.style.display = 'block';
+
+  // 預載物品 chips (供第二階段解鎖時展示)
+  if (list) {
+    list.innerHTML = '';
+    (g11CurrentItem.hints || []).forEach(hint => {
+      const chip = document.createElement('span');
+      chip.className = 'g11-chip';
+      chip.textContent = hint;
+      list.appendChild(chip);
+    });
+  }
 
   container.style.display = 'block';
   if (typeof audio !== 'undefined') audio.playBeat(false);
+}
+
+function revealG11ItemList() {
+  console.info('[Action Triggered]: revealG11ItemList', { char: g11CurrentItem ? g11CurrentItem.char : null });
+  const itemsSection = document.getElementById('g11-items-reveal-section');
+  const revealBtnWrap = document.getElementById('g11-reveal-btn-wrap');
+  if (itemsSection) itemsSection.style.display = 'block';
+  if (revealBtnWrap) revealBtnWrap.style.display = 'none';
+  if (typeof audio !== 'undefined') audio.playBeat(true);
 }
 
 function verifyG11Pass() {
@@ -1072,6 +1150,7 @@ window.setG11TimerPreset = setG11TimerPreset;
 window.resetG11Timer = resetG11Timer;
 window.toggleG11Timer = toggleG11Timer;
 window.toggleG11Hint = toggleG11Hint;
+window.revealG11ItemList = revealG11ItemList;
 window.verifyG11Pass = verifyG11Pass;
 window.verifyG11Fail = verifyG11Fail;
 
