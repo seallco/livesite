@@ -6609,6 +6609,327 @@ const G13_ROAST_QUOTES = {
   }
 };
 
+
+// ==========================================================
+// 📦 遊戲 14: 盲盒拆字博弈戰 (字形拓撲暗箱博弈題庫)
+// 拓撲鐵律：所有拆解幾何部件在實體筆畫上 100% 完整還原目標詞彙！
+// ==========================================================
+const G14_RADICAL_BOX_POOL = [
+  {
+    id: 1,
+    word: '珍珠',
+    charCount: 2,
+    hintCategory: '台灣名產飲品',
+    boxes: [
+      { id: 1, part: '王', pos: '第 1 個字左側偏旁（玉字旁）', charIndex: 1 },
+      { id: 2, part: '𠆢', pos: '第 1 個字右上角（人字頂）', charIndex: 1 },
+      { id: 3, part: '彡', pos: '第 1 個字右下角（三撇筆畫）', charIndex: 1 },
+      { id: 4, part: '王', pos: '第 2 個字左側偏旁（玉字旁）', charIndex: 2 },
+      { id: 5, part: '丿', pos: '第 2 個字右側頂端（斜撇筆）', charIndex: 2 },
+      { id: 6, part: '未', pos: '第 2 個字右側主體（朱字下半）', charIndex: 2 }
+    ],
+    assemblyDesc: '第 1 字「珍」由左【王】+ 右上【𠆢】+ 右下【彡】上下拼裝；第 2 字「珠」由左【王】+ 右【丿】+【未】結合成【朱】拼裝，完整拓撲還原台灣代表【珍珠】！'
+  },
+  {
+    id: 2,
+    word: '高鐵',
+    charCount: 2,
+    hintCategory: '現代高速交通',
+    boxes: [
+      { id: 1, part: '亠', pos: '第 1 個字頂端（點橫頭）', charIndex: 1 },
+      { id: 2, part: '口', pos: '第 1 個字中段（中央口部）', charIndex: 1 },
+      { id: 3, part: '冋', pos: '第 1 個字下段（底框與內口）', charIndex: 1 },
+      { id: 4, part: '釒', pos: '第 2 個字左側偏旁（金字旁）', charIndex: 2 },
+      { id: 5, part: '𢆶', pos: '第 2 個字右上角（雙幺相連）', charIndex: 2 },
+      { id: 6, part: '戈', pos: '第 2 個字右側（斜勾長橫）', charIndex: 2 },
+      { id: 7, part: '土', pos: '第 2 個字右下角（土字底座）', charIndex: 2 }
+    ],
+    assemblyDesc: '第 1 字「高」由【亠】+【口】+【冋】由上而下貫穿拼合；第 2 字「鐵」由左邊【釒】與右邊【𢆶】+【戈】+【土】左右拼接，拓撲還原南北動脈【高鐵】！'
+  },
+  {
+    id: 3,
+    word: '夜市',
+    charCount: 2,
+    hintCategory: '台灣庶民生活',
+    boxes: [
+      { id: 1, part: '亠', pos: '第 1 個字頂端（點橫頭）', charIndex: 1 },
+      { id: 2, part: '亻', pos: '第 1 個字左側（單人偏旁）', charIndex: 1 },
+      { id: 3, part: '夕', pos: '第 1 個字右半腰（夕陽夕部）', charIndex: 1 },
+      { id: 4, part: '㇏', pos: '第 1 個字右下方（延伸長捺）', charIndex: 1 },
+      { id: 5, part: '亠', pos: '第 2 個字頂端（點橫頭）', charIndex: 2 },
+      { id: 6, part: '巾', pos: '第 2 個字下方（巾字底框）', charIndex: 2 }
+    ],
+    assemblyDesc: '第 1 字「夜」由【亠】+【亻】+【夕】+【㇏】緊密咬合；第 2 字「市」由頂部【亠】覆蓋底部【巾】組成，拓撲還原越夜越熱鬧的【夜市】！'
+  },
+  {
+    id: 4,
+    word: '超商',
+    charCount: 2,
+    hintCategory: '日常生活設施',
+    boxes: [
+      { id: 1, part: '走', pos: '第 1 個字左下底（走字底）', charIndex: 1 },
+      { id: 2, part: '刀', pos: '第 1 個字右上角（刀字頭）', charIndex: 1 },
+      { id: 3, part: '口', pos: '第 1 個字右下角（口字底）', charIndex: 1 },
+      { id: 4, part: '亠', pos: '第 2 個字最上方（點橫頭）', charIndex: 2 },
+      { id: 5, part: '丷', pos: '第 2 個字上部（八字撇捺）', charIndex: 2 },
+      { id: 6, part: '冂', pos: '第 2 個字中下部（外圍同字框）', charIndex: 2 },
+      { id: 7, part: '口', pos: '第 2 個字框內核心（正中口部）', charIndex: 2 }
+    ],
+    assemblyDesc: '第 1 字「超」由【走】托起【刀】+【口】；第 2 字「商」由【亠】+【丷】+【冂】+【口】由外而內由上而下拼裝，還原大街小巷必備的【超商】！'
+  },
+  {
+    id: 5,
+    word: '捷運',
+    charCount: 2,
+    hintCategory: '都會大眾運輸',
+    boxes: [
+      { id: 1, part: '扌', pos: '第 1 個字左側偏旁（提手旁）', charIndex: 1 },
+      { id: 2, part: '彐', pos: '第 1 個字右上角（雪字橫折）', charIndex: 1 },
+      { id: 3, part: '龰', pos: '第 1 個字右下角（止字底步）', charIndex: 1 },
+      { id: 4, part: '辶', pos: '第 2 個字左下底（走之底）', charIndex: 2 },
+      { id: 5, part: '冖', pos: '第 2 個字頂部（禿寶蓋頭）', charIndex: 2 },
+      { id: 6, part: '車', pos: '第 2 個字內部核心（車輛車部）', charIndex: 2 }
+    ],
+    assemblyDesc: '第 1 字「捷」由【扌】手部配合【彐】+【龰】；第 2 字「運」由外圍【辶】包裹【冖】與【車】，精準拓撲還原暢行無阻的【捷運】！'
+  },
+  {
+    id: 6,
+    word: '台積電',
+    charCount: 3,
+    hintCategory: '台灣科技巨擘',
+    boxes: [
+      { id: 1, part: '厶', pos: '第 1 個字上方（私字頭）', charIndex: 1 },
+      { id: 2, part: '口', pos: '第 1 個字下方（口字底）', charIndex: 1 },
+      { id: 3, part: '禾', pos: '第 2 個字左側偏旁（禾木旁）', charIndex: 2 },
+      { id: 4, part: '龶', pos: '第 2 個字右上角（三橫一豎）', charIndex: 2 },
+      { id: 5, part: '貝', pos: '第 2 個字右下角（貝寶底部）', charIndex: 2 },
+      { id: 6, part: '雨', pos: '第 3 個字上方（雨字頭）', charIndex: 3 },
+      { id: 7, part: '日', pos: '第 3 個字中央（日字心）', charIndex: 3 },
+      { id: 8, part: '乚', pos: '第 3 個字縱貫尾部（豎彎鉤）', charIndex: 3 }
+    ],
+    assemblyDesc: '第 1 字「台」=【厶】+【口】；第 2 字「積」=【禾】+【龶】+【貝】；第 3 字「電」=【雨】+【日】+【乚】，三字八盒毫無遺漏還原護國神山【台積電】！'
+  },
+  {
+    id: 7,
+    word: '火鍋',
+    charCount: 2,
+    hintCategory: '圍爐美味佳餚',
+    boxes: [
+      { id: 1, part: '丶', pos: '第 1 個字左側（飛濺火星）', charIndex: 1 },
+      { id: 2, part: '丿', pos: '第 1 個字右側（斜飄小撇）', charIndex: 1 },
+      { id: 3, part: '人', pos: '第 1 個字中央主體（人字立架）', charIndex: 1 },
+      { id: 4, part: '釒', pos: '第 2 個字左側偏旁（金屬金字旁）', charIndex: 2 },
+      { id: 5, part: '冂', pos: '第 2 個字右側外框（同字開框）', charIndex: 2 },
+      { id: 6, part: '口', pos: '第 2 個字右框內部核心（內嵌口部）', charIndex: 2 }
+    ],
+    assemblyDesc: '「火」由兩點星火包裹【人】字身；「鍋」由【釒】金旁搭【冂】框與【口】合為咼，拼出熱氣騰騰的冬日首選【火鍋】！'
+  },
+  {
+    id: 8,
+    word: '台灣',
+    charCount: 2,
+    hintCategory: '美麗寶島家園',
+    boxes: [
+      { id: 1, part: '厶', pos: '第 1 個字上方（私字角）', charIndex: 1 },
+      { id: 2, part: '口', pos: '第 1 個字下方（口字座）', charIndex: 1 },
+      { id: 3, part: '氵', pos: '第 2 個字左側偏旁（三點水）', charIndex: 2 },
+      { id: 4, part: '言', pos: '第 2 個字右側中央（言字心）', charIndex: 2 },
+      { id: 5, part: '糹', pos: '第 2 個字右側左上（絞絲部）', charIndex: 2 },
+      { id: 6, part: '糹', pos: '第 2 個字右側右上（絞絲部）', charIndex: 2 },
+      { id: 7, part: '弓', pos: '第 2 個字右側下方（弓字底盤）', charIndex: 2 }
+    ],
+    assemblyDesc: '「台」為【厶】+【口】；「灣」以【氵】搭配極繁雙【糹】夾【言】下坐【弓】，筆畫拓撲 100% 嚴謹還原摯愛【台灣】！'
+  },
+  {
+    id: 9,
+    word: '草莓',
+    charCount: 2,
+    hintCategory: '香甜鮮紅水果',
+    boxes: [
+      { id: 1, part: '艹', pos: '第 1 個字頂端（草字頭）', charIndex: 1 },
+      { id: 2, part: '日', pos: '第 1 個字中段（日光日部）', charIndex: 1 },
+      { id: 3, part: '十', pos: '第 1 個字下方（十字底針）', charIndex: 1 },
+      { id: 4, part: '艹', pos: '第 2 個字頂端（草字頭）', charIndex: 2 },
+      { id: 5, part: '𠂉', pos: '第 2 個字右側上半（撇短橫）', charIndex: 2 },
+      { id: 6, part: '母', pos: '第 2 個字右側下方（母親母底）', charIndex: 2 }
+    ],
+    assemblyDesc: '雙字皆帶【艹】頭，「草」接【日】+【十】，「莓」接【𠂉】+【母】成每，層次分明無縫拼出鮮甜紅寶石【草莓】！'
+  },
+  {
+    id: 10,
+    word: '烏龍茶',
+    charCount: 3,
+    hintCategory: '台灣傳奇好茶',
+    boxes: [
+      { id: 1, part: '丿', pos: '第 1 個字頂端（首端斜撇）', charIndex: 1 },
+      { id: 2, part: '鳥(缺眼)', pos: '第 1 個字上半身（烏黑身軀）', charIndex: 1 },
+      { id: 3, part: '灬', pos: '第 1 個字底部（四點火滴）', charIndex: 1 },
+      { id: 4, part: '立', pos: '第 2 個字左上角（立身起筆）', charIndex: 2 },
+      { id: 5, part: '月', pos: '第 2 個字左下角（月字肉旁）', charIndex: 2 },
+      { id: 6, part: '𢽳', pos: '第 2 個字右半身（曲折龍尾）', charIndex: 2 },
+      { id: 7, part: '艹', pos: '第 3 個字頂端（草字頭）', charIndex: 3 },
+      { id: 8, part: '木', pos: '第 3 個字下方（木字底撐起人傘）', charIndex: 3 }
+    ],
+    assemblyDesc: '「烏」由首撇、身框與四點水組成；「龍」由左【立】【月】搭右身；「茶」由【艹】加人木底，八盒零件完美還原回甘【烏龍茶】！'
+  },
+  {
+    id: 11,
+    word: '鳳梨',
+    charCount: 2,
+    hintCategory: '熱帶吉祥水果',
+    boxes: [
+      { id: 1, part: '几', pos: '第 1 個字外圍（風字外廓開框）', charIndex: 1 },
+      { id: 2, part: '一', pos: '第 1 個字外框上端（頂橫筆）', charIndex: 1 },
+      { id: 3, part: '丶', pos: '第 1 個字頂端冠點（鳳冠羽點）', charIndex: 1 },
+      { id: 4, part: '鳥', pos: '第 1 個字內部神禽（中央鳥部）', charIndex: 1 },
+      { id: 5, part: '禾', pos: '第 2 個字左上角（禾木偏旁）', charIndex: 2 },
+      { id: 6, part: '刂', pos: '第 2 個字右上角（立刀旁）', charIndex: 2 },
+      { id: 7, part: '木', pos: '第 2 個字下方底座（木字底盤）', charIndex: 2 }
+    ],
+    assemblyDesc: '「鳳」外框几一加鳥點成飛鳥入風，「梨」以禾刂為利坐於木底，七盒幾何拼出好運旺旺來的【鳳梨】！'
+  },
+  {
+    id: 12,
+    word: '麻辣鍋',
+    charCount: 3,
+    hintCategory: '川味經典火鍋',
+    boxes: [
+      { id: 1, part: '广', pos: '第 1 個字左上罩頂（廣字頭）', charIndex: 1 },
+      { id: 2, part: '木', pos: '第 1 個字罩頂內左（左林木）', charIndex: 1 },
+      { id: 3, part: '木', pos: '第 1 個字罩頂內右（右林木）', charIndex: 1 },
+      { id: 4, part: '辛', pos: '第 2 個字左側偏旁（辛辣辛部）', charIndex: 2 },
+      { id: 5, part: '束', pos: '第 2 個字右側主體（捆縛束部）', charIndex: 2 },
+      { id: 6, part: '釒', pos: '第 3 個字左側偏旁（金字旁）', charIndex: 3 },
+      { id: 7, part: '冂', pos: '第 3 個字右上角外廓（同字外框）', charIndex: 3 },
+      { id: 8, part: '口', pos: '第 3 個字框內核心（骨框內口）', charIndex: 3 }
+    ],
+    assemblyDesc: '「麻」由广套雙木；「辣」由辛配束；「鍋」由釒搭冂與口，八盒零件拓撲毫無破綻，還原香辣過癮的【麻辣鍋】！'
+  },
+  {
+    id: 13,
+    word: '檸檬',
+    charCount: 2,
+    hintCategory: '酸度破表柑橘',
+    boxes: [
+      { id: 1, part: '木', pos: '第 1 個字左側偏旁（木字旁）', charIndex: 1 },
+      { id: 2, part: '宀', pos: '第 1 個字右上角（寶蓋頭）', charIndex: 1 },
+      { id: 3, part: '心', pos: '第 1 個字右中核心（心字底）', charIndex: 1 },
+      { id: 4, part: '丁', pos: '第 1 個字右最下端（丁字腳）', charIndex: 1 },
+      { id: 5, part: '木', pos: '第 2 個字左側偏旁（木字旁）', charIndex: 2 },
+      { id: 6, part: '艹', pos: '第 2 個字右上角（草字頭）', charIndex: 2 },
+      { id: 7, part: '冖', pos: '第 2 個字右中段（禿寶蓋）', charIndex: 2 },
+      { id: 8, part: '豕', pos: '第 2 個字右下底（豬豕身軀）', charIndex: 2 }
+    ],
+    assemblyDesc: '左字「檸」為木配寧（宀心丁），右字「檬」為木配蒙（艹冖豕），雙木並立八盒拼成清涼酸甜【檸檬】！'
+  },
+  {
+    id: 14,
+    word: '棒球',
+    charCount: 2,
+    hintCategory: '熱血台灣國球',
+    boxes: [
+      { id: 1, part: '木', pos: '第 1 個字左側偏旁（木字旁）', charIndex: 1 },
+      { id: 2, part: '龶', pos: '第 1 個字右上部（三橫一立柱）', charIndex: 1 },
+      { id: 3, part: '人', pos: '第 1 個字右下主筆（舒展人架）', charIndex: 1 },
+      { id: 4, part: '王', pos: '第 2 個字左側偏旁（玉王旁）', charIndex: 2 },
+      { id: 5, part: '十', pos: '第 2 個字右上方（求字頂橫豎）', charIndex: 2 },
+      { id: 6, part: '氺', pos: '第 2 個字右下方（求字底水筆點）', charIndex: 2 }
+    ],
+    assemblyDesc: '「棒」由木字旁配奉字（龶+人），「球」由玉王旁配求字（十+氺），六盒精準咬合拼出萬人空巷的台灣國球【棒球】！'
+  },
+  {
+    id: 15,
+    word: '海嘯',
+    charCount: 2,
+    hintCategory: '海洋自然巨災',
+    boxes: [
+      { id: 1, part: '氵', pos: '第 1 個字左側偏旁（三點水）', charIndex: 1 },
+      { id: 2, part: '𠂉', pos: '第 1 個字右上角（斜橫撇端）', charIndex: 1 },
+      { id: 3, part: '母', pos: '第 1 個字右下角（母親母字底）', charIndex: 1 },
+      { id: 4, part: '口', pos: '第 2 個字左側偏旁（口字旁）', charIndex: 2 },
+      { id: 5, part: '聿', pos: '第 2 個字右上主筆（筆聿橫排）', charIndex: 2 },
+      { id: 6, part: '丨丨', pos: '第 2 個字右下雙腳（肅字下分岔雙豎）', charIndex: 2 }
+    ],
+    assemblyDesc: '左字「海」為水加每，右字「嘯」為口字伴肅穆呼嘯之肅，六盒拓撲完整重現翻江倒海的【海嘯】！'
+  },
+  {
+    id: 16,
+    word: '自強',
+    charCount: 2,
+    hintCategory: '台鐵經典快車',
+    boxes: [
+      { id: 1, part: '丿', pos: '第 1 個字最頂端（一撇起筆）', charIndex: 1 },
+      { id: 2, part: '目', pos: '第 1 個字下方（雙橫目字框）', charIndex: 1 },
+      { id: 3, part: '弓', pos: '第 2 個字左側偏旁（拉弓弓字旁）', charIndex: 2 },
+      { id: 4, part: '厶', pos: '第 2 個字右上角（私字勾角）', charIndex: 2 },
+      { id: 5, part: '口', pos: '第 2 個字右下中（虫字頭部小口）', charIndex: 2 },
+      { id: 6, part: '丨一丶', pos: '第 2 個字右最底端（虫字豎挑點筆）', charIndex: 2 }
+    ],
+    assemblyDesc: '「自」由撇落目中，「強」以弓為旁配厶與虫，拓撲完整拼合出奔馳數十載的經典列車名【自強】！'
+  },
+  {
+    id: 17,
+    word: '明星',
+    charCount: 2,
+    hintCategory: '璀璨公眾人物',
+    boxes: [
+      { id: 1, part: '日', pos: '第 1 個字左側偏旁（日字旁）', charIndex: 1 },
+      { id: 2, part: '月', pos: '第 1 個字右側偏旁（月字旁）', charIndex: 1 },
+      { id: 3, part: '日', pos: '第 2 個字頂部（日字頭蓋）', charIndex: 2 },
+      { id: 4, part: '𠂉', pos: '第 2 個字中腰（生字上半斜橫）', charIndex: 2 },
+      { id: 5, part: '一', pos: '第 2 個字中腰橫線（貫穿橫筆）', charIndex: 2 },
+      { id: 6, part: '土', pos: '第 2 個字最底座（生字底土部）', charIndex: 2 }
+    ],
+    assemblyDesc: '「明」為日月生輝雙照，「星」由日冠萬物生長之生（𠂉+一+土），六盒零件拓撲拼合出光芒四射的【明星】！'
+  },
+  {
+    id: 18,
+    word: '英雄',
+    charCount: 2,
+    hintCategory: '傳奇勇敢人物',
+    boxes: [
+      { id: 1, part: '艹', pos: '第 1 個字頂端（草字頭）', charIndex: 1 },
+      { id: 2, part: '冂', pos: '第 1 個字下段（央字上部開框）', charIndex: 1 },
+      { id: 3, part: '大', pos: '第 1 個字貫穿筆（央字斜撇長捺）', charIndex: 1 },
+      { id: 4, part: '厷', pos: '第 2 個字左半部（ナ與厶合體肱臂）', charIndex: 2 },
+      { id: 5, part: '亻', pos: '第 2 個字右側前柱（隹字單人立柱）', charIndex: 2 },
+      { id: 6, part: '隹右四橫', pos: '第 2 個字右側後翼（短尾鳥四羽橫）', charIndex: 2 }
+    ],
+    assemblyDesc: '「英」由草頭罩央（冂+大），「雄」由厷臂立隹鳥（亻+四橫），六盒幾何零件完美還原氣蓋山河的【英雄】！'
+  },
+  {
+    id: 19,
+    word: '遊戲',
+    charCount: 2,
+    hintCategory: '綜藝娛樂精髓',
+    boxes: [
+      { id: 1, part: '辶', pos: '第 1 個字左下底（走之底）', charIndex: 1 },
+      { id: 2, part: '方', pos: '第 1 個字右上左（方向方字旁）', charIndex: 1 },
+      { id: 3, part: '𠂉', pos: '第 1 個字右上右（頂端折撇）', charIndex: 1 },
+      { id: 4, part: '子', pos: '第 1 個字右下方（孩童子字底）', charIndex: 1 },
+      { id: 5, part: '虍', pos: '第 2 個字左上角（虎紋頭虛部）', charIndex: 2 },
+      { id: 6, part: '豆', pos: '第 2 個字左下角（盛皿豆部）', charIndex: 2 },
+      { id: 7, part: '戈', pos: '第 2 個字右側主筆（兵戈斜勾長撇）', charIndex: 2 }
+    ],
+    assemblyDesc: '「遊」由辶護方人子，「戲」由虍豆旁伴兵戈交鋒，七盒幾何部件還原點燃全場狂歡的【遊戲】！'
+  },
+  {
+    id: 20,
+    word: '溫泉',
+    charCount: 2,
+    hintCategory: '台灣地熱名湯',
+    boxes: [
+      { id: 1, part: '氵', pos: '第 1 個字左側偏旁（三點水）', charIndex: 1 },
+      { id: 2, part: '日', pos: '第 1 個字右上角（溫暖日光）', charIndex: 1 },
+      { id: 3, part: '皿', pos: '第 1 個字右下底（承裝水皿）', charIndex: 1 },
+      { id: 4, part: '丿', pos: '第 2 個字頂端（白字起筆斜撇）', charIndex: 2 },
+      { id: 5, part: '日', pos: '第 2 個字上段（白字身日框）', charIndex: 2 },
+      { id: 6, part: '水', pos: '第 2 個字下段（噴湧水部底）', charIndex: 2 }
+    ],
+    assemblyDesc: '「溫」由三點水伴日皿（皿裝日溫），「泉」由清白（丿+日）源自流水（水），六盒部件拓撲還原暖心療癒的【溫泉】！'
+  }
+];
+
 if (typeof window !== 'undefined') {
   window.ZHUYIN = ZHUYIN;
   window.G1_TOPICS_POOL = G1_TOPICS_POOL;
@@ -6635,4 +6956,5 @@ if (typeof window !== 'undefined') {
   window.G12_ALL_POOL = G12_ALL_POOL;
   window.G13_JUST_ONE_POOL = G13_JUST_ONE_POOL;
   window.G13_ROAST_QUOTES = G13_ROAST_QUOTES;
+  window.G14_RADICAL_BOX_POOL = G14_RADICAL_BOX_POOL;
 }

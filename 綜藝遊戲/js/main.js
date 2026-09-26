@@ -134,6 +134,11 @@ function stopAllGameTimersAndSounds() {
               initG13();
             }
           }
+          if (viewName === '14') {
+            if (typeof initG14 === 'function') {
+              initG14();
+            }
+          }
         }
       }
     }

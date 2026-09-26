@@ -2611,3 +2611,379 @@ if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'g13CurrentCard', { get: () => g13CurrentCard });
   Object.defineProperty(window, 'g13CurrentRoast', { get: () => g13CurrentRoast });
 }
+
+// ==========================================================
+// 📦 遊戲 14: 盲盒拆字博弈戰 (字形拓撲暗箱博弈)
+// ==========================================================
+let g14CurrentIndex = 0;
+let g14CurrentPuzzle = null;
+let g14Score = 100;
+let g14OpenedBoxIds = new Set();
+let g14ShuffledBoxes = [];
+let g14WrongAttempts = 0;
+let g14IsResolved = false;
+let g14ResolutionReason = ''; // 'correct' | 'forfeit' | 'zero'
+let g14StatusMessage = '';
+
+function initG14() {
+  console.info('[Action Triggered]: initG14', { index: g14CurrentIndex });
+  const pool = (typeof G14_RADICAL_BOX_POOL !== 'undefined' && Array.isArray(G14_RADICAL_BOX_POOL) && G14_RADICAL_BOX_POOL.length > 0)
+    ? G14_RADICAL_BOX_POOL
+    : [
+        {
+          id: 1,
+          word: '高鐵',
+          charCount: 2,
+          hintCategory: '現代交通',
+          boxes: [
+            { id: 1, part: '亠', pos: '第 1 個字頂端（點橫頭）', charIndex: 1 },
+            { id: 2, part: '口', pos: '第 1 個字中段（中央口部）', charIndex: 1 },
+            { id: 3, part: '冋', pos: '第 1 個字下段（底框與內口）', charIndex: 1 },
+            { id: 4, part: '釒', pos: '第 2 個字左側偏旁（金字旁）', charIndex: 2 },
+            { id: 5, part: '𢆶', pos: '第 2 個字右上角（雙幺相連）', charIndex: 2 },
+            { id: 6, part: '戈', pos: '第 2 個字右側（斜勾長橫）', charIndex: 2 },
+            { id: 7, part: '土', pos: '第 2 個字右下角（土字底座）', charIndex: 2 }
+          ],
+          assemblyDesc: '「高」由【亠】+【口】+【冋】上下拼裝；「鐵」由左【釒】與右【𢆶】+【戈】+【土】左右拼接，拓撲還原【高鐵】！'
+        }
+      ];
+
+  g14CurrentPuzzle = pool[Math.abs(g14CurrentIndex) % pool.length];
+
+  // 隨機打亂盲盒順序，賦予 1~N 號盒標籤
+  const boxesCopy = g14CurrentPuzzle.boxes.map(b => ({ ...b }));
+  for (let i = boxesCopy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [boxesCopy[i], boxesCopy[j]] = [boxesCopy[j], boxesCopy[i]];
+  }
+  g14ShuffledBoxes = boxesCopy.map((b, idx) => ({ ...b, boxIndex: idx + 1 }));
+
+  g14Score = 100;
+  g14OpenedBoxIds = new Set();
+  g14WrongAttempts = 0;
+  g14IsResolved = false;
+  g14ResolutionReason = '';
+  g14StatusMessage = '請點擊下方盲盒翻開部件（每盒消耗 10 分），或直接輸入搶答！';
+
+  renderG14();
+}
+
+function openG14Box(boxNum) {
+  if (g14IsResolved) return;
+  const targetBox = g14ShuffledBoxes.find(b => b.boxIndex === boxNum);
+  if (!targetBox || g14OpenedBoxIds.has(targetBox.id)) return;
+
+  console.info('[Action Triggered]: openG14Box', { boxNum, part: targetBox.part });
+  g14OpenedBoxIds.add(targetBox.id);
+  g14Score = Math.max(0, g14Score - 10);
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+
+  g14StatusMessage = `已開啟【盒 ${boxNum}】：部件「${targetBox.part}」（${targetBox.pos}）！消耗 10 分！`;
+
+  if (g14Score <= 0) {
+    resolveG14('zero');
+  } else {
+    renderG14();
+  }
+}
+
+function openNextG14Box() {
+  if (g14IsResolved) return;
+  const unopened = g14ShuffledBoxes.find(b => !g14OpenedBoxIds.has(b.id));
+  if (unopened) {
+    openG14Box(unopened.boxIndex);
+  }
+}
+
+function submitG14Guess(guessStr) {
+  if (g14IsResolved) return;
+  const cleanGuess = (guessStr || '').trim().replace(/\s+/g, '');
+  if (!cleanGuess) return;
+
+  console.info('[Action Triggered]: submitG14Guess', { cleanGuess, answer: g14CurrentPuzzle.word });
+
+  if (cleanGuess === g14CurrentPuzzle.word) {
+    // 搶答答對！
+    if (typeof audio !== 'undefined') audio.playSuccess();
+    resolveG14('correct');
+  } else {
+    // 搶答猜錯：倒扣 20 分！
+    g14WrongAttempts++;
+    g14Score = Math.max(0, g14Score - 20);
+    if (typeof audio !== 'undefined') audio.playExplosion();
+
+    if (g14Score <= 0) {
+      resolveG14('zero');
+      return;
+    }
+
+    // 強制再開啟 1 盒盲盒
+    const nextUnopened = g14ShuffledBoxes.find(b => !g14OpenedBoxIds.has(b.id));
+    if (nextUnopened) {
+      g14OpenedBoxIds.add(nextUnopened.id);
+      g14StatusMessage = `💥 搶答猜錯「${cleanGuess}」！直接倒扣 20 分！強制揭開【盒 ${nextUnopened.boxIndex}】：部件「${nextUnopened.part}」（${nextUnopened.pos}）！`;
+    } else {
+      g14StatusMessage = `💥 搶答猜錯「${cleanGuess}」！直接倒扣 20 分！已無盲盒可開！`;
+    }
+    renderG14();
+  }
+}
+
+function forfeitG14() {
+  if (g14IsResolved) return;
+  console.info('[Action Triggered]: forfeitG14');
+  if (typeof audio !== 'undefined') audio.playBuzzer(300);
+  resolveG14('forfeit');
+}
+
+function resolveG14(reason) {
+  g14IsResolved = true;
+  g14ResolutionReason = reason;
+
+  // 結算時揭開所有盲盒以便玩家核對
+  g14ShuffledBoxes.forEach(b => g14OpenedBoxIds.add(b.id));
+
+  if (reason === 'correct') {
+    g14StatusMessage = `🎉 恭喜搶答成功！正確答案正是【${g14CurrentPuzzle.word}】！最終榮獲 ${g14Score} 分！`;
+  } else if (reason === 'zero') {
+    g14Score = 0;
+    g14StatusMessage = `💀 分數扣至 0 分！博弈失利出局！正確答案為【${g14CurrentPuzzle.word}】！`;
+  } else if (reason === 'forfeit') {
+    g14Score = 0;
+    g14StatusMessage = `🏳️ 玩家選擇放棄！本題獲得 0 分。正確答案為【${g14CurrentPuzzle.word}】！`;
+  }
+  renderG14();
+}
+
+function nextG14Puzzle() {
+  const pool = (typeof G14_RADICAL_BOX_POOL !== 'undefined' && Array.isArray(G14_RADICAL_BOX_POOL)) ? G14_RADICAL_BOX_POOL : [];
+  g14CurrentIndex = (g14CurrentIndex + 1) % (pool.length || 1);
+  initG14();
+}
+
+function prevG14Puzzle() {
+  const pool = (typeof G14_RADICAL_BOX_POOL !== 'undefined' && Array.isArray(G14_RADICAL_BOX_POOL)) ? G14_RADICAL_BOX_POOL : [];
+  g14CurrentIndex = (g14CurrentIndex - 1 + pool.length) % (pool.length || 1);
+  initG14();
+}
+
+function handleG14CommandSubmit() {
+  const inputEl = document.getElementById('g14-cmd-input');
+  if (!inputEl) return;
+  const raw = inputEl.value.trim();
+  if (!raw) return;
+
+  const boxMatch = raw.match(/(?:抽|開|翻)?\s*(?:盒)?\s*([1-8])/);
+  const guessMatch = raw.match(/(?:我猜|猜|答案)[:：]?\s*(.+)/);
+  const forfeitMatch = raw.match(/(?:放棄|投降|不猜)/);
+
+  if (boxMatch && !guessMatch) {
+    const num = parseInt(boxMatch[1], 10);
+    openG14Box(num);
+  } else if (forfeitMatch) {
+    forfeitG14();
+  } else if (guessMatch) {
+    submitG14Guess(guessMatch[1]);
+  } else {
+    // 預設若為文字，視為直接搶答
+    submitG14Guess(raw);
+  }
+  inputEl.value = '';
+}
+
+function renderG14() {
+  const root = document.getElementById('g14-main-board');
+  if (!root || !g14CurrentPuzzle) return;
+
+  const pool = (typeof G14_RADICAL_BOX_POOL !== 'undefined' && Array.isArray(G14_RADICAL_BOX_POOL)) ? G14_RADICAL_BOX_POOL : [];
+  const openedCount = g14ShuffledBoxes.filter(b => g14OpenedBoxIds.has(b.id)).length;
+  const totalCount = g14ShuffledBoxes.length;
+
+  // 分數色彩評級
+  let scoreColor = 'var(--gold)';
+  if (g14Score >= 80) scoreColor = 'var(--neon-green)';
+  else if (g14Score <= 30) scoreColor = 'var(--red-team)';
+
+  // 1. 盲盒矩陣 HTML
+  let boxesHtml = g14ShuffledBoxes.map(b => {
+    const isOpened = g14OpenedBoxIds.has(b.id);
+    return `
+      <div class="g14-box-card ${isOpened ? 'opened' : ''}" onclick="openG14Box(${b.boxIndex})">
+        <div class="g14-box-inner">
+          <div class="g14-box-front">
+            <div class="g14-box-num">盒 ${b.boxIndex}</div>
+            <div class="g14-box-icon">📦</div>
+            <div class="g14-box-tip">點擊翻開 (-10分)</div>
+          </div>
+          <div class="g14-box-back">
+            <div style="font-size:0.8rem; color:#94a3b8; font-weight:800;">盒 ${b.boxIndex} 部件</div>
+            <div class="g14-part-display">${b.part}</div>
+            <div class="g14-part-pos">${b.pos}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 2. 已收集部件摘要列表
+  let cluesSummary = g14ShuffledBoxes
+    .filter(b => g14OpenedBoxIds.has(b.id))
+    .map(b => `
+      <span style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); padding:4px 10px; border-radius:12px; font-size:0.85rem; font-weight:800; color:#fff;">
+        盒 ${b.boxIndex}：<b style="color:var(--gold); font-size:1.05rem;">${b.part}</b> <span style="font-size:0.75rem; color:#94a3b8;">(${b.pos})</span>
+      </span>
+    `).join('');
+
+  if (!cluesSummary) {
+    cluesSummary = '<span style="font-size:0.85rem; color:#94a3b8;">（尚未開盒，點選任一盲盒開始探尋線索）</span>';
+  }
+
+  // 3. 結算大揭曉 HTML (若已結算)
+  let revelationHtml = '';
+  if (g14IsResolved) {
+    let rankBadge = '👑 神級字形神童！瞬間秒殺！';
+    if (g14Score >= 80) rankBadge = '👑 神級字形神童！瞬間秒殺！';
+    else if (g14Score >= 60) rankBadge = '🔥 敏銳博弈大師！高勝率奪分！';
+    else if (g14Score >= 40) rankBadge = '⚖️ 沉穩戰術大師！及時止損！';
+    else if (g14Score > 0) rankBadge = '💔 慘烈血戰過關！險象環生！';
+    else rankBadge = '💀 盲盒破產翻車！直接破防！';
+
+    const tableRows = g14ShuffledBoxes.map(b => `
+      <tr>
+        <td style="font-weight:900; color:var(--blue-team);">盒 ${b.boxIndex}</td>
+        <td style="font-size:1.3rem; font-weight:900; color:var(--gold);">${b.part}</td>
+        <td style="color:#e2e8f0; font-weight:700;">第 ${b.charIndex} 個字</td>
+        <td style="color:#cbd5e1; text-align:left;">${b.pos}</td>
+      </tr>
+    `).join('');
+
+    revelationHtml = `
+      <div class="g14-revelation-card">
+        <div style="font-size:1rem; font-weight:900; color:var(--gold); letter-spacing:2px;">✔ 盲盒拆字博弈戰・謎底大揭曉</div>
+        <div class="g14-answer-title">【 ${g14CurrentPuzzle.word} 】</div>
+        <div style="font-size:1.2rem; font-weight:900; color:${scoreColor}; margin:4px 0;">
+          🏆 最終結算得分：${g14Score} 分 ｜ ${rankBadge}
+        </div>
+        
+        <!-- 幾何拓撲還原說明 -->
+        <div class="g14-assembly-box">
+          <div style="font-size:0.95rem; font-weight:900; color:var(--neon-green); margin-bottom:4px;">🧩 幾何拓撲拼裝還原說明：</div>
+          <div>${g14CurrentPuzzle.assemblyDesc}</div>
+        </div>
+
+        <!-- 盲盒完整對照清單 -->
+        <div style="width:100%; max-height:220px; overflow-y:auto;">
+          <table class="g14-boxes-table">
+            <thead>
+              <tr>
+                <th>盲盒編號</th>
+                <th>部件本體</th>
+                <th>歸屬字位</th>
+                <th>方位與結構說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:10px; flex-wrap:wrap; justify-content:center;">
+          <button class="nav-btn" onclick="prevG14Puzzle()">⬅ 上一題</button>
+          <button class="nav-btn" onclick="initG14()" style="background:rgba(255,200,59,0.18); border-color:var(--gold); color:var(--gold);">🔄 重新挑戰本題</button>
+          <button class="action-btn-main" onclick="nextG14Puzzle()" style="padding:10px 28px; font-size:1rem;">🎲 下一題博弈 ➔</button>
+        </div>
+      </div>
+    `;
+  }
+
+  root.innerHTML = `
+    <!-- 頂部計分與資訊狀態條 -->
+    <div class="g14-score-banner">
+      <div>
+        <div style="font-size:0.85rem; color:#94a3b8; font-weight:800; margin-bottom:2px;">
+          第 ${g14CurrentIndex + 1} / ${pool.length || 1} 題 ｜ 類別：【${g14CurrentPuzzle.hintCategory}】
+        </div>
+        <div style="font-size:1.25rem; font-weight:900; color:#fff;">
+          🎯 目標字數：<span style="color:var(--blue-team);">${g14CurrentPuzzle.charCount} 個字</span>
+        </div>
+      </div>
+
+      <div class="g14-score-display">
+        <span style="font-size:1rem; font-weight:800; color:#94a3b8;">目前得分：</span>
+        <span class="g14-score-val" style="color:${scoreColor};">${g14Score}</span>
+        <span style="font-size:1rem; font-weight:800; color:#94a3b8;">分</span>
+      </div>
+
+      <div class="g14-stat-chips">
+        <div class="g14-stat-chip">📦 開盒：<b>${openedCount}</b> / ${totalCount} (-${openedCount * 10}分)</div>
+        <div class="g14-stat-chip">💥 猜錯：<b>${g14WrongAttempts}</b> 次 (-${g14WrongAttempts * 20}分)</div>
+      </div>
+    </div>
+
+    <!-- 即時狀態廣播 -->
+    <div style="width:100%; background:rgba(0,0,0,0.4); border-left:4px solid var(--gold); padding:10px 16px; border-radius:0 10px 10px 0; font-size:0.95rem; font-weight:800; color:#cbd5e1;">
+      📢 關卡狀態：${g14StatusMessage}
+    </div>
+
+    <!-- 盲盒矩陣陣列 -->
+    <div class="g14-boxes-grid">
+      ${boxesHtml}
+    </div>
+
+    <!-- 已開出線索集 -->
+    <div style="width:100%; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 18px; display:flex; flex-direction:column; gap:8px;">
+      <div style="font-size:0.9rem; font-weight:900; color:var(--neon-green);">🧩 已開出線索集 (${openedCount} / ${totalCount})：</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        ${cluesSummary}
+      </div>
+    </div>
+
+    <!-- 互動控制面板 (輸入框與快捷按鈕) -->
+    ${!g14IsResolved ? `
+      <div class="g14-action-console">
+        <div class="g14-input-row">
+          <input type="text" id="g14-cmd-input" class="g14-cmd-input" placeholder="輸入指令（例：「抽 盒3」、「我猜：高鐵」或直接輸入答案）..." onkeydown="if(event.key==='Enter') handleG14CommandSubmit();">
+          <button class="action-btn-main" onclick="handleG14CommandSubmit()" style="padding:0 24px; font-size:1rem;">🚀 執行</button>
+        </div>
+        <div class="g14-quick-buttons">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="nav-btn" onclick="openNextG14Box()" style="background:rgba(5,217,232,0.15); border-color:var(--blue-team); color:var(--blue-team);">💡 開啟下一盒 (-10分)</button>
+            <button class="nav-btn" onclick="forfeitG14()" style="color:#ff85a1;">🏳️ 自願放棄</button>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="nav-btn" onclick="submitG14Guess(g14CurrentPuzzle.word)" style="background:rgba(0,245,155,0.2); border-color:var(--neon-green); color:var(--neon-green); font-weight:800;">🏆 主持人判定猜對</button>
+            <button class="nav-btn" onclick="submitG14Guess('猜錯')" style="background:rgba(255,42,109,0.2); border-color:var(--red-team); color:var(--red-team); font-weight:800;">💥 主持人判定猜錯 (-20分)</button>
+          </div>
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- 結算展示卡片 -->
+    ${revelationHtml}
+  `;
+}
+
+window.initG14 = initG14;
+window.openG14Box = openG14Box;
+window.openNextG14Box = openNextG14Box;
+window.submitG14Guess = submitG14Guess;
+window.forfeitG14 = forfeitG14;
+window.nextG14Puzzle = nextG14Puzzle;
+window.prevG14Puzzle = prevG14Puzzle;
+window.handleG14CommandSubmit = handleG14CommandSubmit;
+
+try {
+  if (typeof window !== 'undefined') {
+    Object.defineProperties(window, {
+      g14Score: { get: () => g14Score, configurable: true },
+      g14CurrentPuzzle: { get: () => g14CurrentPuzzle, configurable: true },
+      g14ShuffledBoxes: { get: () => g14ShuffledBoxes, configurable: true },
+      g14OpenedBoxIds: { get: () => g14OpenedBoxIds, configurable: true },
+      g14WrongAttempts: { get: () => g14WrongAttempts, configurable: true },
+      g14IsResolved: { get: () => g14IsResolved, configurable: true },
+      g14ResolutionReason: { get: () => g14ResolutionReason, configurable: true }
+    });
+  }
+} catch (e) {}
+

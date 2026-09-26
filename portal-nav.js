@@ -45,7 +45,7 @@
     {
       category: "💻 應用與日常專案",
       items: [
-        { title: "綜藝派對遊戲大廳 (13-in-1)", path: "綜藝遊戲/index.html", desc: "13 款連線競技與闖關活動 (機智線索、靈魂畫手、翻注音找物)", icon: "fa-solid fa-gamepad", tag: "Hot" },
+        { title: "綜藝派對遊戲大廳 (14-in-1)", path: "綜藝遊戲/index.html", desc: "14 款連線競技與闖關活動 (盲盒拆字、機智線索、靈魂畫手)", icon: "fa-solid fa-gamepad", tag: "Hot" },
         { title: "產線數量與良率統計工作台", path: "統計工具/index.html", desc: "時間段點數・當班良率計算・交接人員紀錄與 I 欄位標記", icon: "fa-solid fa-industry", tag: "New" },
         { title: "LinguaPulse 靈感英語", path: "Gept/index.html", desc: "GEPT 中高級 ✕ 多益金證 8,365 詞彙庫隨想隨練", icon: "fa-solid fa-bolt", tag: "Hot" },
         { title: "智慧精準灌溉系統", path: "presentation/index.html", desc: "氣象預報聯動之節水攔截機制 (GSAP + 3D 動畫)", icon: "fa-solid fa-droplet", tag: "Featured" },

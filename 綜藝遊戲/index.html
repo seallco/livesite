@@ -177,7 +177,7 @@
         <div style="display:inline-block; background:linear-gradient(90deg, #ff2a6d, #9d4edd); padding:4px 16px; border-radius:20px; font-weight:900; font-size:0.85rem; margin-bottom:8px; letter-spacing:1px; color:#fff; box-shadow:0 0 15px rgba(255,42,109,0.5);">
           🔥 旗艦企劃 ✕ 綜藝闖關連線競技模式
         </div>
-        <h1 class="hero-title">🎉 13 款旗艦綜藝派對遊戲大廳</h1>
+        <h1 class="hero-title">🎉 14 款旗艦綜藝派對遊戲大廳</h1>
         <p class="hero-sub">支援 4 位 / 6 位玩家「個人單挑」或「紅藍分隊 PK」！內建專業闖關活動模式，題目海量不重複！</p>
       </div>
 
@@ -422,6 +422,21 @@
           </div>
           <div class="game-card-bottom">
             <span class="game-mode-badge mode-team" style="background:rgba(157,78,221,0.2); border-color:var(--purple); color:#d8b4fe;">🤫 合作猜詞 ✕ 毒舌裁判</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+        <!-- 遊戲 14: 盲盒拆字博弈戰 -->
+        <div class="game-card" data-game="14" style="border-color:rgba(255,200,59,0.6); box-shadow:0 0 20px rgba(255,200,59,0.25);">
+          <div class="game-card-top">
+            <div class="game-icon">📦</div>
+            <div class="game-info">
+              <div class="game-num" style="color:var(--gold);">VARIETY PUZZLE / GAME 14</div>
+              <div class="game-title">盲盒拆字博弈戰 (字形拓撲暗箱博弈)</div>
+              <div class="game-desc">台灣高張力綜藝謎題！2~3字詞彙精準拆解為6~8個盲盒零件。每開一盒扣10分，猜錯倒扣20分＋強制再開一盒！考驗極限字形拓撲還原力！</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-solo" style="background:rgba(255,200,59,0.2); border-color:var(--gold); color:var(--gold);">📦 盲盒拆字 ✕ 扣分博弈</span>
             <button class="play-btn">進入遊玩 ➔</button>
           </div>
         </div>
@@ -1148,6 +1163,22 @@
           <span class="g13-key-tag">[F] 全螢幕投影</span>
         </div>
       </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 14: 📦 盲盒拆字博弈戰 (字形拓撲暗箱博弈)
+         ========================================================== -->
+    <section class="game-view" id="view-game-14">
+      <div class="game-header-bar">
+        <div class="game-header-title">📦 盲盒拆字博弈戰 (字形拓撲暗箱博弈)</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <button class="nav-btn" onclick="initG14()" style="background:rgba(255,200,59,0.18); border-color:var(--gold); color:var(--gold);">🔄 重新挑戰本題</button>
+          <button class="nav-btn" onclick="nextG14Puzzle()">🎲 換下一題</button>
+          <button class="nav-btn" onclick="switchView('lobby')">🏠 目錄</button>
+        </div>
+      </div>
+
+      <div class="g14-main-container" id="g14-main-board"></div>
     </section>
 </main>
 
