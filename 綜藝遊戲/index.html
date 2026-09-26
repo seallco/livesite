@@ -177,7 +177,7 @@
         <div style="display:inline-block; background:linear-gradient(90deg, #ff2a6d, #9d4edd); padding:4px 16px; border-radius:20px; font-weight:900; font-size:0.85rem; margin-bottom:8px; letter-spacing:1px; color:#fff; box-shadow:0 0 15px rgba(255,42,109,0.5);">
           🔥 旗艦企劃 ✕ 綜藝闖關連線競技模式
         </div>
-        <h1 class="hero-title">🎉 12 款旗艦綜藝派對遊戲大廳</h1>
+        <h1 class="hero-title">🎉 13 款旗艦綜藝派對遊戲大廳</h1>
         <p class="hero-sub">支援 4 位 / 6 位玩家「個人單挑」或「紅藍分隊 PK」！內建專業闖關活動模式，題目海量不重複！</p>
       </div>
 
@@ -407,6 +407,21 @@
           </div>
           <div class="game-card-bottom">
             <span class="game-mode-badge mode-solo" style="background:rgba(5,217,232,0.2); border-color:var(--blue-team); color:var(--blue-team);">🎨 雙版本 ✕ 歷史畫廊</span>
+            <button class="play-btn">進入遊玩 ➔</button>
+          </div>
+        </div>
+        <!-- 遊戲 13: 機智線索 (Just One) -->
+        <div class="game-card" data-game="13" style="border-color:rgba(157,78,221,0.6); box-shadow:0 0 20px rgba(157,78,221,0.25);">
+          <div class="game-card-top">
+            <div class="game-icon">🤫</div>
+            <div class="game-info">
+              <div class="game-num" style="color:var(--purple);">PARTY BOARDGAME / GAME 13</div>
+              <div class="game-title">機智線索 (Just One) - 大螢幕毒舌裁判儀表板</div>
+              <div class="game-desc">知名合作桌遊官方 13 回合賽制！大螢幕高對比投影、全鍵盤防冷場控台、自動防作弊消題、倒扣懲罰判定與超犀利毒舌銳評！</div>
+            </div>
+          </div>
+          <div class="game-card-bottom">
+            <span class="game-mode-badge mode-team" style="background:rgba(157,78,221,0.2); border-color:var(--purple); color:#d8b4fe;">🤫 合作猜詞 ✕ 毒舌裁判</span>
             <button class="play-btn">進入遊玩 ➔</button>
           </div>
         </div>
@@ -1100,6 +1115,38 @@
         </div>
         <div id="g12-buzzer-container"></div>
         <div id="g12-scoreboard-container"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         遊戲 13: 🤫 機智線索 (Just One) - 大螢幕毒舌裁判兼計分儀表板
+         ========================================================== -->
+    <section class="game-view" id="view-game-13">
+      <div class="game-header-bar">
+        <div class="game-header-title">🤫 機智線索 (Just One) - 大螢幕毒舌裁判儀表板</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <button class="nav-btn" onclick="toggleG13Fullscreen()" id="g13-btn-fullscreen" title="投影全螢幕 (快捷鍵 F)">🖥️ 投影全螢幕 (F)</button>
+          <button class="nav-btn" onclick="initG13()" style="background:rgba(255,200,59,0.18); border-color:var(--gold); color:var(--gold);">🔄 重新開局 (r)</button>
+          <button class="nav-btn" onclick="switchView('lobby')">🏠 目錄</button>
+        </div>
+      </div>
+
+      <div class="g13-main-container" id="g13-main-board">
+        <!-- 頂部即時儀表看板 -->
+        <div class="g13-status-dashboard" id="g13-dashboard"></div>
+
+        <!-- 核心投影狀態卡片 (畫面 A ~ E 動態渲染) -->
+        <div class="g13-display-stage" id="g13-stage-card"></div>
+
+        <!-- 底部快捷鍵防冷場控台指南 -->
+        <div class="g13-hotkey-bar">
+          <span style="font-weight:800; color:#fff;">⌨️ 快捷鍵控台：</span>
+          <span class="g13-key-tag">[Enter / r] 出題/轉畫面</span>
+          <span class="g13-key-tag">[1] 答對 (+1)</span>
+          <span class="g13-key-tag">[2] 放棄 (+0)</span>
+          <span class="g13-key-tag">[3] 猜錯 (倒扣)</span>
+          <span class="g13-key-tag">[F] 全螢幕投影</span>
+        </div>
       </div>
     </section>
 </main>

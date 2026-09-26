@@ -129,6 +129,11 @@ function stopAllGameTimersAndSounds() {
               setTimeout(initG12Canvas, 60);
             }
           }
+          if (viewName === '13') {
+            if (typeof initG13 === 'function') {
+              initG13();
+            }
+          }
         }
       }
     }

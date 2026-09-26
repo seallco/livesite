@@ -1585,3 +1585,499 @@
       align-items: center;
       border-top: 1px solid #1e293b;
     }
+
+/* ==========================================================
+   遊戲 13: 🤫 機智線索 (Just One) - 大螢幕毒舌裁判儀表板樣式
+   ========================================================== */
+.g13-main-container {
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.g13-status-dashboard {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.g13-status-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.g13-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.g13-badge-round {
+  background: rgba(157, 78, 221, 0.2);
+  border: 1px solid var(--purple);
+  color: #d8b4fe;
+}
+.g13-badge-score {
+  background: rgba(255, 200, 59, 0.2);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+.g13-badge-cards {
+  background: rgba(5, 217, 232, 0.2);
+  border: 1px solid var(--blue-team);
+  color: var(--blue-team);
+}
+
+.g13-slots-row {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+@media (max-width: 768px) {
+  .g13-slots-row {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+.g13-slot {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-sub);
+  transition: all 0.2s ease;
+}
+.g13-slot.active {
+  border-color: var(--gold);
+  background: rgba(255, 200, 59, 0.2);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 200, 59, 0.4);
+  transform: scale(1.08);
+}
+.g13-slot.correct {
+  background: rgba(0, 245, 155, 0.25);
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+}
+.g13-slot.pass {
+  background: rgba(255, 200, 59, 0.2);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.g13-slot.wrong {
+  background: rgba(255, 42, 109, 0.25);
+  border-color: var(--red-team);
+  color: var(--red-team);
+}
+.g13-slot.burned {
+  background: rgba(255, 42, 109, 0.1);
+  border: 1px dashed rgba(255, 42, 109, 0.5);
+  color: #ff85a1;
+  opacity: 0.6;
+}
+
+/* 舞台卡片 (畫面 A~E 容器) */
+.g13-display-stage {
+  width: 100%;
+  min-height: 480px;
+  background: rgba(10, 15, 30, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(157, 78, 221, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.g13-stage-header-badge {
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.g13-giant-title {
+  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  font-weight: 900;
+  line-height: 1.25;
+  color: #ffffff;
+  text-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+  margin: 12px 0 20px;
+}
+
+.g13-secret-word-box {
+  background: linear-gradient(135deg, rgba(5, 217, 232, 0.15), rgba(157, 78, 221, 0.25));
+  border: 2px solid var(--blue-team);
+  border-radius: 20px;
+  padding: 24px 36px;
+  margin: 18px 0;
+  box-shadow: 0 0 35px rgba(5, 217, 232, 0.35);
+}
+
+.g13-secret-word {
+  font-size: clamp(3rem, 9vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #ffffff;
+  text-shadow: 0 0 35px rgba(5, 217, 232, 0.85);
+}
+
+.g13-secret-en {
+  font-size: clamp(1.2rem, 3.5vw, 2rem);
+  color: #38bdf8;
+  font-weight: 800;
+  margin-top: 6px;
+  letter-spacing: 2px;
+}
+
+.g13-instructions-quote {
+  font-size: clamp(1rem, 2.8vw, 1.35rem);
+  line-height: 1.6;
+  color: #cbd5e1;
+  background: rgba(0, 0, 0, 0.45);
+  border-left: 4px solid var(--gold);
+  padding: 14px 22px;
+  border-radius: 0 12px 12px 0;
+  margin: 18px 0;
+  max-width: 780px;
+  text-align: left;
+}
+
+.g13-guide-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 18px 24px;
+  margin: 14px 0;
+  max-width: 760px;
+  text-align: left;
+  width: 100%;
+}
+
+.g13-guide-header {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--neon-green);
+  margin-bottom: 10px;
+}
+
+.g13-guide-list {
+  padding-left: 20px;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #e2e8f0;
+}
+
+/* 決策按鈕三列 (答對/放棄/猜錯) */
+.g13-decision-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 820px;
+  margin: 22px 0 10px;
+}
+@media (max-width: 700px) {
+  .g13-decision-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.g13-decide-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 14px;
+  border-radius: 18px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.g13-decide-btn:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+.g13-decide-key {
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  opacity: 0.9;
+}
+.g13-decide-label {
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.g13-decide-sub {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  font-weight: 700;
+}
+
+.g13-decide-btn.btn-correct {
+  background: linear-gradient(135deg, rgba(0, 245, 155, 0.25), rgba(5, 217, 232, 0.35));
+  border-color: var(--neon-green);
+  color: #ffffff;
+  box-shadow: 0 0 25px rgba(0, 245, 155, 0.35);
+}
+.g13-decide-btn.btn-correct:hover {
+  box-shadow: 0 0 35px rgba(0, 245, 155, 0.6);
+}
+
+.g13-decide-btn.btn-pass {
+  background: linear-gradient(135deg, rgba(255, 200, 59, 0.2), rgba(255, 123, 0, 0.25));
+  border-color: var(--gold);
+  color: #ffffff;
+  box-shadow: 0 0 25px rgba(255, 200, 59, 0.3);
+}
+.g13-decide-btn.btn-pass:hover {
+  box-shadow: 0 0 35px rgba(255, 200, 59, 0.55);
+}
+
+.g13-decide-btn.btn-wrong {
+  background: linear-gradient(135deg, rgba(255, 42, 109, 0.25), rgba(157, 78, 221, 0.35));
+  border-color: var(--red-team);
+  color: #ffffff;
+  box-shadow: 0 0 25px rgba(255, 42, 109, 0.35);
+}
+.g13-decide-btn.btn-wrong:hover {
+  box-shadow: 0 0 35px rgba(255, 42, 109, 0.6);
+}
+
+/* 主操作按鈕 (CTA) */
+.g13-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 36px;
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+  font-weight: 900;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  margin-top: 14px;
+}
+.g13-cta-btn.ready-btn {
+  background: linear-gradient(90deg, #ff2a6d, #9d4edd);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 30px rgba(255, 42, 109, 0.45);
+}
+.g13-cta-btn.ready-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 40px rgba(255, 42, 109, 0.7);
+}
+.g13-cta-btn.prompt-btn {
+  background: linear-gradient(90deg, #05d9e8, #00f59b);
+  color: #000;
+  box-shadow: 0 10px 30px rgba(0, 245, 155, 0.45);
+}
+.g13-cta-btn.prompt-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 40px rgba(0, 245, 155, 0.7);
+}
+
+.g13-key-hint {
+  font-size: 0.9rem;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+/* 結算卡片 */
+.g13-result-card {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.g13-result-topic {
+  font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+  font-weight: 800;
+  color: #94a3b8;
+}
+.g13-result-highlight {
+  color: #ffffff;
+  font-weight: 900;
+  text-shadow: 0 0 15px rgba(5, 217, 232, 0.6);
+}
+
+.g13-result-badge {
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 900;
+  padding: 10px 28px;
+  border-radius: 30px;
+  margin: 6px 0;
+}
+.g13-result-badge.correct {
+  background: rgba(0, 245, 155, 0.2);
+  border: 2px solid var(--neon-green);
+  color: var(--neon-green);
+  box-shadow: 0 0 25px rgba(0, 245, 155, 0.4);
+}
+.g13-result-badge.pass {
+  background: rgba(255, 200, 59, 0.2);
+  border: 2px solid var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 25px rgba(255, 200, 59, 0.4);
+}
+.g13-result-badge.wrong {
+  background: rgba(255, 42, 109, 0.2);
+  border: 2px solid var(--red-team);
+  color: var(--red-team);
+  box-shadow: 0 0 25px rgba(255, 42, 109, 0.4);
+}
+
+.g13-score-summary {
+  display: flex;
+  gap: 20px;
+  font-size: 1.15rem;
+  color: #e2e8f0;
+  margin: 8px 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.g13-score-summary b {
+  color: var(--gold);
+  font-size: 1.35rem;
+}
+
+/* 毒舌點評氣泡 */
+.g13-roast-bubble {
+  background: rgba(15, 23, 42, 0.9);
+  border: 2px solid var(--purple);
+  border-radius: 18px;
+  padding: 18px 24px;
+  margin: 12px 0;
+  max-width: 780px;
+  width: 100%;
+  text-align: left;
+  box-shadow: 0 0 25px rgba(157, 78, 221, 0.3);
+}
+.g13-roast-header {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #d8b4fe;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.g13-roast-body {
+  font-size: clamp(1.1rem, 2.6vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1.5;
+  color: #ffffff;
+}
+
+/* 終局審判樣式 */
+.g13-gameover-card {
+  width: 100%;
+  max-width: 820px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.g13-rank-badge {
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 25px rgba(255, 200, 59, 0.6);
+  padding: 8px 24px;
+  background: rgba(255, 200, 59, 0.12);
+  border: 2px solid var(--gold);
+  border-radius: 30px;
+}
+
+.g13-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 0.9rem;
+}
+.g13-history-table th, .g13-history-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+.g13-history-table th {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  font-weight: 800;
+}
+
+/* 快捷鍵控制列 */
+.g13-hotkey-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-sub);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.g13-key-tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+
+/* 全螢幕大投影樣式 */
+#view-game-13:fullscreen {
+  background: var(--bg-dark);
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: auto;
+}
+#view-game-13:fullscreen .g13-display-stage {
+  min-height: calc(100vh - 220px);
+}

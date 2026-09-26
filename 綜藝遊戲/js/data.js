@@ -6359,6 +6359,256 @@ const G12_MOVIES_POOL = [
 const G12_ALL_POOL = [...G12_DAILY_LIFE_POOL, ...G12_IDIOMS_POOL, ...G12_FAIRY_TALES_POOL, ...G12_MOVIES_POOL];
 
 // 掛載至 window 全域，確保任何執行環境皆可無障礙存取
+
+// ==========================================================
+// 🤫 遊戲 13: 機智線索 (Just One) 專用詞庫與毒舌裁判語錄
+// ==========================================================
+const G13_JUST_ONE_POOL = [
+  // ── 美食飲品 ──
+  { zh: '珍珠奶茶', en: 'Bubble Tea' },
+  { zh: '披薩', en: 'Pizza' },
+  { zh: '漢堡', en: 'Burger' },
+  { zh: '熱狗', en: 'Hot Dog' },
+  { zh: '爆米花', en: 'Popcorn' },
+  { zh: '冰淇淋', en: 'Ice Cream' },
+  { zh: '臭豆腐', en: 'Stinky Tofu' },
+  { zh: '火鍋', en: 'Hot Pot' },
+  { zh: '壽司', en: 'Sushi' },
+  { zh: '拉麵', en: 'Ramen' },
+  { zh: '甜甜圈', en: 'Donut' },
+  { zh: '巧克力', en: 'Chocolate' },
+  { zh: '薯條', en: 'French Fries' },
+  { zh: '小籠包', en: 'Xiao Long Bao' },
+  { zh: '泡麵', en: 'Instant Noodles' },
+  { zh: '棉花糖', en: 'Cotton Candy' },
+  { zh: '棒棒糖', en: 'Lollipop' },
+  { zh: '西瓜', en: 'Watermelon' },
+  { zh: '香蕉', en: 'Banana' },
+  { zh: '草莓', en: 'Strawberry' },
+  { zh: '蘋果', en: 'Apple' },
+  { zh: '鳳梨', en: 'Pineapple' },
+  { zh: '荷包蛋', en: 'Fried Egg' },
+  { zh: '章魚燒', en: 'Takoyaki' },
+  { zh: '烤香腸', en: 'Sausage' },
+  { zh: '檸檬', en: 'Lemon' },
+  { zh: '咖啡', en: 'Coffee' },
+  { zh: '起司', en: 'Cheese' },
+  { zh: '牛排', en: 'Steak' },
+  { zh: '水餃', en: 'Dumpling' },
+
+  // ── 生活用品與家電 ──
+  { zh: '馬桶', en: 'Toilet' },
+  { zh: '吹風機', en: 'Hairdryer' },
+  { zh: '牙刷', en: 'Toothbrush' },
+  { zh: '雨傘', en: 'Umbrella' },
+  { zh: '鬧鐘', en: 'Alarm Clock' },
+  { zh: '拖鞋', en: 'Slippers' },
+  { zh: '眼鏡', en: 'Glasses' },
+  { zh: '平底鍋', en: 'Frying Pan' },
+  { zh: '鑰匙', en: 'Key' },
+  { zh: '安全帽', en: 'Helmet' },
+  { zh: '耳機', en: 'Headphones' },
+  { zh: '電風扇', en: 'Electric Fan' },
+  { zh: '剪刀', en: 'Scissors' },
+  { zh: '手電筒', en: 'Flashlight' },
+  { zh: '垃圾桶', en: 'Trash Can' },
+  { zh: '吸塵器', en: 'Vacuum Cleaner' },
+  { zh: '滅火器', en: 'Fire Extinguisher' },
+  { zh: '體重計', en: 'Scale' },
+  { zh: '電蚊拍', en: 'Fly Swatter' },
+  { zh: '拐杖', en: 'Crutch' },
+  { zh: '手銬', en: 'Handcuffs' },
+  { zh: '沙漏', en: 'Hourglass' },
+  { zh: '放大鏡', en: 'Magnifier' },
+  { zh: '螺絲起子', en: 'Screwdriver' },
+  { zh: '假牙', en: 'Dentures' },
+  { zh: '聽診器', en: 'Stethoscope' },
+  { zh: '鏡子', en: 'Mirror' },
+  { zh: '輪椅', en: 'Wheelchair' },
+  { zh: '洗衣機', en: 'Washing Machine' },
+  { zh: '冰箱', en: 'Refrigerator' },
+
+  // ── 地標、建築與名勝 ──
+  { zh: '自由女神', en: 'Statue of Liberty' },
+  { zh: '金字塔', en: 'Pyramid' },
+  { zh: '艾菲爾鐵塔', en: 'Eiffel Tower' },
+  { zh: '萬里長城', en: 'Great Wall' },
+  { zh: '富士山', en: 'Mt. Fuji' },
+  { zh: '羅馬競技場', en: 'Colosseum' },
+  { zh: '比薩斜塔', en: 'Leaning Tower' },
+  { zh: '復活節島石像', en: 'Moai' },
+  { zh: '泰姬瑪哈陵', en: 'Taj Mahal' },
+  { zh: '雪梨歌劇院', en: 'Sydney Opera House' },
+  { zh: '迪士尼樂園', en: 'Disneyland' },
+  { zh: '好萊塢', en: 'Hollywood' },
+  { zh: '摩天輪', en: 'Ferris Wheel' },
+  { zh: '燈塔', en: 'Lighthouse' },
+  { zh: '監獄', en: 'Prison' },
+  { zh: '博物館', en: 'Museum' },
+  { zh: '城堡', en: 'Castle' },
+  { zh: '火車站', en: 'Train Station' },
+  { zh: '機場', en: 'Airport' },
+  { zh: '動物園', en: 'Zoo' },
+
+  // ── 角色、身分與傳奇人物 ──
+  { zh: '聖誕老人', en: 'Santa Claus' },
+  { zh: '福爾摩斯', en: 'Sherlock Holmes' },
+  { zh: '蒙娜麗莎', en: 'Mona Lisa' },
+  { zh: '哈利波特', en: 'Harry Potter' },
+  { zh: '愛因斯坦', en: 'Einstein' },
+  { zh: '蜘蛛人', en: 'Spider-Man' },
+  { zh: '蝙蝠俠', en: 'Batman' },
+  { zh: '鋼鐵人', en: 'Iron Man' },
+  { zh: '卓別林', en: 'Charlie Chaplin' },
+  { zh: '麥可傑克森', en: 'Michael Jackson' },
+  { zh: '美人魚', en: 'Mermaid' },
+  { zh: '木乃伊', en: 'Mummy' },
+  { zh: '吸血鬼', en: 'Vampire' },
+  { zh: '忍者', en: 'Ninja' },
+  { zh: '小丑', en: 'Joker' },
+  { zh: '太空人', en: 'Astronaut' },
+  { zh: '海盜', en: 'Pirate' },
+  { zh: '魔術師', en: 'Magician' },
+  { zh: '稻草人', en: 'Scarecrow' },
+  { zh: '廚師', en: 'Chef' },
+  { zh: '救生員', en: 'Lifeguard' },
+  { zh: '偵探', en: 'Detective' },
+  { zh: '新娘', en: 'Bride' },
+  { zh: '外星人', en: 'Alien' },
+  { zh: '幽靈', en: 'Ghost' },
+  { zh: '白雪公主', en: 'Snow White' },
+  { zh: '灰姑娘', en: 'Cinderella' },
+  { zh: '阿拉丁', en: 'Aladdin' },
+  { zh: '孫悟空', en: 'Monkey King' },
+  { zh: '丘比特', en: 'Cupid' },
+
+  // ── 動植物與大自然 ──
+  { zh: '長頸鹿', en: 'Giraffe' },
+  { zh: '企鵝', en: 'Penguin' },
+  { zh: '袋鼠', en: 'Kangaroo' },
+  { zh: '變色龍', en: 'Chameleon' },
+  { zh: '刺蝟', en: 'Hedgehog' },
+  { zh: '水母', en: 'Jellyfish' },
+  { zh: '青蛙', en: 'Frog' },
+  { zh: '章魚', en: 'Octopus' },
+  { zh: '恐龍', en: 'Dinosaur' },
+  { zh: '熊貓', en: 'Panda' },
+  { zh: '大象', en: 'Elephant' },
+  { zh: '斑馬', en: 'Zebra' },
+  { zh: '北極熊', en: 'Polar Bear' },
+  { zh: '獨角獸', en: 'Unicorn' },
+  { zh: '仙人掌', en: 'Cactus' },
+  { zh: '向日葵', en: 'Sunflower' },
+  { zh: '蘑菇', en: 'Mushroom' },
+  { zh: '龍捲風', en: 'Tornado' },
+  { zh: '彩虹', en: 'Rainbow' },
+  { zh: '閃電', en: 'Lightning' },
+  { zh: '極光', en: 'Aurora' },
+  { zh: '火山', en: 'Volcano' },
+  { zh: '流星', en: 'Shooting Star' },
+  { zh: '冰山', en: 'Iceberg' },
+  { zh: '螢火蟲', en: 'Firefly' },
+
+  // ── 休閒、運動與經典活動 ──
+  { zh: '衝浪', en: 'Surfing' },
+  { zh: '溜冰', en: 'Ice Skating' },
+  { zh: '攀岩', en: 'Rock Climbing' },
+  { zh: '釣魚', en: 'Fishing' },
+  { zh: '露營', en: 'Camping' },
+  { zh: '潛水', en: 'Scuba Diving' },
+  { zh: '跳傘', en: 'Skydiving' },
+  { zh: '網球', en: 'Tennis' },
+  { zh: '足球', en: 'Soccer' },
+  { zh: '籃球', en: 'Basketball' },
+  { zh: '保齡球', en: 'Bowling' },
+  { zh: '雲霄飛車', en: 'Roller Coaster' },
+  { zh: '熱氣球', en: 'Hot Air Balloon' },
+  { zh: '放風箏', en: 'Kite' },
+  { zh: '撲克牌', en: 'Poker' },
+  { zh: '麻將', en: 'Mahjong' },
+  { zh: '蹺蹺板', en: 'Seesaw' },
+  { zh: '鞦韆', en: 'Swing' },
+  { zh: '鐵達尼號', en: 'Titanic' },
+  { zh: '黑洞', en: 'Black Hole' }
+];
+
+// 🤖 裁判毒舌點評語錄庫
+const G13_ROAST_QUOTES = {
+  correct: [
+    '竟然猜對了？看來瞎貓真的能碰上死耗子。',
+    '這也能對？你們是腦內有量子糾纏，還是純屬僥倖？',
+    '勉強算你們默契及格，別高興得太早，下一題等著看你們笑話！',
+    '提示寫得這麼抽象居然還能猜中，猜詞者今天智商在線啊！',
+    '恭喜拿下這 1 分，但剛才全場尷尬窒息的五秒鐘我可是看在眼裡。',
+    '這波配合堪稱奇蹟，不知道是提示者超常發揮，還是猜詞者猜功了得！',
+    '居然被你們蒙對了，裁判手上的毒舌劇本差點沒唸出來。',
+    '答對加一分！不過別得意，真正的默契考驗才剛要開始。',
+    '心有靈犀一點通？希望這不是你們今天唯一的閃光點。',
+    '順利拿下！全場提示者終於可以擦掉額頭上的冷汗了。',
+    '默契罕見地在線了一次回合，掌聲鼓勵但不要驕傲！',
+    '猜對了！剛剛那位差點把線索寫成答案的朋友，算你走運。'
+  ],
+  pass: [
+    '識時務者為俊傑……好吧，其實就是認慫了。',
+    '及時止損，保住了寶貴的題庫，但丟掉的尊嚴要怎麼撿回來？',
+    '連猜都不敢猜？這友情比免洗筷還脆弱。',
+    '放棄是明智的，畢竟猜錯要被倒扣 1 題，苟住才能活到最後！',
+    '看著滿場被消滅的重複線索，猜詞者的眼裡寫滿了無助與絕望。',
+    '不盲目送分是成熟的表現，但全場提示者現在心裡都在滴血。',
+    '戰術性撤退！雖然沒得分，但至少沒有倒扣額度，算你們理智。',
+    '這道題就當作隨風而去吧，有些秘密永遠不說破比較好。',
+    '寧可不要分，也不給裁判扣分的機會，算你們會算帳！',
+    '溜了溜了！猜詞者選擇了最安全但也最沒出息的存活方式。',
+    '放棄得很果斷，看來大家對彼此的默契很有自知之明。'
+  ],
+  wrong: [
+    '大翻車！不僅不得分，還白白送掉 1 題額度，血虧！',
+    '你這腦迴路是繞著銀河系跑了一圈嗎？這答案全宇宙只有你想得出來！',
+    '提示者們現在掐死你的心都有了，直接損失兩次得分機會！',
+    '災難級猜測！這到底是線索給得太爛，還是猜詞者耳根子太硬？',
+    '一波窒息操作，直接送走 2 張牌，塑料友情當場碎成渣渣！',
+    '別看了，螢幕都在替你們感到尷尬，裁判直接扣牌不手軟！',
+    '這波失誤相當致命，13 分大滿貫夢想當場灰飛煙滅！',
+    '猜詞者成功避開了所有正確線索，精準踩中地雷！',
+    '提示者費盡心思比對留下來的精華線索，被你一秒粉碎！',
+    '痛失 2 題額度！如果尷尬可以發電，現在全場已經點亮台北 101 了！',
+    '這答案一出，全場空氣瞬間安靜……建議查一下這兩人是不是有世仇。',
+    '慘遭滑鐵盧！扣分扣牌一氣呵成，裁判都忍不住要為這份勇氣鼓掌。'
+  ],
+  endings: {
+    perfect: {
+      min: 13,
+      title: '🌟 神之默契・天選之人',
+      desc: '13 分大滿貫！你們的大腦直接連上局域網了吧？快去買彩券，這不是友情這是玄學！'
+    },
+    master: {
+      min: 11,
+      title: '👑 頂級團隊・心有靈犀',
+      desc: '天花板級別的團隊默契！僅有微小的瑕疵，拯救了全場的智商，太強大了！'
+    },
+    good: {
+      min: 9,
+      title: '🔥 默契高手・堅不可摧',
+      desc: '極為出色！這波友情經得起嚴格考驗，今晚聚餐可以坐同一桌不用分開了。'
+    },
+    normal: {
+      min: 7,
+      title: '⚖️ 路人水準・勉強及格',
+      desc: '差強人意，就像剛認識三天的普通同事，客客氣氣，平平淡淡。'
+    },
+    poor: {
+      min: 4,
+      title: '💔 塑料友情・互相傷害',
+      desc: '塑膠友情預備役！提示者在畫符，猜詞者在夢遊，建議聚會結束互刪好友冷靜一下。'
+    },
+    terrible: {
+      min: 0,
+      title: '💀 當場絕交・災難現場',
+      desc: '塑料友情直接絕交！這根本不是默契遊戲，這是大型公開處刑！散會後各自打車回家，別再聯絡了！'
+    }
+  }
+};
+
 if (typeof window !== 'undefined') {
   window.ZHUYIN = ZHUYIN;
   window.G1_TOPICS_POOL = G1_TOPICS_POOL;
@@ -6383,4 +6633,6 @@ if (typeof window !== 'undefined') {
   window.G12_FAIRY_TALES_POOL = G12_FAIRY_TALES_POOL;
   window.G12_MOVIES_POOL = G12_MOVIES_POOL;
   window.G12_ALL_POOL = G12_ALL_POOL;
+  window.G13_JUST_ONE_POOL = G13_JUST_ONE_POOL;
+  window.G13_ROAST_QUOTES = G13_ROAST_QUOTES;
 }

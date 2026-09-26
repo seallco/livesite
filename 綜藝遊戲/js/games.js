@@ -2165,3 +2165,449 @@ window.addEventListener('resize', () => {
   }
 });
 
+
+// ==========================================================
+// 🤫 遊戲 13: 機智線索 (Just One) - 大螢幕毒舌裁判兼計分儀表板
+// ==========================================================
+let g13State = 'ready'; // 'ready' | 'prompt' | 'guessing' | 'result' | 'gameover'
+let g13Round = 1;
+let g13Score = 0;
+let g13RemainingCards = 13;
+let g13Deck = [];
+let g13CurrentCard = null;
+let g13History = [];
+let g13CurrentRoast = '';
+let g13CurrentResultType = ''; // 'correct' | 'pass' | 'wrong'
+let g13KeyHandlerAttached = false;
+
+function initG13() {
+  console.info('[Action Triggered]: initG13');
+  const pool = (typeof G13_JUST_ONE_POOL !== 'undefined' && Array.isArray(G13_JUST_ONE_POOL)) 
+    ? [...G13_JUST_ONE_POOL] 
+    : [
+        { zh: '珍珠奶茶', en: 'Bubble Tea' },
+        { zh: '金字塔', en: 'Pyramid' },
+        { zh: '自由女神', en: 'Statue of Liberty' },
+        { zh: '披薩', en: 'Pizza' },
+        { zh: '外星人', en: 'Alien' },
+        { zh: '聖誕老人', en: 'Santa Claus' },
+        { zh: '馬桶', en: 'Toilet' },
+        { zh: '長頸鹿', en: 'Giraffe' },
+        { zh: '鐵達尼號', en: 'Titanic' },
+        { zh: '爆米花', en: 'Popcorn' },
+        { zh: '企鵝', en: 'Penguin' },
+        { zh: '哈利波特', en: 'Harry Potter' },
+        { zh: '太空人', en: 'Astronaut' }
+      ];
+
+  // 隨機洗牌抽取 13 題
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  g13Deck = pool.slice(0, 13);
+  g13Round = 1;
+  g13Score = 0;
+  g13RemainingCards = 13;
+  g13History = [];
+  g13CurrentCard = g13Deck[0] || { zh: '珍珠奶茶', en: 'Bubble Tea' };
+  g13State = 'ready';
+  g13CurrentRoast = '';
+  g13CurrentResultType = '';
+
+  attachG13KeyHandler();
+  renderG13();
+}
+
+function attachG13KeyHandler() {
+  if (g13KeyHandlerAttached) return;
+  g13KeyHandlerAttached = true;
+  window.addEventListener('keydown', handleG13Key);
+}
+
+function handleG13Key(e) {
+  const g13View = document.getElementById('view-game-13');
+  if (!g13View || !g13View.classList.contains('active')) return;
+
+  // 忽略在輸入框內的鍵盤事件
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+
+  const key = e.key.toLowerCase();
+
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (g13State === 'ready') startG13Round();
+    else if (g13State === 'prompt') finishG13Prompt();
+    else if (g13State === 'result') nextG13RoundOrEnd();
+    else if (g13State === 'gameover') initG13();
+    return;
+  }
+
+  if (key === 'r') {
+    e.preventDefault();
+    if (g13State === 'ready') startG13Round();
+    else if (g13State === 'gameover') initG13();
+    return;
+  }
+
+  if (key === '1' && g13State === 'guessing') {
+    e.preventDefault();
+    submitG13Guess('correct');
+    return;
+  }
+
+  if (key === '2' && g13State === 'guessing') {
+    e.preventDefault();
+    submitG13Guess('pass');
+    return;
+  }
+
+  if (key === '3' && g13State === 'guessing') {
+    e.preventDefault();
+    submitG13Guess('wrong');
+    return;
+  }
+
+  if (key === 'f') {
+    e.preventDefault();
+    toggleG13Fullscreen();
+    return;
+  }
+}
+
+function startG13Round() {
+  if (g13State !== 'ready') return;
+  console.info('[Action Triggered]: startG13Round', { round: g13Round });
+  g13State = 'prompt';
+  if (typeof audio !== 'undefined') audio.playBeat(true);
+  renderG13();
+}
+
+function finishG13Prompt() {
+  if (g13State !== 'prompt') return;
+  console.info('[Action Triggered]: finishG13Prompt', { round: g13Round });
+  g13State = 'guessing';
+  if (typeof audio !== 'undefined') audio.playCountdownBeep(0);
+  renderG13();
+}
+
+function submitG13Guess(resultType) {
+  if (g13State !== 'guessing') return;
+  console.info('[Action Triggered]: submitG13Guess', { resultType, round: g13Round });
+  g13CurrentResultType = resultType;
+
+  // 取得對應毒舌語錄
+  const quotesObj = (typeof G13_ROAST_QUOTES !== 'undefined' && G13_ROAST_QUOTES[resultType]) 
+    ? G13_ROAST_QUOTES[resultType] 
+    : ['精彩的表現！'];
+  g13CurrentRoast = quotesObj[Math.floor(Math.random() * quotesObj.length)];
+
+  if (resultType === 'correct') {
+    g13Score++;
+    g13RemainingCards--;
+    if (typeof audio !== 'undefined') audio.playSuccess();
+    g13History.push({
+      round: g13Round,
+      topic: g13CurrentCard.zh,
+      en: g13CurrentCard.en,
+      type: 'correct',
+      penalty: 0,
+      roast: g13CurrentRoast
+    });
+  } else if (resultType === 'pass') {
+    g13RemainingCards--;
+    if (typeof audio !== 'undefined') audio.playBuzzer(350);
+    g13History.push({
+      round: g13Round,
+      topic: g13CurrentCard.zh,
+      en: g13CurrentCard.en,
+      type: 'pass',
+      penalty: 0,
+      roast: g13CurrentRoast
+    });
+  } else if (resultType === 'wrong') {
+    // 嚴格判定：猜錯本題扣1額度 + 額外懲罰扣1額度 = 倒扣2題！
+    g13RemainingCards = Math.max(0, g13RemainingCards - 2);
+    if (typeof audio !== 'undefined') audio.playExplosion();
+    g13History.push({
+      round: g13Round,
+      topic: g13CurrentCard.zh,
+      en: g13CurrentCard.en,
+      type: 'wrong',
+      penalty: 1,
+      roast: g13CurrentRoast
+    });
+  }
+
+  g13State = 'result';
+  renderG13();
+}
+
+function nextG13RoundOrEnd() {
+  if (g13State !== 'result') return;
+  console.info('[Action Triggered]: nextG13RoundOrEnd', { remaining: g13RemainingCards, round: g13Round });
+
+  // 判斷是否終局（13回合滿或題庫額度用盡）
+  if (g13RemainingCards <= 0 || g13Round >= 13 || g13Round >= g13Deck.length) {
+    g13State = 'gameover';
+    if (typeof audio !== 'undefined') {
+      if (g13Score >= 9) audio.playSuccess();
+      else audio.playExplosion();
+    }
+  } else {
+    g13Round++;
+    g13CurrentCard = g13Deck[g13Round - 1] || { zh: '無題目', en: 'None' };
+    g13State = 'ready';
+    if (typeof audio !== 'undefined') audio.playBeat(false);
+  }
+  renderG13();
+}
+
+function toggleG13Fullscreen() {
+  const g13View = document.getElementById('view-game-13');
+  const btn = document.getElementById('g13-btn-fullscreen');
+  if (!document.fullscreenElement) {
+    if (g13View && g13View.requestFullscreen) {
+      g13View.requestFullscreen().then(() => {
+        g13IsFullscreen = true;
+        if (btn) btn.textContent = '🖥️ 退出全螢幕 (F)';
+      }).catch(err => console.warn('Fullscreen error:', err));
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().then(() => {
+        g13IsFullscreen = false;
+        if (btn) btn.textContent = '🖥️ 投影全螢幕 (F)';
+      });
+    }
+  }
+}
+
+function getG13RankInfo(score) {
+  const endings = (typeof G13_ROAST_QUOTES !== 'undefined' && G13_ROAST_QUOTES.endings) 
+    ? G13_ROAST_QUOTES.endings 
+    : {};
+  if (score >= 13) return endings.perfect || { title: '神之默契・天選之人', desc: '13 分大滿貫！大腦直接連上局域網！' };
+  if (score >= 11) return endings.master || { title: '頂級團隊・心有靈犀', desc: '天花板級別的團隊默契，快去買樂透！' };
+  if (score >= 9) return endings.good || { title: '默契高手・堅不可摧', desc: '極為出色！這波友情經得起嚴格考驗！' };
+  if (score >= 7) return endings.normal || { title: '路人水準・勉強及格', desc: '差強人意，一般般的路人默契。' };
+  if (score >= 4) return endings.poor || { title: '塑料友情・互相傷害', desc: '塑膠友情預備役，互相傷害現場。' };
+  return endings.terrible || { title: '當場絕交・災難現場', desc: '塑料友情直接絕交！散會後各自打車回家別聯絡了！' };
+}
+
+function renderG13() {
+  const board = document.getElementById('g13-stage-card');
+  const dashboard = document.getElementById('g13-dashboard');
+  if (!board || !dashboard) return;
+
+  // 1. 渲染頂部儀表板 (進度、分數、剩餘額度、13槽燈位)
+  let slotsHtml = '';
+  for (let i = 1; i <= 13; i++) {
+    const hist = g13History[i - 1];
+    let slotClass = '';
+    let slotText = `${i}`;
+    let slotIcon = `${i}`;
+
+    if (hist) {
+      if (hist.type === 'correct') {
+        slotClass = 'correct';
+        slotIcon = '✓';
+      } else if (hist.type === 'pass') {
+        slotClass = 'pass';
+        slotIcon = '—';
+      } else if (hist.type === 'wrong') {
+        slotClass = 'wrong';
+        slotIcon = '✕';
+      }
+    } else if (i === g13Round && g13State !== 'gameover') {
+      slotClass = 'active';
+      slotIcon = '🎯';
+    } else if (i > (13 - (13 - g13RemainingCards - g13History.length)) && g13State !== 'gameover') {
+      // 額外懲罰扣除被銷毀的槽
+      if (13 - g13RemainingCards > g13History.length && i > g13RemainingCards + g13History.filter(h => h.penalty).length) {
+        slotClass = 'burned';
+        slotIcon = '💀';
+      }
+    }
+
+    slotsHtml += `<div class="g13-slot ${slotClass}" title="第 ${i} 題">${slotIcon}</div>`;
+  }
+
+  dashboard.innerHTML = `
+    <div class="g13-status-top-row">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <span class="g13-badge-pill g13-badge-round">🎮 第 <b>${Math.min(g13Round, 13)}</b> / 13 回合</span>
+        <span class="g13-badge-pill g13-badge-score">🏆 當前得分：<b>${g13Score}</b> 分</span>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <span class="g13-badge-pill g13-badge-cards">🎯 剩餘題庫額度：<b>${Math.max(0, g13RemainingCards)}</b> 題</span>
+      </div>
+    </div>
+    <div class="g13-slots-row">${slotsHtml}</div>
+  `;
+
+  // 2. 依狀態渲染核心舞台卡片 (畫面 A ~ E)
+  if (g13State === 'ready') {
+    board.innerHTML = `
+      <div class="g13-stage-header-badge">🎮 狀態 A：準備階段</div>
+      <div class="g13-giant-title">🙈 請本輪【猜詞者】轉身背對螢幕或閉上眼睛！</div>
+      <div class="g13-instructions-quote">
+        💡 其他提示者確認對方<b>無法看見螢幕</b>後，請按下 <b>[Enter]</b> 或點擊下方按鈕揭曉題目。
+      </div>
+      <button class="g13-cta-btn ready-btn" onclick="startG13Round()">
+        🎯 揭曉神秘題目 (猜詞者已背對) <span class="g13-key-hint">[Enter / r]</span>
+      </button>
+    `;
+  } else if (g13State === 'prompt') {
+    board.innerHTML = `
+      <div class="g13-stage-header-badge">🎯 狀態 B：出題與任務</div>
+      <div style="font-size:1.15rem; font-weight:800; color:var(--gold);">第 ${g13Round} 回合神秘詞彙：</div>
+      <div class="g13-secret-word-box">
+        <div class="g13-secret-word">【 ${g13CurrentCard.zh} 】</div>
+        <div class="g13-secret-en">(${g13CurrentCard.en})</div>
+      </div>
+      <div class="g13-guide-card">
+        <div class="g13-guide-header">📱 提示者動作指南 (請快速安靜執行)：</div>
+        <ol class="g13-guide-list">
+          <li>拿出手機，在備忘錄打出<b>【剛好 1 個詞彙】</b>作為線索（不得寫同音字、同字根或外語直翻）。</li>
+          <li>全體提示者互相展示螢幕比對：<b style="color:var(--red-team);">只要有 2 人以上重複，雙方立刻把手機蓋上（線索銷毀）！</b></li>
+          <li>比對完成後，按下 <b>[Enter]</b> 或點擊下方按鈕，螢幕將立刻清空題目並轉為猜詞畫面！</li>
+        </ol>
+      </div>
+      <button class="g13-cta-btn prompt-btn" onclick="finishG13Prompt()">
+        🚀 線索比對完成，進入猜詞現場！ <span class="g13-key-hint">[Enter]</span>
+      </button>
+    `;
+  } else if (g13State === 'guessing') {
+    // 嚴格抹去神秘詞（防作弊）
+    board.innerHTML = `
+      <div class="g13-stage-header-badge" style="color:var(--neon-green);">🔔 狀態 C：猜詞現場 (題目已安全隱藏)</div>
+      <div class="g13-giant-title" style="color:var(--neon-green); text-shadow:0 0 25px rgba(0,245,155,0.7);">
+        🔔 猜詞者請轉回正面！
+      </div>
+      <div class="g13-instructions-quote">
+        💡 請全體提示者將【未重複的手機螢幕】舉起展示給猜詞者看！<br>
+        🎯 猜詞者僅有 <b>1 次猜測機會</b>，亦可評估後選擇<b>放棄</b>保全題庫額度。<br>
+        ⌨️ 請操作者根據猜測結果按下按鍵或點擊按鈕：
+      </div>
+      <div class="g13-decision-grid">
+        <button class="g13-decide-btn btn-correct" onclick="submitG13Guess('correct')">
+          <div class="g13-decide-key">[ 1 ]</div>
+          <div class="g13-decide-label">🎉 答對啦！</div>
+          <div class="g13-decide-sub">+1 分 ｜ 消耗 1 題額度</div>
+        </button>
+        <button class="g13-decide-btn btn-pass" onclick="submitG13Guess('pass')">
+          <div class="g13-decide-key">[ 2 ]</div>
+          <div class="g13-decide-label">🏳️ 選擇放棄</div>
+          <div class="g13-decide-sub">+0 分 ｜ 消耗 1 題保住題庫</div>
+        </button>
+        <button class="g13-decide-btn btn-wrong" onclick="submitG13Guess('wrong')">
+          <div class="g13-decide-key">[ 3 ]</div>
+          <div class="g13-decide-label">💥 慘烈猜錯！</div>
+          <div class="g13-decide-sub">+0 分 ｜ 懲罰倒扣額外 1 題！</div>
+        </button>
+      </div>
+    `;
+  } else if (g13State === 'result') {
+    let resultTitle = '';
+    let resultClass = g13CurrentResultType;
+    if (g13CurrentResultType === 'correct') {
+      resultTitle = '🎉 成功得分 (+1 分)';
+    } else if (g13CurrentResultType === 'pass') {
+      resultTitle = '🏳️ 識時務者為俊傑 (+0 分，保全題庫)';
+    } else {
+      resultTitle = '💥 慘遭滑鐵盧 (+0 分，倒扣 1 題額度！)';
+    }
+
+    const isGameOverNext = (g13RemainingCards <= 0 || g13Round >= 13 || g13Round >= g13Deck.length);
+
+    board.innerHTML = `
+      <div class="g13-stage-header-badge">📢 狀態 D：毒舌結算與戰績板</div>
+      <div class="g13-result-card">
+        <div class="g13-result-topic">
+          剛才的神秘詞彙是：<span class="g13-result-highlight">【 ${g13CurrentCard.zh} 】 (${g13CurrentCard.en})</span>
+        </div>
+        <div class="g13-result-badge ${resultClass}">
+          ${resultTitle}
+        </div>
+        <div class="g13-roast-bubble">
+          <div class="g13-roast-header">🤖 裁判現場毒舌銳評：</div>
+          <div class="g13-roast-body">「${g13CurrentRoast}」</div>
+        </div>
+        <div class="g13-score-summary">
+          <span>📊 當前總戰績：<b>${g13Score}</b> / 13 分</span>
+          <span>🎯 剩餘可用題數：<b>${Math.max(0, g13RemainingCards)}</b> 題</span>
+        </div>
+        <button class="g13-cta-btn ready-btn" onclick="nextG13RoundOrEnd()">
+          ${isGameOverNext ? '⚖️ 進入終局審判大裁決！' : '➔ 進入下一回合'} <span class="g13-key-hint">[Enter]</span>
+        </button>
+      </div>
+    `;
+  } else if (g13State === 'gameover') {
+    const rankInfo = getG13RankInfo(g13Score);
+    let historyRows = g13History.map((h, idx) => {
+      let badge = '';
+      if (h.type === 'correct') badge = '<span style="color:var(--neon-green); font-weight:800;">✓ 答對 (+1)</span>';
+      else if (h.type === 'pass') badge = '<span style="color:var(--gold); font-weight:800;">— 放棄 (+0)</span>';
+      else badge = '<span style="color:var(--red-team); font-weight:800;">✕ 猜錯 (倒扣)</span>';
+      return `
+        <tr>
+          <td>第 ${h.round} 局</td>
+          <td style="font-weight:900; color:#fff;">【 ${h.topic} 】<span style="font-size:0.8rem; color:#94a3b8;">(${h.en})</span></td>
+          <td>${badge}</td>
+          <td style="font-size:0.85rem; color:#cbd5e1; text-align:left;">${h.roast}</td>
+        </tr>
+      `;
+    }).join('');
+
+    board.innerHTML = `
+      <div class="g13-stage-header-badge">⚖️ 狀態 E：終局大審判</div>
+      <div class="g13-gameover-card">
+        <div class="g13-giant-title" style="margin-bottom:6px;">全場默契大裁決！</div>
+        <div class="g13-rank-badge">${rankInfo.title}</div>
+        <div style="font-size:1.6rem; font-weight:900; color:#ffffff; margin:8px 0;">
+          🏆 最終總分：<span style="color:var(--gold); font-size:2.4rem;">${g13Score}</span> / 13 分
+        </div>
+        <div class="g13-roast-bubble" style="border-color:var(--gold);">
+          <div class="g13-roast-header" style="color:var(--gold);">🤖 毒舌裁判終極宣判：</div>
+          <div class="g13-roast-body">「${rankInfo.desc}」</div>
+        </div>
+        <div style="width:100%; max-height:240px; overflow-y:auto; margin:10px 0;">
+          <table class="g13-history-table">
+            <thead>
+              <tr>
+                <th style="width:80px;">回合</th>
+                <th style="width:180px;">神秘詞彙</th>
+                <th style="width:120px;">戰況判定</th>
+                <th>裁判點評</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${historyRows}
+            </tbody>
+          </table>
+        </div>
+        <button class="g13-cta-btn ready-btn" onclick="initG13()">
+          🔄 重新開始挑戰 (重新洗牌 13 題) <span class="g13-key-hint">[Enter / r]</span>
+        </button>
+      </div>
+    `;
+  }
+}
+
+window.initG13 = initG13;
+window.startG13Round = startG13Round;
+window.finishG13Prompt = finishG13Prompt;
+window.submitG13Guess = submitG13Guess;
+window.nextG13RoundOrEnd = nextG13RoundOrEnd;
+window.toggleG13Fullscreen = toggleG13Fullscreen;
+window.getG13RankInfo = getG13RankInfo;
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'g13Deck', { get: () => g13Deck });
+  Object.defineProperty(window, 'g13State', { get: () => g13State });
+  Object.defineProperty(window, 'g13Round', { get: () => g13Round });
+  Object.defineProperty(window, 'g13Score', { get: () => g13Score });
+  Object.defineProperty(window, 'g13RemainingCards', { get: () => g13RemainingCards });
+  Object.defineProperty(window, 'g13CurrentCard', { get: () => g13CurrentCard });
+  Object.defineProperty(window, 'g13CurrentRoast', { get: () => g13CurrentRoast });
+}
