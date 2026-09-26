@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Outfit:wght@600;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <link rel=stylesheet href="style.css?v=20260921_v1">
+  <link rel=stylesheet href="style.css?v=20260921_v7">
 </head>
 <body>
 
@@ -923,17 +923,17 @@
 
       <!-- 題庫難度與系列分類切換 -->
       <div class="g12-category-filter">
-        <button class="g12-filter-btn active" data-cat="all" onclick="filterG12('all', this)">🌟 全部混合 (284 題)</button>
-        <button class="g12-filter-btn" data-cat="daily" onclick="filterG12('daily', this)">🟢 趣味生活 (86 題・精準詞彙)</button>
+        <button class="g12-filter-btn active" data-cat="all" onclick="filterG12('all', this)">🌟 全部混合 (298 題)</button>
+        <button class="g12-filter-btn" data-cat="daily" onclick="filterG12('daily', this)">🟢 趣味生活 (100 題・精準詞彙)</button>
         <button class="g12-filter-btn" data-cat="idiom" onclick="filterG12('idiom', this)">🟡 經典成語 (60 題・四字成語)</button>
-        <button class="g12-filter-btn" data-cat="fairy" onclick="filterG12('fairy', this)">🔴 經典童話 (60 題・高難度)</button>
-        <button class="g12-filter-btn" data-cat="movie" onclick="filterG12('movie', this)">🟣 熱門電影 (78 題・高難度)</button>
+        <button class="g12-filter-btn" data-cat="fairy" onclick="filterG12('fairy', this)">🔴 經典童話 (60 題・童話典故)</button>
+        <button class="g12-filter-btn" data-cat="movie" onclick="filterG12('movie', this)">🟣 熱門電影 (78 題・熱門影劇)</button>
       </div>
 
       <!-- 題庫狀態看板 -->
       <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:860px; font-size:0.88rem; font-weight:800; padding:0 6px; flex-wrap:wrap; gap:8px;">
         <span style="background:rgba(5,217,232,0.15); border:1px solid var(--blue-team); padding:4px 14px; border-radius:20px; color:var(--blue-team);" id="g12-current-cat-badge">🏷️ 題庫類別：【全部混合大亂鬥】</span>
-        <span style="color:var(--neon-green);" id="g12-deck-counter">🎯 題庫進度：第 1 / 284 題 (無重複)</span>
+        <span style="color:var(--neon-green);" id="g12-deck-counter">🎯 題庫進度：第 1 / 298 題 (無重複)</span>
       </div>
 
       <!-- 暗題防偷看卡片 (作畫者點擊看題) -->
@@ -944,13 +944,16 @@
         <div id="g12-secret-content" style="display:none; width:100%;">
           <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:6px;">
             <span id="g12-topic-tag" style="background:rgba(0,245,155,0.2); border:1px solid var(--neon-green); color:var(--neon-green); font-size:0.8rem; font-weight:900; padding:2px 10px; border-radius:12px;">🟢 趣味生活</span>
-            <span id="g12-words-count" style="background:rgba(255,255,255,0.1); color:#fff; font-size:0.8rem; padding:2px 10px; border-radius:12px;">2 個字</span>
+            <span id="g12-words-count" style="background:rgba(255,255,255,0.1); color:#fff; font-size:0.8rem; padding:2px 10px; border-radius:12px;">4 個字</span>
           </div>
-          <div id="g12-secret-title" style="font-size:clamp(1.8rem, 5.5vw, 2.6rem); font-weight:900; color:#fff; text-shadow:0 0 20px rgba(5,217,232,0.8);">
-            拔罐
+          <div style="font-size:0.85rem; color:var(--gold); font-weight:800; margin-bottom:2px;">🎯 題目詞彙（猜題者答對此詞即算得分）：</div>
+          <div id="g12-secret-title" style="font-size:clamp(2.2rem, 6.5vw, 3.4rem); font-weight:900; color:#fff; text-shadow:0 0 25px rgba(5,217,232,0.85); letter-spacing:4px; margin:4px 0;">
+            珍珠奶茶
           </div>
-          <div id="g12-secret-hint" style="font-size:0.92rem; color:#e2e8f0; margin-top:6px; background:rgba(0,0,0,0.3); padding:4px 14px; border-radius:10px; display:inline-block;">
-            💡 靈感特徵提示：背上一排排圓形玻璃罐與紫紅色的圓形印記
+          <div style="margin-top:6px;">
+            <div id="g12-secret-hint" style="font-size:0.85rem; color:#cbd5e1; background:rgba(0,0,0,0.4); padding:4px 14px; border-radius:12px; display:inline-block; border-left:3px solid var(--neon-green);">
+              💡 特徵元素：透明杯、粗吸管、底部黑珍珠
+            </div>
           </div>
           <div style="margin-top:10px;">
             <button class="nav-btn" id="g12-btn-rehide" onclick="rehideG12()" style="font-size:0.8rem; padding:3px 12px;">🔒 隱藏題目 (開始作畫)</button>
@@ -1074,7 +1077,7 @@
         <!-- 答案揭曉區 -->
         <div id="g12-reveal-box" style="display:none; width:100%; text-align:center; background:rgba(255,200,59,0.12); border:2px solid var(--gold); border-radius:18px; padding:18px;">
           <div style="font-size:0.95rem; font-weight:800; color:var(--gold); margin-bottom:4px;">🎉 本題正確答案是：</div>
-          <div class="g12-reveal-result" id="g12-revealed-title">拔罐</div>
+          <div class="g12-reveal-result" id="g12-revealed-title">珍珠奶茶</div>
           <div style="font-size:0.95rem; color:#f1f5f9; margin-top:6px;" id="g12-revealed-desc"></div>
           
           <!-- 揭曉時的全歷程展示 -->
@@ -1137,12 +1140,12 @@
     </div>
   </div>
 
-  <script src="js/audio.js?v=20260921_v1"></script>
-  <script src="js/data.js?v=20260921_v1"></script>
-  <script src="js/players.js?v=20260921_v1"></script>
-  <script src="js/games.js?v=20260921_v1"></script>
-  <script src="js/main.js?v=20260921_v1"></script>
+  <script src="js/audio.js?v=20260926_v9"></script>
+  <script src="js/data.js?v=20260926_v9"></script>
+  <script src="js/players.js?v=20260926_v9"></script>
+  <script src="js/games.js?v=20260926_v9"></script>
+  <script src="js/main.js?v=20260926_v9"></script>
     <!-- 全站通用快捷跳轉導航系統 -->
-    <script src="../portal-nav.js?v=20260921_v1"></script>
+    <script src="../portal-nav.js?v=20260926_v9"></script>
 </body>
 </html>

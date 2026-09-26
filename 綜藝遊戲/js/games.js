@@ -1316,7 +1316,7 @@ function drawNextG12Topic() {
 
   if (wordsCount) wordsCount.textContent = g12CurrentTopic.words;
   if (secretTitle) secretTitle.textContent = g12CurrentTopic.title;
-  if (secretHint) secretHint.textContent = `💡 靈感特徵提示：${g12CurrentTopic.hint}`;
+  if (secretHint) secretHint.textContent = `💡 特徵元素：${g12CurrentTopic.hint}`;
 
   // 隱藏揭曉答案框
   const revealBox = document.getElementById('g12-reveal-box');
@@ -1738,7 +1738,7 @@ function revealG12Answer() {
   console.info('[Action Triggered]: revealG12Answer');
   if (!g12CurrentTopic) {
     const activePool = getG12ActivePool();
-    g12CurrentTopic = (activePool && activePool.length > 0) ? activePool[0] : { title: '拔罐', cat: '趣味生活', words: '2 個字', hint: '背上一排排圓形玻璃罐與紫紅色的圓形印記' };
+    g12CurrentTopic = (activePool && activePool.length > 0) ? activePool[0] : { title: '珍珠奶茶', cat: '趣味生活', words: '4 個字', hint: '透明杯、粗吸管、底部黑珍珠' };
   }
 
   // 停止所有計時
@@ -1805,7 +1805,7 @@ function revealG12Answer() {
   const evoWrap = document.getElementById('g12-reveal-evolution-wrap');
 
   if (titleEl) titleEl.textContent = g12CurrentTopic.title;
-  if (descEl) descEl.textContent = `難度系列：【${g12CurrentTopic.cat}】｜ 字數：${g12CurrentTopic.words} ｜ ${g12CurrentTopic.hint}`;
+  if (descEl) descEl.textContent = `分類：【${g12CurrentTopic.cat}】｜ 字數：${g12CurrentTopic.words} ｜ 特徵：${g12CurrentTopic.hint}`;
 
   if (evoWrap) {
     if (g12SubMode === 'relay' && g12CurrentRelaySnapshots.length > 0) {
